@@ -14,6 +14,7 @@ import 'admin_support_reports_screen.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
+import '../theme/app_theme.dart';
 
 class AdminPanel extends StatefulWidget {
   const AdminPanel({Key? key}) : super(key: key);
@@ -87,7 +88,7 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
         title: Column(children: [
           Icon(Icons.admin_panel_settings, size: 60, color: _primaryColor),
           const SizedBox(height: 12),
@@ -101,10 +102,10 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
             obscureText: true,
             decoration: InputDecoration(
               labelText: t('password'),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: AppRadius.mediumAll),
               prefixIcon: const Icon(Icons.lock_outline),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.mediumAll,
                 borderSide: BorderSide(color: _primaryColor, width: 2),
               ),
             ),
@@ -509,10 +510,10 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(children: [
-                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: _primaryColor.withOpacity(0.1), borderRadius: BorderRadius.circular(12)), child: Icon(Icons.admin_panel_settings, color: _primaryColor, size: 30)),
+                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: _primaryColor.withOpacity(0.1), borderRadius: AppRadius.mediumAll), child: Icon(Icons.admin_panel_settings, color: _primaryColor, size: 30)),
                   const SizedBox(width: 12),
                   Expanded(child: Text('${t('admin_welcome')} ${authProvider.user?.username ?? t('role_Admin')}!', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-                  Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: _primaryColor, borderRadius: BorderRadius.circular(12)), child: Text(t('admin_adminBadge'), style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))),
+                  Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: _primaryColor, borderRadius: AppRadius.mediumAll), child: Text(t('admin_adminBadge'), style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))),
                 ]),
               ),
             ),
@@ -539,13 +540,13 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
                   hintText: t('admin_search'),
                   hintStyle: TextStyle(color: Theme.of(context).hintColor),
                   prefixIcon: Icon(Icons.search, color: Theme.of(context).hintColor),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(borderRadius: AppRadius.mediumAll),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.mediumAll,
                     borderSide: BorderSide(color: Theme.of(context).dividerColor),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.mediumAll,
                     borderSide: BorderSide(color: _primaryColor, width: 2),
                   ),
                   filled: true,
@@ -559,7 +560,7 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mediumAll,
                   border: Border.all(color: Theme.of(context).dividerColor),
                 ),
                 child: DropdownButtonHideUnderline(
@@ -635,12 +636,12 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
         
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.mediumAll),
           child: ExpansionTile(
             leading: CircleAvatar(backgroundColor: roleColor, child: Text((user['username'] ?? '?')[0].toUpperCase(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
             title: Row(children: [
               Expanded(child: Text(user['username'] ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.w500))),
-              Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: roleColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)), child: Text(t('role_' + role), style: TextStyle(fontSize: 10, color: roleColor, fontWeight: FontWeight.bold))),
+              Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: roleColor.withOpacity(0.1), borderRadius: AppRadius.mediumAll), child: Text(t('role_' + role), style: TextStyle(fontSize: 10, color: roleColor, fontWeight: FontWeight.bold))),
             ]),
             subtitle: Text(user['email'] ?? '', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
             children: [

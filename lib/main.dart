@@ -840,7 +840,7 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
               duration: const Duration(seconds: 5),
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppRadius.mediumAll,
               ),
             ),
           );
@@ -928,7 +928,7 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
               duration: const Duration(seconds: 2),
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppRadius.mediumAll,
               ),
             ),
           );
@@ -953,7 +953,7 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
               duration: const Duration(seconds: 4),
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppRadius.mediumAll,
               ),
             ),
           );
@@ -1140,7 +1140,7 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
                 height: 100,
                 decoration: BoxDecoration(
                   color: Colors.white.withAlpha(25),
-                  borderRadius: BorderRadius.circular(25),
+                  borderRadius: AppRadius.xlargeAll,
                   image: const DecorationImage(
                     image: AssetImage('assets/icons/icon.png'),
                     fit: BoxFit.contain,

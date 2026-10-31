@@ -16,6 +16,7 @@ import '../utils/variance_helper.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
+import '../theme/app_theme.dart';
 
 class VarianceScreen extends StatefulWidget {
   const VarianceScreen({super.key});
@@ -153,7 +154,7 @@ class _VarianceScreenState extends State<VarianceScreen> {
     return Card(
       elevation: 1,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -230,7 +231,7 @@ class _VarianceScreenState extends State<VarianceScreen> {
     return Card(
       elevation: 1,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -271,11 +272,11 @@ class _VarianceScreenState extends State<VarianceScreen> {
                     ]),
                     const SizedBox(height: 3),
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(3),
+                      borderRadius: AppRadius.smallAll,
                       child: LinearProgressIndicator(
                         value: share.clamp(0.0, 1.0),
                         minHeight: 4,
-                        backgroundColor: Colors.grey.withValues(alpha: 0.15),
+                        backgroundColor: Colors.grey.withValues(alpha: AppAlpha.subtle),
                         color: theme.primaryColor,
                       ),
                     ),

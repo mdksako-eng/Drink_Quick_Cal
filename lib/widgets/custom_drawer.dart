@@ -233,7 +233,7 @@ class CustomDrawer extends StatelessWidget {
                                 child: Container(
                                   padding: const EdgeInsets.all(4),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.2),
+                                    color: Colors.white.withValues(alpha: AppAlpha.medium),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
@@ -336,7 +336,7 @@ class CustomDrawer extends StatelessWidget {
             backgroundColor: Colors.red.shade400,
             padding: const EdgeInsets.symmetric(vertical: 12),
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                RoundedRectangleBorder(borderRadius: AppRadius.mediumAll),
             elevation: 0),
       ),
     );
@@ -347,7 +347,7 @@ class CustomDrawer extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
         backgroundColor: theme.cardColor,
         title: Column(children: [
           const Icon(Icons.logout, size: 48, color: Colors.red),
@@ -387,7 +387,7 @@ class CustomDrawer extends StatelessWidget {
             style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10))),
+                    borderRadius: AppRadius.mediumAll)),
             child: Text(t('logout')),
           ),
         ],
@@ -406,7 +406,7 @@ class CustomDrawer extends StatelessWidget {
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
           backgroundColor: theme.cardColor,
           title: Column(children: [
             Icon(Icons.lock, size: 48, color: primaryColor),
@@ -428,7 +428,7 @@ class CustomDrawer extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: t('enterPasswordHint'),
                 border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    OutlineInputBorder(borderRadius: AppRadius.mediumAll),
                 prefixIcon: Icon(Icons.password, color: primaryColor),
                 suffixIcon: IconButton(
                     icon: Icon(
@@ -462,7 +462,7 @@ class CustomDrawer extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10))),
+                      borderRadius: AppRadius.mediumAll)),
               child: Text(t('verify')),
             ),
           ],
@@ -492,7 +492,7 @@ class CustomDrawer extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
         backgroundColor: theme.cardColor,
         title: Row(children: [
           Icon(Icons.local_drink, color: primaryColor),
@@ -559,8 +559,8 @@ class CustomDrawer extends StatelessWidget {
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.grey.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(20),
+              color: Colors.grey.withValues(alpha: AppAlpha.medium),
+              borderRadius: AppRadius.xlargeAll,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -590,8 +590,8 @@ class CustomDrawer extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white.withValues(alpha: AppAlpha.subtle),
+                  borderRadius: AppRadius.xlargeAll,
                 ),
                 child: const SizedBox(
                   width: 20,
@@ -610,8 +610,8 @@ class CustomDrawer extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.grey.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.grey.withValues(alpha: AppAlpha.medium),
+                  borderRadius: AppRadius.xlargeAll,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -642,8 +642,8 @@ class CustomDrawer extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.grey.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.grey.withValues(alpha: AppAlpha.medium),
+                  borderRadius: AppRadius.xlargeAll,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -668,10 +668,10 @@ class CustomDrawer extends StatelessWidget {
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(20),
+                color: Colors.green.withValues(alpha: AppAlpha.medium),
+                borderRadius: AppRadius.xlargeAll,
                 border: Border.all(
-                  color: Colors.green.withValues(alpha: 0.3),
+                  color: Colors.green.withValues(alpha: AppAlpha.strong),
                   width: 1,
                 ),
               ),
@@ -698,8 +698,8 @@ class CustomDrawer extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.orange.withValues(alpha: AppAlpha.strong),
+                        borderRadius: AppRadius.mediumAll,
                         border: Border.all(
                           color: Colors.orange.withValues(alpha: 0.4),
                           width: 1,
@@ -800,7 +800,7 @@ class CustomDrawer extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
         backgroundColor: theme.cardColor,
         title: Row(children: [
           Icon(Icons.help, color: primaryColor),

@@ -28,6 +28,7 @@ import 'package:drinks_calculator_fixed/widgets/ai_thinking_indicator.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
+import '../theme/app_theme.dart';
 
 class AIAssistantScreen extends StatefulWidget {
   const AIAssistantScreen({Key? key}) : super(key: key);
@@ -164,14 +165,14 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
         title: Text(t('ai_editTitle')),
         content: TextField(
           controller: editController,
           maxLines: 5,
           decoration: InputDecoration(
             hintText: t('ai_editYourMessage'),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            border: OutlineInputBorder(borderRadius: AppRadius.mediumAll),
           ),
         ),
         actions: [
@@ -849,7 +850,7 @@ ORDER_JSON: [{"name":"<exact drink name as written above>","qty":<number>}]
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
         title: Text(t('ai_aboutTitle')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -885,7 +886,7 @@ ORDER_JSON: [{"name":"<exact drink name as written above>","qty":<number>}]
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
           insetPadding: EdgeInsets.symmetric(
             horizontal: isSmall ? 12 : 24,
             vertical: 24,
@@ -1223,7 +1224,7 @@ ORDER_JSON: [{"name":"<exact drink name as written above>","qty":<number>}]
                       width: isMobile ? 44 : 48,
                       height: isMobile ? 44 : 48,
                       decoration: BoxDecoration(
-                        color: theme.primaryColor.withValues(alpha: 0.12),
+                        color: theme.primaryColor.withValues(alpha: AppAlpha.subtle),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -1240,7 +1241,7 @@ ORDER_JSON: [{"name":"<exact drink name as written above>","qty":<number>}]
                       decoration: InputDecoration(
                         hintText: t('ai_askMe'),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
+                          borderRadius: AppRadius.xlargeAll,
                           borderSide: BorderSide.none,
                         ),
                         filled: true,
@@ -1302,7 +1303,7 @@ ORDER_JSON: [{"name":"<exact drink name as written above>","qty":<number>}]
         height: 80,
         width: 130,
         alignment: Alignment.center,
-        color: Colors.black.withValues(alpha: 0.08),
+        color: Colors.black.withValues(alpha: AppAlpha.subtle),
         child: const Icon(Icons.image_outlined, color: Colors.white70),
       );
 
@@ -1344,7 +1345,7 @@ ORDER_JSON: [{"name":"<exact drink name as written above>","qty":<number>}]
               ),
               decoration: BoxDecoration(
                 color: isUser ? theme.primaryColor : (isDark ? Colors.grey[800] : Colors.white),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: AppRadius.largeAll,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1353,7 +1354,7 @@ ORDER_JSON: [{"name":"<exact drink name as written above>","qty":<number>}]
                   // Gemini does (tap-through not needed — it is the reference).
                   if (imagePath != null || imageBase64 != null) ...[
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: AppRadius.mediumAll,
                       child: _buildChatImage(imagePath, imageBase64),
                     ),
                     const SizedBox(height: 6),
@@ -1436,8 +1437,8 @@ ORDER_JSON: [{"name":"<exact drink name as written above>","qty":<number>}]
     ),
     onSelected: (_) => _quickSuggestion(label),
     backgroundColor: isDark 
-        ? Colors.white.withValues(alpha: 0.2) 
-        : theme.primaryColor.withValues(alpha: 0.1),  // ← Fix: Light background for light theme
+        ? Colors.white.withValues(alpha: AppAlpha.medium) 
+        : theme.primaryColor.withValues(alpha: AppAlpha.subtle),  // ← Fix: Light background for light theme
     selectedColor: Colors.green,
     checkmarkColor: Colors.white,
     padding: EdgeInsets.symmetric(horizontal: isMobile ? 8 : 12, vertical: isMobile ? 4 : 6),

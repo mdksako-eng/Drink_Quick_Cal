@@ -14,6 +14,7 @@ import 'package:drinks_calculator_fixed/services/lock_service.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
+import '../theme/app_theme.dart';
 
 class ManagerApprovalScreen extends StatefulWidget {
   const ManagerApprovalScreen({Key? key}) : super(key: key);
@@ -255,7 +256,7 @@ class _ManagerApprovalScreenState extends State<ManagerApprovalScreen> {
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           elevation: 3,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -286,7 +287,7 @@ class _ManagerApprovalScreenState extends State<ManagerApprovalScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: Colors.orange,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadius.mediumAll,
                       ),
                       child: Text('${request['requestedRole'] ?? 'Staff'}',
                           style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
@@ -311,7 +312,7 @@ class _ManagerApprovalScreenState extends State<ManagerApprovalScreen> {
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          shape: RoundedRectangleBorder(borderRadius: AppRadius.mediumAll),
                         ),
                       ),
                     ),
@@ -325,7 +326,7 @@ class _ManagerApprovalScreenState extends State<ManagerApprovalScreen> {
                           backgroundColor: Colors.red,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          shape: RoundedRectangleBorder(borderRadius: AppRadius.mediumAll),
                         ),
                       ),
                     ),
@@ -360,8 +361,8 @@ class _ManagerApprovalScreenState extends State<ManagerApprovalScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = _primaryColorValue;
-    final primaryColorLight = primaryColor.withValues(alpha: 0.1);
-    final primaryColorVeryLight = primaryColor.withValues(alpha: 0.05);
+    final primaryColorLight = primaryColor.withValues(alpha: AppAlpha.subtle);
+    final primaryColorVeryLight = primaryColor.withValues(alpha: AppAlpha.faint);
 
     return GestureDetector(
       onTap: () => LockService().resetTimer(),
@@ -462,7 +463,7 @@ class _ManagerApprovalScreenState extends State<ManagerApprovalScreen> {
                               backgroundColor: primaryColor,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: AppRadius.mediumAll,
                               ),
                             ),
                           ),
@@ -483,7 +484,7 @@ class _ManagerApprovalScreenState extends State<ManagerApprovalScreen> {
                           return Card(
                             margin: const EdgeInsets.only(bottom: 12),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: AppRadius.mediumAll,
                             ),
                             elevation: 2,
                             color: theme.cardColor,
@@ -542,7 +543,7 @@ class _ManagerApprovalScreenState extends State<ManagerApprovalScreen> {
                                         decoration: BoxDecoration(
                                           color: primaryColorLight,
                                           borderRadius:
-                                              BorderRadius.circular(12),
+                                              AppRadius.mediumAll,
                                         ),
                                         child: Text(
                                           timeAgo,
@@ -582,7 +583,7 @@ class _ManagerApprovalScreenState extends State<ManagerApprovalScreen> {
                                             ),
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(10),
+                                                  AppRadius.mediumAll,
                                             ),
                                           ),
                                         ),
@@ -605,7 +606,7 @@ class _ManagerApprovalScreenState extends State<ManagerApprovalScreen> {
                                             ),
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(10),
+                                                  AppRadius.mediumAll,
                                             ),
                                           ),
                                         ),

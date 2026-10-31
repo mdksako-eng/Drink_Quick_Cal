@@ -17,6 +17,7 @@ import '../utils/i18n.dart';
 import '../main.dart' as app;
 import '../screens/auth_screen.dart';
 import '../screens/calculator_screen.dart';
+import '../theme/app_theme.dart';
 
 // ============================================================
 // User class (unchanged)
@@ -464,7 +465,7 @@ class AuthProvider with ChangeNotifier {
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
         title: Text(t('waitingForApproval')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -484,7 +485,7 @@ class AuthProvider with ChangeNotifier {
                 // Colors.blue.shade50 background left the device name (theme-coloured
                 // text) invisible, which is the "not everything is showing" report.
                 color: Theme.of(dialogContext).colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: AppRadius.smallAll,
               ),
               child: Text(
                 deviceName,
@@ -514,7 +515,7 @@ class AuthProvider with ChangeNotifier {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.green.shade50,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: AppRadius.smallAll,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -806,7 +807,7 @@ class AuthProvider with ChangeNotifier {
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
         title: Text(t('loginRejected')),
         content: const Text(
           'Your login request was rejected by the manager.',
@@ -888,7 +889,7 @@ class AuthProvider with ChangeNotifier {
         canPop: false,
         child: AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.xlargeAll,
         ),
         backgroundColor: cardColor,
         elevation: 4,
@@ -944,12 +945,12 @@ class AuthProvider with ChangeNotifier {
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: isDark
-                    ? Colors.orange.withValues(alpha: 0.1)
+                    ? Colors.orange.withValues(alpha: AppAlpha.subtle)
                     : Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.mediumAll,
                 border: Border.all(
                   color: isDark
-                      ? Colors.orange.withValues(alpha: 0.2)
+                      ? Colors.orange.withValues(alpha: AppAlpha.medium)
                       : Colors.orange.shade200,
                   width: 1,
                 ),
@@ -1006,7 +1007,7 @@ class AuthProvider with ChangeNotifier {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mediumAll,
                 ),
                 elevation: isDark ? 0 : 2,
               ),

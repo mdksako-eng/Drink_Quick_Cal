@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../config/api_config.dart';
 import '../utils/i18n.dart';
+import '../theme/app_theme.dart';
 
 /// Shows a one-time Terms & Privacy Policy consent dialog before the app
 /// can be used. The user's acceptance is stored locally so they only see
@@ -59,7 +60,7 @@ class _LegalConsentGateState extends State<LegalConsentGate> {
               child: Card(
                 elevation: 4,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
+                    borderRadius: AppRadius.largeAll),
                 child: Padding(
                   padding: const EdgeInsets.all(24),
                   child: Column(

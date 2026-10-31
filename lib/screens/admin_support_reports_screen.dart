@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 import '../utils/helpers.dart';
 import '../utils/i18n.dart';
+import '../theme/app_theme.dart';
 
 class AdminSupportReportsScreen extends StatefulWidget {
   const AdminSupportReportsScreen({super.key, required this.adminToken});
@@ -196,7 +197,7 @@ class _AdminSupportReportsScreenState extends State<AdminSupportReportsScreen> {
                     TextStyle(color: _statusColor(status), fontSize: 12),
                 side: BorderSide(
                     color: _statusColor(status).withValues(alpha: 0.4)),
-                backgroundColor: _statusColor(status).withValues(alpha: 0.1),
+                backgroundColor: _statusColor(status).withValues(alpha: AppAlpha.subtle),
               ),
             ]),
             const SizedBox(height: 4),
@@ -357,7 +358,7 @@ class _AdminSupportReportsScreenState extends State<AdminSupportReportsScreen> {
               message.length > 90 ? '${message.substring(0, 90)}…' : message;
           return ListTile(
             leading: CircleAvatar(
-              backgroundColor: _statusColor(status).withValues(alpha: 0.15),
+              backgroundColor: _statusColor(status).withValues(alpha: AppAlpha.subtle),
               child: Icon(
                 _categoryIcons[report['category']] ?? Icons.help_outline,
                 color: _statusColor(status),

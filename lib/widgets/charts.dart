@@ -2,6 +2,7 @@
 // Lightweight, dependency-free chart widgets for the manager dashboard.
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 /// A single labeled slice for the donut chart.
 class ChartDatum {
@@ -42,7 +43,7 @@ class HourlyBarChart extends StatelessWidget {
                         height: math.max(2.0, h),
                         decoration: BoxDecoration(
                           color: values[i] == 0
-                              ? Colors.grey.withValues(alpha: 0.15)
+                              ? Colors.grey.withValues(alpha: AppAlpha.subtle)
                               : color,
                           borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(3)),
@@ -112,7 +113,7 @@ class _LinePainter extends CustomPainter {
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [color.withValues(alpha: 0.25), color.withValues(alpha: 0.0)],
+        colors: [color.withValues(alpha: AppAlpha.medium), color.withValues(alpha: 0.0)],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
     final fillPath = Path()..moveTo(xFor(0), size.height - pad);
@@ -204,7 +205,7 @@ class _DonutPainter extends CustomPainter {
     final rect = Rect.fromLTWH(12, 12, size.width - 24, size.height - 24);
     if (total <= 0) {
       final p = Paint()
-        ..color = Colors.grey.withValues(alpha: 0.2)
+        ..color = Colors.grey.withValues(alpha: AppAlpha.medium)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 22;
       canvas.drawCircle(

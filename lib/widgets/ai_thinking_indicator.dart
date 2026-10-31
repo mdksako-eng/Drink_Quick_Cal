@@ -2,6 +2,7 @@
 // Professional "AI is thinking" animation: a pulsing gradient avatar with three
 // animated dots. Dependency-free (plain AnimationController).
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 class AiThinkingIndicator extends StatefulWidget {
   /// Localized label shown next to the animation (e.g. "AI is thinking…").
@@ -43,7 +44,7 @@ class _AiThinkingIndicatorState extends State<AiThinkingIndicator>
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppRadius.xlargeAll,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

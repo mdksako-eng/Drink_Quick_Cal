@@ -11,6 +11,7 @@ import '../utils/payment_error_helper.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
+import '../theme/app_theme.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   /// When true the screen is used as the mandatory post-login gate: no back
@@ -404,8 +405,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.amber.withValues(alpha: AppAlpha.subtle),
+                  borderRadius: AppRadius.mediumAll,
                   border: Border.all(color: Colors.amber, width: 0.8),
                 ),
                 child: Row(
@@ -509,7 +510,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                      borderRadius: AppRadius.mediumAll),
                 ),
                 label: Text(t('continueFree')),
               ),
@@ -536,7 +537,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.largeAll,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -560,7 +561,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.22),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: AppRadius.xlargeAll,
                 ),
                 child: Text(
                   isActive ? t('subscriptionActive') : t('subscriptionExpired'),
@@ -617,21 +618,21 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.xlargeAll,
         border: Border.all(
-          color: highlighted ? primary : Colors.grey.withValues(alpha: 0.2),
+          color: highlighted ? primary : Colors.grey.withValues(alpha: AppAlpha.medium),
           width: highlighted ? 2 : 1,
         ),
         boxShadow: highlighted
             ? [
                 BoxShadow(
-                    color: primary.withValues(alpha: 0.16),
+                    color: primary.withValues(alpha: AppAlpha.medium),
                     blurRadius: 24,
                     offset: const Offset(0, 8))
               ]
             : [
                 BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
+                    color: Colors.black.withValues(alpha: AppAlpha.faint),
                     blurRadius: 12,
                     offset: const Offset(0, 4))
               ],
@@ -651,7 +652,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                    color: primary, borderRadius: BorderRadius.circular(20)),
+                    color: primary, borderRadius: AppRadius.xlargeAll),
                 child: Text(t('mostPopular'),
                     style: const TextStyle(
                         color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
@@ -690,8 +691,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12)),
+                  color: Colors.green.withValues(alpha: AppAlpha.subtle),
+                  borderRadius: AppRadius.mediumAll),
               child: Text(t('currentPlan'),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
@@ -702,8 +703,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-                  borderRadius: BorderRadius.circular(12)),
+                  border: Border.all(color: Colors.grey.withValues(alpha: AppAlpha.strong)),
+                  borderRadius: AppRadius.mediumAll),
               child: Text(t('free'),
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -717,7 +718,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                 style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12))),
+                        borderRadius: AppRadius.mediumAll)),
                 child: Text('${t('upgradeTo')} $title'),
               ),
             ),

@@ -25,6 +25,7 @@ import 'package:drinks_calculator_fixed/screens/receipt_print_screen.dart';
 import 'package:drinks_calculator_fixed/services/whatsapp_service.dart';
 import 'package:drinks_calculator_fixed/utils/receipt_from_order.dart';
 import 'package:drinks_calculator_fixed/utils/whatsapp_helper.dart';
+import '../theme/app_theme.dart';
 
 class SideSlider extends StatefulWidget {
   final bool isOpen;
@@ -329,7 +330,7 @@ class _SideSliderState extends State<SideSlider> {
       context: widget.parentContext,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.largeAll,
         ),
         title: Row(
           children: [
@@ -375,13 +376,13 @@ class _SideSliderState extends State<SideSlider> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: currentlyActive
-                    ? _warningColor.withValues(alpha: 0.1)
-                    : _successColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                    ? _warningColor.withValues(alpha: AppAlpha.subtle)
+                    : _successColor.withValues(alpha: AppAlpha.subtle),
+                borderRadius: AppRadius.smallAll,
                 border: Border.all(
                   color: currentlyActive
-                      ? _warningColor.withValues(alpha: 0.3)
-                      : _successColor.withValues(alpha: 0.3),
+                      ? _warningColor.withValues(alpha: AppAlpha.strong)
+                      : _successColor.withValues(alpha: AppAlpha.strong),
                 ),
               ),
               child: Row(
@@ -434,7 +435,7 @@ class _SideSliderState extends State<SideSlider> {
       final entered = await showDialog<String>(
         context: widget.parentContext,
         builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
           title: Text(t('voidReason'),
               style: TextStyle(
                   fontWeight: FontWeight.bold, color: widget.textPrimaryColor)),
@@ -444,7 +445,7 @@ class _SideSliderState extends State<SideSlider> {
             maxLength: 200,
             decoration: InputDecoration(
               hintText: t('voidReasonHint'),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              border: OutlineInputBorder(borderRadius: AppRadius.smallAll),
             ),
           ),
           actions: [
@@ -762,7 +763,7 @@ class _SideSliderState extends State<SideSlider> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? widget.primaryColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.xlargeAll,
           border: Border.all(
             color: isSelected
                 ? widget.primaryColor
@@ -794,9 +795,9 @@ class _SideSliderState extends State<SideSlider> {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: isSelected
-              ? _accentColor.withValues(alpha: 0.1)
+              ? _accentColor.withValues(alpha: AppAlpha.subtle)
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: AppRadius.largeAll,
           border: Border.all(
             color: isSelected ? _accentColor : Colors.transparent,
             width: 1.5,
@@ -926,7 +927,7 @@ class _SideSliderState extends State<SideSlider> {
                                   horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: AppRadius.xlargeAll,
                                 border: Border.all(
                                     color: Colors.white.withOpacity(0.3)),
                               ),
@@ -954,7 +955,7 @@ class _SideSliderState extends State<SideSlider> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: widget.backgroundColor,
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: AppRadius.mediumAll,
                                   border: Border.all(
                                       color:
                                           widget.primaryColor.withOpacity(0.1)),
@@ -1006,7 +1007,7 @@ class _SideSliderState extends State<SideSlider> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: widget.cardColor,
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: AppRadius.mediumAll,
                                   border: Border.all(
                                       color:
                                           widget.primaryColor.withOpacity(0.2)),
@@ -1067,7 +1068,7 @@ class _SideSliderState extends State<SideSlider> {
                                       horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
                                     color: widget.backgroundColor,
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: AppRadius.mediumAll,
                                   ),
                                   child: Row(
                                     children: [
@@ -1284,7 +1285,7 @@ class _SideSliderState extends State<SideSlider> {
         Container(
           padding: EdgeInsets.all(screenWidth < 600 ? 6.0 : 8.0),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
+            color: color.withValues(alpha: AppAlpha.subtle),
             shape: BoxShape.circle,
           ),
           child:
@@ -1366,7 +1367,7 @@ class _SideSliderState extends State<SideSlider> {
                                   horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 color: _warningColor,
-                                borderRadius: BorderRadius.circular(4),
+                                borderRadius: AppRadius.smallAll,
                               ),
                               child: Text(
                                 t('deactivated'),
@@ -1406,9 +1407,9 @@ class _SideSliderState extends State<SideSlider> {
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                           color: order.balance >= 0
-                              ? _successColor.withValues(alpha: 0.1)
-                              : _errorColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
+                              ? _successColor.withValues(alpha: AppAlpha.subtle)
+                              : _errorColor.withValues(alpha: AppAlpha.subtle),
+                          borderRadius: AppRadius.mediumAll,
                         ),
                         child: Text(
                           order.balance >= 0 ? 'PAID' : 'PENDING',
@@ -1476,7 +1477,7 @@ class _SideSliderState extends State<SideSlider> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: widget.backgroundColor.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppRadius.smallAll,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1548,7 +1549,7 @@ class _SideSliderState extends State<SideSlider> {
                   color: order.balance >= 0
                       ? _successColor.withOpacity(0.05)
                       : _errorColor.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppRadius.smallAll,
                   border: Border.all(
                     color: order.balance >= 0
                         ? _successColor.withOpacity(0.2)
@@ -1595,7 +1596,7 @@ class _SideSliderState extends State<SideSlider> {
                           horizontal: 12.0,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: AppRadius.smallAll,
                           side: BorderSide(
                             color: isActive
                                 ? widget.primaryColor.withOpacity(0.3)
@@ -1638,7 +1639,7 @@ class _SideSliderState extends State<SideSlider> {
                               !order.isVoided ? _warningColor : _successColor,
                           padding: EdgeInsets.zero,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: AppRadius.smallAll,
                             side: BorderSide(
                               color: !order.isVoided
                                   ? _warningColor.withOpacity(0.3)
@@ -1671,7 +1672,7 @@ class _SideSliderState extends State<SideSlider> {
                           foregroundColor: widget.primaryColor,
                           padding: EdgeInsets.zero,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: AppRadius.smallAll,
                             side: BorderSide(
                               color: widget.primaryColor.withOpacity(0.3),
                               width: 1,
@@ -1856,7 +1857,7 @@ class _SideSliderState extends State<SideSlider> {
                                       horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(
                                     color: _warningColor,
-                                    borderRadius: BorderRadius.circular(4),
+                                    borderRadius: AppRadius.smallAll,
                                   ),
                                   child: Text(
                                     t('deactivated'),
@@ -1979,7 +1980,7 @@ class _SideSliderState extends State<SideSlider> {
                         padding: EdgeInsets.all(isMobile ? 10.0 : 12.0),
                         decoration: BoxDecoration(
                           color: widget.backgroundColor,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: AppRadius.smallAll,
                         ),
                         child: Row(
                           children: [
@@ -2030,7 +2031,7 @@ class _SideSliderState extends State<SideSlider> {
                   padding: EdgeInsets.all(isMobile ? 12.0 : 16.0),
                   decoration: BoxDecoration(
                     color: widget.primaryColor.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.mediumAll,
                     border: Border.all(
                       color: widget.primaryColor.withOpacity(0.2),
                       width: 1,
@@ -2086,7 +2087,7 @@ class _SideSliderState extends State<SideSlider> {
                             vertical: isMobile ? 14.0 : 16.0,
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: AppRadius.mediumAll,
                           ),
                         ),
                         icon:
@@ -2115,7 +2116,7 @@ class _SideSliderState extends State<SideSlider> {
                               vertical: isMobile ? 14.0 : 16.0,
                             ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: AppRadius.mediumAll,
                             ),
                           ),
                           icon: Icon(Icons.currency_exchange,
@@ -2145,7 +2146,7 @@ class _SideSliderState extends State<SideSlider> {
                               vertical: isMobile ? 14.0 : 16.0,
                             ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: AppRadius.mediumAll,
                             ),
                           ),
                           icon: Icon(

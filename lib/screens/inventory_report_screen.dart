@@ -13,6 +13,7 @@ import 'package:drinks_calculator_fixed/models/drink_model.dart';
 import 'package:drinks_calculator_fixed/services/lock_service.dart';
 import '../utils/i18n.dart';
 import '../utils/report_profit_helper.dart';
+import '../theme/app_theme.dart';
 
 class InventoryReportScreen extends StatefulWidget {
   const InventoryReportScreen({Key? key}) : super(key: key);
@@ -318,8 +319,8 @@ class _InventoryReportScreenState extends State<InventoryReportScreen>
       width: double.infinity,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.amber.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(8),
+        color: Colors.amber.withValues(alpha: AppAlpha.subtle),
+        borderRadius: AppRadius.smallAll,
         border: Border.all(color: Colors.amber.withValues(alpha: 0.45)),
       ),
       child: Row(
@@ -438,7 +439,7 @@ class _InventoryReportScreenState extends State<InventoryReportScreen>
             const SizedBox(height: 12),
             Card(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                  borderRadius: AppRadius.mediumAll),
               color: theme.cardColor,
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -466,7 +467,7 @@ class _InventoryReportScreenState extends State<InventoryReportScreen>
                           ),
                           const SizedBox(height: 4),
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: AppRadius.smallAll,
                             child: LinearProgressIndicator(
                               value: ratio,
                               backgroundColor: Colors.grey[200],
@@ -496,11 +497,11 @@ class _InventoryReportScreenState extends State<InventoryReportScreen>
               return Card(
                 margin: const EdgeInsets.only(bottom: 8),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                    borderRadius: AppRadius.mediumAll),
                 color: theme.cardColor,
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: theme.primaryColor.withValues(alpha: 0.1),
+                    backgroundColor: theme.primaryColor.withValues(alpha: AppAlpha.subtle),
                     child: Text(medals[index],
                         style: const TextStyle(fontSize: 20)),
                   ),
@@ -527,12 +528,12 @@ class _InventoryReportScreenState extends State<InventoryReportScreen>
 
   Widget _buildDateRangeCard(ThemeData theme) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.mediumAll),
       color: theme.cardColor,
       elevation: 2,
       child: InkWell(
         onTap: _selectDateRange,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.mediumAll,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -571,7 +572,7 @@ class _InventoryReportScreenState extends State<InventoryReportScreen>
   Widget _buildSummaryCard(
       String title, String value, IconData icon, Color color) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.mediumAll),
       color: Theme.of(context).cardColor,
       elevation: 2,
       child: Padding(
@@ -597,7 +598,7 @@ class _InventoryReportScreenState extends State<InventoryReportScreen>
   Widget _buildProfitCard(
       String title, String value, IconData icon, Color color) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.mediumAll),
       color: Theme.of(context).cardColor,
       elevation: 2,
       child: Padding(
@@ -624,12 +625,12 @@ class _InventoryReportScreenState extends State<InventoryReportScreen>
     final isLowStock = item.isLowStock;
     return Card(
       margin: const EdgeInsets.only(bottom: 4),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.smallAll),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: isLowStock
-              ? Colors.orange.withValues(alpha: 0.2)
-              : Colors.green.withValues(alpha: 0.2),
+              ? Colors.orange.withValues(alpha: AppAlpha.medium)
+              : Colors.green.withValues(alpha: AppAlpha.medium),
           child: Icon(Icons.local_drink,
               color: isLowStock ? Colors.orange : Colors.green, size: 20),
         ),
@@ -673,8 +674,8 @@ class _InventoryReportScreenState extends State<InventoryReportScreen>
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: txn.isIncoming
-            ? Colors.green.withValues(alpha: 0.2)
-            : Colors.red.withValues(alpha: 0.2),
+            ? Colors.green.withValues(alpha: AppAlpha.medium)
+            : Colors.red.withValues(alpha: AppAlpha.medium),
         child: Icon(txn.isIncoming ? Icons.arrow_downward : Icons.arrow_upward,
             color: txn.isIncoming ? Colors.green : Colors.red, size: 18),
       ),

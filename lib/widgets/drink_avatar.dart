@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../models/drink_model.dart';
 import '../utils/constants.dart';
+import '../theme/app_theme.dart';
 
 class DrinkAvatar extends StatelessWidget {
   /// Preferred source: the drink itself.
@@ -52,7 +53,7 @@ class DrinkAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bg = background ?? theme.primaryColor.withValues(alpha: 0.12);
+    final bg = background ?? theme.primaryColor.withValues(alpha: AppAlpha.subtle);
     final fg = foreground ?? theme.primaryColor;
     final radius = circular ? size / 2 : size * 0.22;
 

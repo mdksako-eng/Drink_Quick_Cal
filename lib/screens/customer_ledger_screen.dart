@@ -23,6 +23,7 @@ import '../utils/whatsapp_helper.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
+import '../theme/app_theme.dart';
 
 class CustomerLedgerScreen extends StatefulWidget {
   const CustomerLedgerScreen({super.key});
@@ -131,7 +132,7 @@ class _CustomerLedgerScreenState extends State<CustomerLedgerScreen>
 
   Widget _offlineBanner() => Container(
         width: double.infinity,
-        color: Colors.orange.withValues(alpha: 0.15),
+        color: Colors.orange.withValues(alpha: AppAlpha.subtle),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(children: [
           const Icon(Icons.cloud_off, size: 16, color: Colors.orange),
@@ -209,7 +210,7 @@ class _CustomerLedgerScreenState extends State<CustomerLedgerScreen>
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         leading: CircleAvatar(
-          backgroundColor: primary.withValues(alpha: 0.12),
+          backgroundColor: primary.withValues(alpha: AppAlpha.subtle),
           child: Icon(Icons.person_outline, color: primary),
         ),
         title: Row(children: [
@@ -273,8 +274,8 @@ class _CustomerLedgerScreenState extends State<CustomerLedgerScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(10),
+        color: color.withValues(alpha: AppAlpha.subtle),
+        borderRadius: AppRadius.mediumAll,
       ),
       child: Text(
         t(CustomerLedgerHelper.statusKey(status)),

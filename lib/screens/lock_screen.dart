@@ -12,6 +12,7 @@ import '../main.dart' as app; // ✅ Import for navigatorKey
 import '../screens/auth_screen.dart'; // ✅ Import AuthScreen
 import '../utils/i18n.dart';
 import '../utils/constants.dart';
+import '../theme/app_theme.dart';
 
 class LockScreen extends StatefulWidget {
   final VoidCallback onAuthenticated;
@@ -446,7 +447,7 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
       context: navigatorContext,
       barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
         title: Row(
           children: [
             const Icon(Icons.warning_amber_rounded,
@@ -472,7 +473,7 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.orange.shade50,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mediumAll,
                 ),
                 child: Column(
                   children: [
@@ -495,7 +496,7 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: AppRadius.xlargeAll,
               ),
               child: Text(
                 t('lockRedirectLogin'),
@@ -554,7 +555,7 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mediumAll,
                 ),
               ),
               child: Row(
@@ -600,10 +601,10 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
         Container(
           padding: EdgeInsets.all(isMobile ? 16 : 24),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: Colors.white.withValues(alpha: AppAlpha.subtle),
             borderRadius: BorderRadius.circular(isMobile ? 16 : 20),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Colors.white.withValues(alpha: AppAlpha.medium),
               width: 1,
             ),
           ),
@@ -612,7 +613,7 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
               Container(
                 padding: EdgeInsets.all(isMobile ? 20 : 28),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
+                  color: Colors.white.withValues(alpha: AppAlpha.subtle),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -696,11 +697,11 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
           height: containerSize,
           decoration: BoxDecoration(
             color:
-                isFilled ? Colors.white : Colors.white.withValues(alpha: 0.2),
+                isFilled ? Colors.white : Colors.white.withValues(alpha: AppAlpha.medium),
             borderRadius: BorderRadius.circular(isMobile ? 8 : 12),
             border: Border.all(
               color:
-                  isFilled ? Colors.white : Colors.white.withValues(alpha: 0.3),
+                  isFilled ? Colors.white : Colors.white.withValues(alpha: AppAlpha.strong),
               width: isMobile ? 2 : 3,
             ),
           ),
@@ -822,9 +823,9 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
     return Container(
       padding: EdgeInsets.all(isMobile ? 16 : 20),
       decoration: BoxDecoration(
-        color: Colors.red.withValues(alpha: 0.2),
+        color: Colors.red.withValues(alpha: AppAlpha.medium),
         borderRadius: BorderRadius.circular(isMobile ? 12 : 16),
-        border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+        border: Border.all(color: Colors.red.withValues(alpha: AppAlpha.strong)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -959,7 +960,7 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
                     Container(
                       padding: EdgeInsets.all(iconSize * 0.5),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
+                        color: Colors.white.withValues(alpha: AppAlpha.subtle),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(

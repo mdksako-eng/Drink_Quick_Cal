@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:drinks_calculator_fixed/models/drink_model.dart';
 import 'package:drinks_calculator_fixed/utils/currency_helper.dart';
+import '../theme/app_theme.dart';
 
 class DrinkCard extends StatelessWidget {
   final Drink drink;
@@ -26,11 +27,11 @@ class DrinkCard extends StatelessWidget {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.mediumAll,
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.mediumAll,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -64,7 +65,7 @@ class DrinkCard extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: const Color.fromRGBO(66, 133, 244, 0.9),
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: AppRadius.smallAll,
                           ),
                           child: Text(
                             'Built-in',
@@ -88,7 +89,7 @@ class DrinkCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: const Color.fromRGBO(0, 0, 0, 0.54),
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: AppRadius.smallAll,
                         ),
                         child: Text(
                           drink.category,

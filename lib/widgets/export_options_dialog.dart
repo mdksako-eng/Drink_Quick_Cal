@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 
 import '../utils/i18n.dart';
+import '../theme/app_theme.dart';
 
 /// One selectable section of the report.
 class ExportSectionOption {
@@ -35,7 +36,7 @@ Future<ExportDialogResult?> showExportOptionsDialog(
           final nothingSelected = current.every((v) => !v);
           return AlertDialog(
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
             title: Row(children: [
               const Icon(Icons.ios_share, color: Colors.orange),
               const SizedBox(width: 10),

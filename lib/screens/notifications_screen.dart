@@ -8,6 +8,7 @@ import 'package:drinks_calculator_fixed/providers/plan_provider.dart';
 import '../widgets/upgrade_required.dart';
 import '../services/notification_service.dart';
 import '../utils/i18n.dart';
+import '../theme/app_theme.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({Key? key}) : super(key: key);
@@ -149,7 +150,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           margin: const EdgeInsets.only(bottom: 10),
           elevation: n.isRead ? 1 : 3,
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              RoundedRectangleBorder(borderRadius: AppRadius.mediumAll),
           child: Column(children: [
             ListTile(
             onTap: () {
@@ -166,7 +167,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             onLongPress: () => _confirmDelete(n),
             leading: CircleAvatar(
               backgroundColor:
-                  n.isRead ? color.withValues(alpha: 0.15) : color,
+                  n.isRead ? color.withValues(alpha: AppAlpha.subtle) : color,
               child: Icon(_typeIcon(n.type),
                   color: n.isRead ? color : Colors.white, size: 20),
             ),
@@ -254,7 +255,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
         title: Text(t('delete')),
         content: Text(n.title),
         actions: [

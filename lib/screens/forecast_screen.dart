@@ -24,6 +24,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
+import '../theme/app_theme.dart';
 
 class ForecastScreen extends StatefulWidget {
   const ForecastScreen({Key? key}) : super(key: key);
@@ -349,7 +350,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                 const SizedBox(height: 12),
                 if (_loadFailed) ...[
                   Card(
-                    color: Colors.orange.withValues(alpha: 0.12),
+                    color: Colors.orange.withValues(alpha: AppAlpha.subtle),
                     child: ListTile(
                       leading: const Icon(Icons.cloud_off, color: Colors.orange),
                       title: Text(t('forecastOfflineNotice'),
@@ -643,8 +644,8 @@ class _ForecastScreenState extends State<ForecastScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(12),
+        color: color.withValues(alpha: AppAlpha.subtle),
+        borderRadius: AppRadius.mediumAll,
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(up ? Icons.arrow_upward : Icons.arrow_downward,
@@ -682,11 +683,11 @@ class _ForecastScreenState extends State<ForecastScreen> {
       ]),
       const SizedBox(height: 4),
       ClipRRect(
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: AppRadius.smallAll,
         child: LinearProgressIndicator(
           value: confidence,
           minHeight: 6,
-          backgroundColor: Colors.grey.withValues(alpha: 0.15),
+          backgroundColor: Colors.grey.withValues(alpha: AppAlpha.subtle),
           color: primary,
         ),
       ),

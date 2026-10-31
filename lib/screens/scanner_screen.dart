@@ -18,6 +18,7 @@ import '../widgets/drink_avatar.dart';
 import '../utils/i18n.dart';
 import '../utils/qr_label_helper.dart';
 import 'inventory_screen.dart';
+import '../theme/app_theme.dart';
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({Key? key}) : super(key: key);
@@ -177,7 +178,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
             height: 260,
             decoration: BoxDecoration(
               border: Border.all(color: primary, width: 3),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppRadius.largeAll,
             ),
           ),
         ),
@@ -191,7 +192,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: AppRadius.xlargeAll,
               ),
               child: Text(t('scanHint'),
                   style: const TextStyle(color: Colors.white)),
@@ -299,9 +300,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: low
-                  ? Colors.orange.withValues(alpha: 0.12)
-                  : Colors.green.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
+                  ? Colors.orange.withValues(alpha: AppAlpha.subtle)
+                  : Colors.green.withValues(alpha: AppAlpha.subtle),
+              borderRadius: AppRadius.mediumAll,
             ),
             child: Row(children: [
               Icon(low ? Icons.warning : Icons.check_circle,
@@ -396,7 +397,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
           return AlertDialog(
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
             title: Row(children: [
               const Icon(Icons.add_box_outlined, color: Colors.green),
               const SizedBox(width: 10),

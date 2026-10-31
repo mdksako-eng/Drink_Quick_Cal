@@ -25,6 +25,7 @@ import 'barcode_scan_page.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
+import '../theme/app_theme.dart';
 
 class DrinkManagementScreen extends StatefulWidget {
   const DrinkManagementScreen({Key? key}) : super(key: key);
@@ -280,7 +281,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
     final value = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
         title: Text(title),
         content: TextField(
           controller: controller,
@@ -288,7 +289,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
           textCapitalization: TextCapitalization.words,
           decoration: InputDecoration(
             labelText: title,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            border: OutlineInputBorder(borderRadius: AppRadius.mediumAll),
           ),
           onSubmitted: (v) => Navigator.pop(ctx, v.trim()),
         ),
@@ -716,7 +717,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
     final theme = Theme.of(context);
     return Card(
       elevation: 6,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
       color: theme.cardColor,
       child: Padding(
         padding: EdgeInsets.all(isMobile ? 16 : 20),
@@ -725,11 +726,11 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
             // Search Bar
             Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.mediumAll,
                 color: theme.cardColor,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
+                    color: Colors.black.withValues(alpha: AppAlpha.faint),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -769,9 +770,9 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
             // Sort Options
             Container(
               decoration: BoxDecoration(
-                color: primaryColor.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: primaryColor.withValues(alpha: 0.1)),
+                color: primaryColor.withValues(alpha: AppAlpha.faint),
+                borderRadius: AppRadius.mediumAll,
+                border: Border.all(color: primaryColor.withValues(alpha: AppAlpha.subtle)),
               ),
               child: Padding(
                 padding: EdgeInsets.all(isMobile ? 12 : 16),
@@ -827,7 +828,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
       bool isMobile, bool isTablet, Color primaryColor, ThemeData theme) {
     return Card(
       elevation: 6,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
       color: theme.cardColor,
       child: Padding(
         padding: EdgeInsets.all(isMobile ? 16 : 24),
@@ -866,10 +867,10 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
                       margin: const EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.red.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.red.withValues(alpha: AppAlpha.subtle),
+                        borderRadius: AppRadius.smallAll,
                         border: Border.all(
-                            color: Colors.red.withValues(alpha: 0.3)),
+                            color: Colors.red.withValues(alpha: AppAlpha.strong)),
                       ),
                       child: Row(
                         children: [
@@ -968,10 +969,10 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.blue.withValues(alpha: AppAlpha.subtle),
+                          borderRadius: AppRadius.smallAll,
                           border: Border.all(
-                              color: Colors.blue.withValues(alpha: 0.3)),
+                              color: Colors.blue.withValues(alpha: AppAlpha.strong)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1046,9 +1047,9 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: primaryColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: primaryColor.withValues(alpha: 0.2)),
+        color: primaryColor.withValues(alpha: AppAlpha.subtle),
+        borderRadius: AppRadius.mediumAll,
+        border: Border.all(color: primaryColor.withValues(alpha: AppAlpha.medium)),
       ),
       child: Row(
         children: [
@@ -1076,8 +1077,8 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.orange.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
+                color: Colors.orange.withValues(alpha: AppAlpha.subtle),
+                borderRadius: AppRadius.xlargeAll,
                 border: Border.all(color: Colors.orange, width: 1),
               ),
               child: Text(t('dm_editing'),
@@ -1097,12 +1098,12 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
       decoration: InputDecoration(
         labelText: t('dm_name'),
         labelStyle: TextStyle(color: theme.hintColor),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(borderRadius: AppRadius.mediumAll),
         enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mediumAll,
             borderSide: BorderSide(color: theme.dividerColor)),
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mediumAll,
             borderSide: BorderSide(color: primaryColor, width: 2)),
         prefixIcon: Icon(Icons.local_drink, color: primaryColor),
         filled: true,
@@ -1130,12 +1131,12 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
       decoration: InputDecoration(
         labelText: '${t('dm_purchasePrice')} (${CurrencyHelper.getSymbol()})',
         labelStyle: TextStyle(color: theme.hintColor),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(borderRadius: AppRadius.mediumAll),
         enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mediumAll,
             borderSide: BorderSide(color: theme.dividerColor)),
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mediumAll,
             borderSide: BorderSide(color: primaryColor, width: 2)),
         prefixIcon: Icon(Icons.attach_money, color: primaryColor),
         suffixText: CurrencyHelper.getSymbol(),
@@ -1170,12 +1171,12 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
       decoration: InputDecoration(
         labelText: '${t('dm_sellingPrice')} (${CurrencyHelper.getSymbol()})',
         labelStyle: TextStyle(color: theme.hintColor),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(borderRadius: AppRadius.mediumAll),
         enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mediumAll,
             borderSide: BorderSide(color: theme.dividerColor)),
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mediumAll,
             borderSide: BorderSide(color: primaryColor, width: 2)),
         prefixIcon: Icon(Icons.attach_money, color: primaryColor),
         suffixText: CurrencyHelper.getSymbol(),
@@ -1217,13 +1218,13 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isGoodProfit
-              ? Colors.green.withValues(alpha: 0.1)
-              : Colors.orange.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
+              ? Colors.green.withValues(alpha: AppAlpha.subtle)
+              : Colors.orange.withValues(alpha: AppAlpha.subtle),
+          borderRadius: AppRadius.smallAll,
           border: Border.all(
             color: isGoodProfit
-                ? Colors.green.withValues(alpha: 0.3)
-                : Colors.orange.withValues(alpha: 0.3),
+                ? Colors.green.withValues(alpha: AppAlpha.strong)
+                : Colors.orange.withValues(alpha: AppAlpha.strong),
           ),
         ),
         child: Row(
@@ -1276,7 +1277,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mediumAll,
             border: Border.all(color: theme.dividerColor),
             color: theme.cardColor,
           ),
@@ -1340,7 +1341,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mediumAll,
             border: Border.all(color: theme.dividerColor),
             color: theme.cardColor,
           ),
@@ -1499,9 +1500,9 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
       decoration: InputDecoration(
         labelText: t('dm_currentStock'),
         prefixIcon: Icon(Icons.inventory, color: primaryColor),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(borderRadius: AppRadius.mediumAll),
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mediumAll,
             borderSide: BorderSide(color: primaryColor, width: 2)),
       ),
       keyboardType: TextInputType.number,
@@ -1514,9 +1515,9 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
       decoration: InputDecoration(
         labelText: t('dm_minStock'),
         prefixIcon: Icon(Icons.warning_amber, color: primaryColor),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(borderRadius: AppRadius.mediumAll),
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mediumAll,
             borderSide: BorderSide(color: primaryColor, width: 2)),
         helperText: t('dm_minStockHelper'),
       ),
@@ -1564,12 +1565,12 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
             labelText: t('dm_imageUrl'),
             labelStyle: TextStyle(color: theme.hintColor),
             border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                OutlineInputBorder(borderRadius: AppRadius.mediumAll),
             enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.mediumAll,
                 borderSide: BorderSide(color: theme.dividerColor)),
             focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.mediumAll,
                 borderSide: BorderSide(color: primaryColor, width: 2)),
             prefixIcon: Icon(Icons.image, color: primaryColor),
             // 📤 Upload straight from the camera/gallery and let the app fill the
@@ -1597,7 +1598,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
           Padding(
             padding: const EdgeInsets.only(top: 10),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadius.mediumAll,
               child: Image.network(
                 _imageUrlController.text.trim(),
                 height: 110,
@@ -1605,7 +1606,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
                 errorBuilder: (_, __, ___) => Container(
                   height: 60,
                   alignment: Alignment.center,
-                  color: theme.dividerColor.withValues(alpha: 0.2),
+                  color: theme.dividerColor.withValues(alpha: AppAlpha.medium),
                   child: Text(t('dm_imagePreviewFailed'),
                       style: TextStyle(fontSize: 12, color: theme.hintColor)),
                 ),
@@ -1733,12 +1734,12 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
       decoration: InputDecoration(
         labelText: t('barcode'),
         labelStyle: TextStyle(color: theme.hintColor),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(borderRadius: AppRadius.mediumAll),
         enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mediumAll,
             borderSide: BorderSide(color: theme.dividerColor)),
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mediumAll,
             borderSide: BorderSide(color: primaryColor, width: 2)),
         prefixIcon: IconButton(
           tooltip: t('scanTitle'),
@@ -1763,12 +1764,12 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
       decoration: InputDecoration(
         labelText: t('unitsPerPack'),
         prefixIcon: Icon(Icons.all_inbox, color: primaryColor),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(borderRadius: AppRadius.mediumAll),
         enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mediumAll,
             borderSide: BorderSide(color: theme.dividerColor)),
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mediumAll,
             borderSide: BorderSide(color: primaryColor, width: 2)),
         filled: true,
         fillColor: theme.cardColor,
@@ -1791,7 +1792,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
               backgroundColor: Colors.green,
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                  borderRadius: AppRadius.mediumAll),
               elevation: 4),
           child: _isSaving
               ? const SizedBox(
@@ -1824,7 +1825,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
               foregroundColor: Colors.red,
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12))),
+                  borderRadius: AppRadius.mediumAll)),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -1852,7 +1853,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
                 backgroundColor: Colors.green,
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                    borderRadius: AppRadius.mediumAll),
                 elevation: 4),
             child: _isSaving
                 ? const SizedBox(
@@ -1887,7 +1888,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
                 foregroundColor: Colors.red,
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12))),
+                    borderRadius: AppRadius.mediumAll)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -1909,7 +1910,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.mediumAll,
         gradient: LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
@@ -1956,9 +1957,9 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.3))),
+                color: Colors.white.withValues(alpha: AppAlpha.medium),
+                borderRadius: AppRadius.xlargeAll,
+                border: Border.all(color: Colors.white.withValues(alpha: AppAlpha.strong))),
             child: Row(
               children: [
                 Icon(_searchQuery.isNotEmpty ? Icons.search : Icons.inventory,
@@ -1984,7 +1985,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
   Widget _buildEmptyState(bool isMobile, Color primaryColor, ThemeData theme) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       color: theme.cardColor,
       child: Padding(
         padding: EdgeInsets.all(isMobile ? 24 : 40),
@@ -1994,9 +1995,9 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: primaryColor.withValues(alpha: 0.1),
+                  color: primaryColor.withValues(alpha: AppAlpha.subtle),
                   border: Border.all(
-                      color: primaryColor.withValues(alpha: 0.3), width: 2)),
+                      color: primaryColor.withValues(alpha: AppAlpha.strong), width: 2)),
               child: Icon(
                   _searchQuery.isNotEmpty
                       ? Icons.search_off
@@ -2032,7 +2033,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
                     padding: EdgeInsets.symmetric(
                         horizontal: 32, vertical: isMobile ? 12 : 16),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12))),
+                        borderRadius: AppRadius.mediumAll)),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -2050,10 +2051,10 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: primaryColor.withValues(alpha: 0.05),
+                    borderRadius: AppRadius.mediumAll,
+                    color: primaryColor.withValues(alpha: AppAlpha.faint),
                     border:
-                        Border.all(color: primaryColor.withValues(alpha: 0.1))),
+                        Border.all(color: primaryColor.withValues(alpha: AppAlpha.subtle))),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -2114,7 +2115,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
   Widget _buildTipsCard(bool isMobile, Color primaryColor, ThemeData theme) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       color: theme.cardColor,
       child: Padding(
         padding: EdgeInsets.all(isMobile ? 16 : 20),
@@ -2165,7 +2166,7 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
             horizontal: isMobile ? 12 : 16, vertical: isMobile ? 8 : 10),
         decoration: BoxDecoration(
           color: isSelected ? primaryColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.xlargeAll,
           border: Border.all(
               color: isSelected ? primaryColor : Colors.grey,
               width: isSelected ? 2 : 1),

@@ -12,6 +12,7 @@ import 'package:drinks_calculator_fixed/providers/inventory_provider.dart';
 import '../utils/i18n.dart';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
+import '../theme/app_theme.dart';
 
 class OfflineIndicator extends StatefulWidget {
   final Widget child;
@@ -206,7 +207,7 @@ class _OfflineIndicatorState extends State<OfflineIndicator>
           duration: const Duration(seconds: 5),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: AppRadius.mediumAll,
           ),
         ),
       );
@@ -238,7 +239,7 @@ class _OfflineIndicatorState extends State<OfflineIndicator>
           duration: const Duration(seconds: 4),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: AppRadius.mediumAll,
           ),
         ),
       );
@@ -273,7 +274,7 @@ class _OfflineIndicatorState extends State<OfflineIndicator>
           duration: const Duration(seconds: 3),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: AppRadius.mediumAll,
           ),
         ),
       );
@@ -348,7 +349,7 @@ class _OfflineIndicatorState extends State<OfflineIndicator>
             duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: AppRadius.mediumAll,
             ),
           ),
         );
@@ -373,7 +374,7 @@ class _OfflineIndicatorState extends State<OfflineIndicator>
             duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: AppRadius.mediumAll,
             ),
           ),
         );
@@ -398,7 +399,7 @@ class _OfflineIndicatorState extends State<OfflineIndicator>
             duration: const Duration(seconds: 3),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: AppRadius.mediumAll,
             ),
           ),
         );
@@ -458,7 +459,7 @@ class _OfflineIndicatorState extends State<OfflineIndicator>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
+                        color: Colors.black.withValues(alpha: AppAlpha.medium),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -472,7 +473,7 @@ class _OfflineIndicatorState extends State<OfflineIndicator>
                         Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
+                            color: Colors.white.withValues(alpha: AppAlpha.medium),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -509,10 +510,10 @@ class _OfflineIndicatorState extends State<OfflineIndicator>
                               vertical: isMobile ? 6 : 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.white.withValues(alpha: AppAlpha.medium),
+                              borderRadius: AppRadius.xlargeAll,
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.3),
+                                color: Colors.white.withValues(alpha: AppAlpha.strong),
                                 width: 1,
                               ),
                             ),

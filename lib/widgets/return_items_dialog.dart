@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import '../utils/i18n.dart';
 import '../utils/order_return_helper.dart';
 import '../utils/price_extension.dart';
+import '../theme/app_theme.dart';
 
 class ReturnItemsDialog extends StatefulWidget {
   const ReturnItemsDialog({super.key, required this.lines, this.orderLabel});
@@ -137,7 +138,7 @@ class _ReturnItemsDialogState extends State<ReturnItemsDialog> {
         : '${t('returnItems')} · $label';
 
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
       content: SizedBox(
         width: 420,
@@ -188,7 +189,7 @@ class _ReturnItemsDialogState extends State<ReturnItemsDialog> {
                   labelText: t('voidReason'),
                   hintText: t('returnReasonHint'),
                   errorText: _error,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(borderRadius: AppRadius.smallAll),
                 ),
               ),
             ],

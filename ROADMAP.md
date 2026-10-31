@@ -1028,3 +1028,34 @@ where it actually takes effect.
 - **Still open**: the per-screen cleanup — 36 hand-picked `BoxShadow`, 27 `LinearGradient` and ~197
   `withValues(alpha:)` calls remain in screens that predate the tokens.
 
+## 2026-10-31 — Per-screen cleanup: 533 hand-picked values moved onto the tokens
+The token file's own header complained about "27 gradients, 33 one-off box shadows and 194 hand-picked
+`withValues(alpha:)` values". This is the sweep that fixes the mechanical part of that — and the measurement
+that says where the line is.
+- **Radii first, because they are decidable.** 8 / 12 / 16 were already the token values (204 sites, zero pixel
+  change) and **20 was used 53 times — more than `small`** — so `AppRadius.xlarge` was added rather than forcing
+  53 sites onto a different corner: the scale was wrong, the code was right.
+- **`AppRadius`'s getters became `const` fields.** `BorderRadius.all` is a const constructor, so a token can
+  live inside a `const` widget. Without that, every `const` widget holding a radius would have had to lose its
+  `const` — which is precisely why the migration could be scripted at all.
+- **Then the overlay tints**: 0.1 / 0.2 / 0.06 → `AppAlpha.subtle` / `medium` / `faint` (82 sites, no change).
+- **533 replacements across 43 files in one pass**: 339 exact (pixels do not move) and 194 snapped to the
+  nearest step (10→12 ×73, 0.3→0.32 ×26, 0.15→0.10 ×16, plus a short tail). Every snapped value was reported by
+  count, never applied silently.
+- **Two categories were deliberately NOT swept** — the interesting part:
+  - **Alphas above 0.32 stay literal** (40 sites). Those are compositional opacity (gradient stops, scrims),
+    not overlay tints: `AppAlpha` describes how much a tint shows through, and mapping `0.7` onto a tint step
+    would have wrecked the lock screen's translucent gradient — the very thing the new glass reads through.
+  - **Box shadows and gradients stay literal** (36 and 27). Measured: 17 distinct blur values with no dominant
+    pattern, 4 shadows built from variables, and one **orange glow** that is a semantic warning, not depth.
+    Snapping those to `AppShadow.soft` / `raised` would redesign every raised surface in the app, and no test
+    can see that — it needs eyes on a screen. Recorded instead of guessed at.
+- **Guards added** (`test/app_theme_test.dart`, now 20 tests): nothing under `lib/` may re-introduce
+  `BorderRadius.circular(8|12|16|20)` (excluding the PDF package's own `pw.BorderRadius`) or
+  `withValues(alpha: 0.06|0.1|0.2)`, so the migration cannot quietly undo itself.
+- **One scripted-pass bug, caught by the compiler**: the literal `BorderRadius.circular(N)` rule also matched
+  **`pw.BorderRadius.circular(N)`** — the `pdf` package's own class — in the invoice and report builders,
+  leaving a dangling `pw.` prefix on 7 sites. Restored to their PDF radii, and the import the pass had added to
+  those two files was removed again.
+- Gates: Flutter **485 tests**, `flutter analyze lib` **534 issues** / 0 errors (unchanged). Backend untouched.
+

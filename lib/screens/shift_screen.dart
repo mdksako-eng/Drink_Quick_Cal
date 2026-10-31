@@ -21,6 +21,7 @@ import '../utils/whatsapp_helper.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
+import '../theme/app_theme.dart';
 
 class ShiftScreen extends StatefulWidget {
   const ShiftScreen({super.key});
@@ -101,8 +102,8 @@ class _ShiftScreenState extends State<ShiftScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.orange.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(10),
+          color: Colors.orange.withValues(alpha: AppAlpha.subtle),
+          borderRadius: AppRadius.mediumAll,
         ),
         child: Row(children: [
           const Icon(Icons.cloud_off, size: 16, color: Colors.orange),
@@ -212,7 +213,7 @@ class _ShiftScreenState extends State<ShiftScreen> {
     final shift = provider.current!;
     final summary = provider.summary;
     return Card(
-      color: primary.withValues(alpha: 0.06),
+      color: primary.withValues(alpha: AppAlpha.faint),
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
@@ -522,8 +523,8 @@ class _ShiftScreenState extends State<ShiftScreen> {
   Widget _chip(String label, Color color) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(10),
+          color: color.withValues(alpha: AppAlpha.subtle),
+          borderRadius: AppRadius.mediumAll,
         ),
         child: Text(
           label,

@@ -9,6 +9,7 @@ import '../models/drink_model.dart';
 import '../services/receipt_printer.dart';
 import '../utils/helpers.dart';
 import '../utils/i18n.dart';
+import '../theme/app_theme.dart';
 
 class ReceiptPrintScreen extends StatefulWidget {
   final List<Drink> drinks;
@@ -127,12 +128,12 @@ class _ReceiptPrintScreenState extends State<ReceiptPrintScreen> {
         width: double.infinity,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: AppRadius.smallAll,
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08), blurRadius: 8),
+                color: Colors.black.withValues(alpha: AppAlpha.subtle), blurRadius: 8),
           ],
-          border: Border.all(color: Colors.black.withValues(alpha: 0.08)),
+          border: Border.all(color: Colors.black.withValues(alpha: AppAlpha.subtle)),
         ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(14),
@@ -157,7 +158,7 @@ class _ReceiptPrintScreenState extends State<ReceiptPrintScreen> {
         color: Theme.of(context).scaffoldBackgroundColor,
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06), blurRadius: 10),
+              color: Colors.black.withValues(alpha: AppAlpha.faint), blurRadius: 10),
         ],
       ),
       child: SafeArea(

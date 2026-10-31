@@ -26,6 +26,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
+import '../theme/app_theme.dart';
 
 class ManagerDashboard extends StatefulWidget {
   const ManagerDashboard({Key? key}) : super(key: key);
@@ -360,11 +361,11 @@ class _ManagerDashboardState extends State<ManagerDashboard> {
                       style: const TextStyle(fontSize: 13))),
               Expanded(
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: AppRadius.smallAll,
                   child: LinearProgressIndicator(
                     value: ratio,
                     minHeight: 12,
-                    backgroundColor: Colors.grey.withValues(alpha: 0.15),
+                    backgroundColor: Colors.grey.withValues(alpha: AppAlpha.subtle),
                     color: primary,
                   ),
                 ),
@@ -462,7 +463,7 @@ class _ManagerDashboardState extends State<ManagerDashboard> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
           insetPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           scrollable: true,

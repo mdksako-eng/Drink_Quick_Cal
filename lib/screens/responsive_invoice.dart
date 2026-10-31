@@ -18,6 +18,7 @@ import 'package:drinks_calculator_fixed/services/lock_service.dart';
 import 'package:drinks_calculator_fixed/screens/receipt_print_screen.dart';
 import '../utils/i18n.dart';
 import '../utils/company_logo_bytes.dart';
+import '../theme/app_theme.dart';
 class ResponsiveInvoice extends StatefulWidget {
   final List<Drink> drinks;
   final double totalAmount;
@@ -86,7 +87,7 @@ class _ResponsiveInvoiceState extends State<ResponsiveInvoice> {
   Color get _infoCardColor =>
       _isDark ? primaryColor.withValues(alpha: 0.10) : backgroundColor;
   Color get _summaryBoxColor =>
-      _isDark ? primaryColor.withValues(alpha: 0.16) : lightBlueBg;
+      _isDark ? primaryColor.withValues(alpha: AppAlpha.medium) : lightBlueBg;
   static const Color purpleButtonColor = Color(0xFF764BA2);
 
   String get _invoiceId => widget.orderId?.isNotEmpty == true ? widget.orderId! : DateTime.now().millisecondsSinceEpoch.toString();
@@ -419,7 +420,7 @@ class _ResponsiveInvoiceState extends State<ResponsiveInvoice> {
     final authProvider = Provider.of<AuthProvider>(context);
   final isStaff = (authProvider.user!.role.toLowerCase()) == 'staff';
     final entries = _groupDrinks().entries.toList();
-    return Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: _surfaceColor, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 20)]), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: _surfaceColor, borderRadius: AppRadius.largeAll, boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: AppAlpha.subtle), blurRadius: 20)]), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(_companyName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: primaryColor)),
@@ -427,33 +428,33 @@ class _ResponsiveInvoiceState extends State<ResponsiveInvoice> {
           if (_companyEmail.isNotEmpty) Row(children: [Icon(Icons.email, size: 14, color: textSecondary), const SizedBox(width: 4), Text(_companyEmail, style: TextStyle(fontSize: 12, color: textSecondary))]),
           if (_companyAddress.isNotEmpty) Row(children: [Icon(Icons.location_on, size: 14, color: textSecondary), const SizedBox(width: 4), Expanded(child: Text(_companyAddress, style: TextStyle(fontSize: 12, color: textSecondary)))]),
         ])),
-        if (!widget.isPreview && !isStaff ) GestureDetector(onTap: () => _showCompanyNameDialog(context), child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20), border: Border.all(color: primaryColor)), child: Row(children: [Icon(Icons.edit, size: 16, color: primaryColor), SizedBox(width: 4), Text(t('edit'), style: TextStyle(fontSize: 12, color: primaryColor))]))),
+        if (!widget.isPreview && !isStaff ) GestureDetector(onTap: () => _showCompanyNameDialog(context), child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: primaryColor.withValues(alpha: AppAlpha.subtle), borderRadius: AppRadius.xlargeAll, border: Border.all(color: primaryColor)), child: Row(children: [Icon(Icons.edit, size: 16, color: primaryColor), SizedBox(width: 4), Text(t('edit'), style: TextStyle(fontSize: 12, color: primaryColor))]))),
       ]),
       const SizedBox(height: 20),
       Center(child: Column(children: [Text(t('inv_pdfTitle'), style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: primaryColor)), SizedBox(height: 8), Text(DateFormat('dd MMMM yyyy, hh:mm a').format(DateTime.now()), style: TextStyle(fontSize: 13, color: textSecondary))])),
-      const SizedBox(height: 24), Divider(color: primaryColor.withValues(alpha: 0.3)), const SizedBox(height: 24),
+      const SizedBox(height: 24), Divider(color: primaryColor.withValues(alpha: AppAlpha.strong)), const SizedBox(height: 24),
       LayoutBuilder(builder: (_, cons) => cons.maxWidth < 600 ? Column(children: [_infoCard(Icons.business, t('inv_companyInfo'), _companyName, _companyPhone, _companyEmail, _companyAddress), const SizedBox(height: 16), _invoiceInfoCard()]) : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(child: _infoCard(Icons.business, t('inv_companyInfo'), _companyName, _companyPhone, _companyEmail, _companyAddress)), const SizedBox(width: 20), Expanded(child: _invoiceInfoCard())])),
-      const SizedBox(height: 24), Divider(color: primaryColor.withValues(alpha: 0.3)), const SizedBox(height: 24),
+      const SizedBox(height: 24), Divider(color: primaryColor.withValues(alpha: AppAlpha.strong)), const SizedBox(height: 24),
       Text(t('inv_orderItems'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textPrimary)), const SizedBox(height: 16),
-      Container(decoration: BoxDecoration(border: Border.all(color: primaryColor.withValues(alpha: 0.2)), borderRadius: BorderRadius.circular(8)), child: Column(children: [
-        Container(padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16), decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.1), border: Border(bottom: BorderSide(color: primaryColor.withValues(alpha: 0.2)))), child: Row(children: [Expanded(flex: 3, child: Text(t('inv_item'), style: TextStyle(fontWeight: FontWeight.bold))), Expanded(child: Center(child: Text(t('inv_qty'), style: TextStyle(fontWeight: FontWeight.bold)))), Expanded(child: Align(alignment: Alignment.centerRight, child: Text(t('inv_price'), style: TextStyle(fontWeight: FontWeight.bold)))), Expanded(child: Align(alignment: Alignment.centerRight, child: Text(t('inv_total'), style: TextStyle(fontWeight: FontWeight.bold))))])),
+      Container(decoration: BoxDecoration(border: Border.all(color: primaryColor.withValues(alpha: AppAlpha.medium)), borderRadius: AppRadius.smallAll), child: Column(children: [
+        Container(padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16), decoration: BoxDecoration(color: primaryColor.withValues(alpha: AppAlpha.subtle), border: Border(bottom: BorderSide(color: primaryColor.withValues(alpha: AppAlpha.medium)))), child: Row(children: [Expanded(flex: 3, child: Text(t('inv_item'), style: TextStyle(fontWeight: FontWeight.bold))), Expanded(child: Center(child: Text(t('inv_qty'), style: TextStyle(fontWeight: FontWeight.bold)))), Expanded(child: Align(alignment: Alignment.centerRight, child: Text(t('inv_price'), style: TextStyle(fontWeight: FontWeight.bold)))), Expanded(child: Align(alignment: Alignment.centerRight, child: Text(t('inv_total'), style: TextStyle(fontWeight: FontWeight.bold))))])),
         ...entries.map((e) { final d = e.value['drink'] as Drink; final q = e.value['quantity'] as int; final t = e.value['total'] as double; return Padding(padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16), child: Row(children: [Expanded(flex: 3, child: Text(e.key, style: const TextStyle(fontSize: 14))), Expanded(child: Center(child: Text('$q', style: const TextStyle(fontSize: 14)))), Expanded(child: Align(alignment: Alignment.centerRight, child: Text(_formatCurrency(d.price), style: const TextStyle(fontSize: 14)))), Expanded(child: Align(alignment: Alignment.centerRight, child: Text(_formatCurrency(t), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: primaryColor))))])); }).toList(),
       ])),
       const SizedBox(height: 24),
-      Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: _summaryBoxColor, borderRadius: BorderRadius.circular(12), border: Border.all(color: primaryColor.withValues(alpha: 0.3))), child: Column(children: [
+      Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: _summaryBoxColor, borderRadius: AppRadius.mediumAll, border: Border.all(color: primaryColor.withValues(alpha: AppAlpha.strong))), child: Column(children: [
         _summaryRow(t('inv_totalAmount'), _formatCurrency(widget.totalAmount), true), const SizedBox(height: 12),
         _summaryRow(t('inv_amountReceived'), _formatCurrency(widget.amountPaid)), const SizedBox(height: 12),
-        Divider(color: primaryColor.withValues(alpha: 0.3)), const SizedBox(height: 12),
+        Divider(color: primaryColor.withValues(alpha: AppAlpha.strong)), const SizedBox(height: 12),
         _summaryRow(widget.balance >= 0 ? t('inv_changeDue') : t('inv_balanceDue'), _formatCurrency(widget.balance.abs()), true, widget.balance >= 0 ? successColor : errorColor),
       ])),
-      if (_consumerName.isNotEmpty) ...[const SizedBox(height: 20), Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: secondaryColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10), border: Border.all(color: secondaryColor)), child: Row(children: [Container(padding: const EdgeInsets.all(8), decoration: const BoxDecoration(color: secondaryColor, shape: BoxShape.circle), child: const Icon(Icons.person, color: Colors.white, size: 20)), const SizedBox(width: 12), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(t('inv_customer'), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: secondaryColor)), Text(_consumerName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: secondaryColor))])), if (!widget.isPreview) IconButton(icon: const Icon(Icons.edit, color: secondaryColor), onPressed: () => _showConsumerNameDialog(context, forPrint: false))]))],
+      if (_consumerName.isNotEmpty) ...[const SizedBox(height: 20), Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: secondaryColor.withValues(alpha: AppAlpha.subtle), borderRadius: AppRadius.mediumAll, border: Border.all(color: secondaryColor)), child: Row(children: [Container(padding: const EdgeInsets.all(8), decoration: const BoxDecoration(color: secondaryColor, shape: BoxShape.circle), child: const Icon(Icons.person, color: Colors.white, size: 20)), const SizedBox(width: 12), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(t('inv_customer'), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: secondaryColor)), Text(_consumerName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: secondaryColor))])), if (!widget.isPreview) IconButton(icon: const Icon(Icons.edit, color: secondaryColor), onPressed: () => _showConsumerNameDialog(context, forPrint: false))]))],
       const SizedBox(height: 24),
             Center(child: Column(children: [Text(t('inv_thankYou'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary)), SizedBox(height: 8), Text(_companyPhone.isNotEmpty ? '${t('inv_inquiries')}: $_companyPhone' : '${t('inv_contact')}: $_companyName', style: TextStyle(fontSize: 13, color: textSecondary)), SizedBox(height: 4), Text(t('inv_termsConditions'), style: TextStyle(fontSize: 11, color: textSecondary))])),
     ]));
   }
 
   Widget _infoCard(IconData icon, String title, String name, String phone, String email, String address) {
-    return Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(12), border: Border.all(color: primaryColor.withValues(alpha: 0.2))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: backgroundColor, borderRadius: AppRadius.mediumAll, border: Border.all(color: primaryColor.withValues(alpha: AppAlpha.medium))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [Icon(icon, size: 18, color: primaryColor), const SizedBox(width: 8), Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: primaryColor))]),
       const SizedBox(height: 12), Text(name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary)),
       if (phone.isNotEmpty) ...[const SizedBox(height: 8), Row(children: [Icon(Icons.phone, size: 14, color: textSecondary), const SizedBox(width: 8), Text(phone, style: TextStyle(fontSize: 13, color: textSecondary))])],
@@ -463,13 +464,13 @@ class _ResponsiveInvoiceState extends State<ResponsiveInvoice> {
   }
 
   Widget _invoiceInfoCard() {
-    return Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(12), border: Border.all(color: primaryColor.withValues(alpha: 0.2))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: backgroundColor, borderRadius: AppRadius.mediumAll, border: Border.all(color: primaryColor.withValues(alpha: AppAlpha.medium))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [const Icon(Icons.receipt, size: 18, color: primaryColor), const SizedBox(width: 8), Text(t('inv_invoiceInfo'), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: primaryColor))]),
       const SizedBox(height: 12),
       _infoRow(t('inv_invoiceNo'), _displayInvoiceId), const SizedBox(height: 8),
       _infoRow(t('inv_dateColon'), DateFormat('dd/MM/yyyy').format(DateTime.now())), const SizedBox(height: 8),
       _infoRow(t('inv_timeColon'), DateFormat('hh:mm a').format(DateTime.now())), const SizedBox(height: 8),
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(t('inv_statusColon'), style: TextStyle(fontSize: 13, color: textSecondary)), Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: widget.balance >= 0 ? successColor.withValues(alpha: 0.1) : errorColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)), child: Text(widget.balance >= 0 ? t('inv_paid') : t('inv_pending'), style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: widget.balance >= 0 ? successColor : errorColor)))]),
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(t('inv_statusColon'), style: TextStyle(fontSize: 13, color: textSecondary)), Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: widget.balance >= 0 ? successColor.withValues(alpha: AppAlpha.subtle) : errorColor.withValues(alpha: AppAlpha.subtle), borderRadius: AppRadius.mediumAll), child: Text(widget.balance >= 0 ? t('inv_paid') : t('inv_pending'), style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: widget.balance >= 0 ? successColor : errorColor)))]),
     ]));
   }
 
@@ -496,7 +497,7 @@ class _ResponsiveInvoiceState extends State<ResponsiveInvoice> {
       body: Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [_pageColor, _surfaceColor])), child: SingleChildScrollView(padding: const EdgeInsets.all(20), child:
       
        _buildInvoiceContent())),
-      bottomNavigationBar: widget.isPreview ? null : Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: _surfaceColor, boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10)]), child: SafeArea(child: Row(children: [
+      bottomNavigationBar: widget.isPreview ? null : Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: _surfaceColor, boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: AppAlpha.subtle), blurRadius: 10)]), child: SafeArea(child: Row(children: [
         Expanded(child: ElevatedButton.icon(onPressed: _isGeneratingPDF ? null : () => _generateAndPrintPDF(context), icon: const Icon(Icons.print), label: Text(t('inv_print')), style: ElevatedButton.styleFrom(backgroundColor: primaryColor, padding: const EdgeInsets.symmetric(vertical: 14)))),
         const SizedBox(width: 10),
         Expanded(child: ElevatedButton.icon(onPressed: _isGeneratingPDF ? null : () => _savePDF(context), icon: const Icon(Icons.save), label: Text(t('save')), style: ElevatedButton.styleFrom(backgroundColor: successColor, padding: const EdgeInsets.symmetric(vertical: 14)))),

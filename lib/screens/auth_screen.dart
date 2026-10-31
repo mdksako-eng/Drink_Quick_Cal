@@ -14,6 +14,7 @@ import 'package:drinks_calculator_fixed/utils/helpers.dart';
 import 'package:drinks_calculator_fixed/config/api_config.dart';
 import 'calculator_screen.dart';
 import 'dart:async';
+import '../theme/app_theme.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({Key? key}) : super(key: key);
@@ -767,7 +768,7 @@ class _AuthScreenState extends State<AuthScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
         title: Row(
           children: [
             Icon(Icons.mark_email_unread, color: Colors.orange, size: 28),
@@ -790,7 +791,7 @@ class _AuthScreenState extends State<AuthScreen> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: AppRadius.smallAll,
               ),
               child: Column(
                 children: [
@@ -908,7 +909,7 @@ class _AuthScreenState extends State<AuthScreen> {
         barrierDismissible: false,
         builder: (context) => AlertDialog(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
+                  borderRadius: AppRadius.largeAll),
               icon: Container(
                   width: 60,
                   height: 60,
@@ -952,7 +953,7 @@ class _AuthScreenState extends State<AuthScreen> {
         context: context,
         builder: (context) => AlertDialog(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
+                  borderRadius: AppRadius.largeAll),
               icon: Container(
                   width: 60,
                   height: 60,
@@ -981,7 +982,7 @@ class _AuthScreenState extends State<AuthScreen> {
         context: context,
         builder: (context) => AlertDialog(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
+                  borderRadius: AppRadius.largeAll),
               icon: Container(
                   width: 60,
                   height: 60,
@@ -1036,7 +1037,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     height: 100,
                     decoration: BoxDecoration(
                         color: Colors.white.withAlpha(25),
-                        borderRadius: BorderRadius.circular(25),
+                        borderRadius: AppRadius.xlargeAll,
                         image: const DecorationImage(
                             image: AssetImage('assets/icons/icon.png'),
                             fit: BoxFit.contain))),
@@ -1053,7 +1054,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 Container(
                   decoration: BoxDecoration(
                       color: const Color(0xFFF8F9FA),
-                      borderRadius: BorderRadius.circular(10)),
+                      borderRadius: AppRadius.mediumAll),
                   child: Row(children: [
                     Expanded(child: _buildAuthTab('Login', AuthMode.login)),
                     Expanded(child: _buildAuthTab('Sign Up', AuthMode.signup)),
@@ -1063,7 +1064,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 Card(
                     elevation: 8,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
+                        borderRadius: AppRadius.largeAll),
                     child: Padding(
                         padding: const EdgeInsets.all(20),
                         child: _buildAuthForm())),
@@ -1082,7 +1083,7 @@ class _AuthScreenState extends State<AuthScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(20)),
+            borderRadius: AppRadius.xlargeAll),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           SizedBox(
               width: 16,
@@ -1102,7 +1103,7 @@ class _AuthScreenState extends State<AuthScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
             color: Colors.orange.withOpacity(0.9),
-            borderRadius: BorderRadius.circular(20)),
+            borderRadius: AppRadius.xlargeAll),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.wifi_off, size: 16, color: Colors.white),
           SizedBox(width: 8),
@@ -1127,7 +1128,7 @@ class _AuthScreenState extends State<AuthScreen> {
             color: _authMode == mode
                 ? const Color(0xFF667EEA)
                 : const Color(0xFFF8F9FA),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: AppRadius.mediumAll,
           ),
           child: Center(
             child: Text(
@@ -1444,11 +1445,11 @@ class _AuthScreenState extends State<AuthScreen> {
                     ? [Colors.orange.shade400, Colors.deepOrange.shade400]
                     : [Colors.grey.shade300, Colors.grey.shade400],
               ),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppRadius.largeAll,
               boxShadow: _registerAsManager
                   ? [
                       BoxShadow(
-                          color: Colors.orange.withValues(alpha: 0.3),
+                          color: Colors.orange.withValues(alpha: AppAlpha.strong),
                           blurRadius: 8,
                           offset: const Offset(0, 2))
                     ]
@@ -1461,9 +1462,9 @@ class _AuthScreenState extends State<AuthScreen> {
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
                       color: _registerAsManager
-                          ? Colors.white.withValues(alpha: 0.2)
+                          ? Colors.white.withValues(alpha: AppAlpha.medium)
                           : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadius.smallAll,
                     ),
                     child: Icon(
                       _registerAsManager
@@ -1505,7 +1506,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 _verifiedCompanyId = null;
               }),
               activeColor: Colors.white,
-              activeTrackColor: Colors.white.withValues(alpha: 0.3),
+              activeTrackColor: Colors.white.withValues(alpha: AppAlpha.strong),
               inactiveThumbColor: Colors.grey,
               inactiveTrackColor: Colors.grey.shade200,
             ),
@@ -1515,8 +1516,8 @@ class _AuthScreenState extends State<AuthScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12)),
+                  color: Colors.orange.withValues(alpha: AppAlpha.subtle),
+                  borderRadius: AppRadius.mediumAll),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1610,8 +1611,8 @@ class _AuthScreenState extends State<AuthScreen> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: Colors.green.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.green.withValues(alpha: AppAlpha.subtle),
+                              borderRadius: AppRadius.smallAll,
                               border: Border.all(color: Colors.green)),
                           child: Row(children: [
                             const Icon(Icons.check_circle,
@@ -1687,7 +1688,7 @@ class _AuthScreenState extends State<AuthScreen> {
           // the checkbox almost invisible on a dark background.
           Builder(builder: (context) {
             final isDark = Theme.of(context).brightness == Brightness.dark;
-            final radius = BorderRadius.circular(8);
+            final radius = AppRadius.smallAll;
             return Container(
               margin: const EdgeInsets.only(top: 4, bottom: 8),
               padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -1825,7 +1826,7 @@ class _AuthScreenState extends State<AuthScreen> {
       Container(
         decoration: BoxDecoration(
             color: const Color(0xFFF8F9FA),
-            borderRadius: BorderRadius.circular(10)),
+            borderRadius: AppRadius.mediumAll),
         child: Row(children: [
           Expanded(
               child: GestureDetector(
@@ -1840,7 +1841,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           color: _useEmailCode
                               ? const Color(0xFF667EEA)
                               : const Color(0xFFF8F9FA),
-                          borderRadius: BorderRadius.circular(10)),
+                          borderRadius: AppRadius.mediumAll),
                       child: Center(
                           child: Row(mainAxisSize: MainAxisSize.min, children: [
                         Icon(Icons.email,
@@ -1866,7 +1867,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           color: !_useEmailCode
                               ? const Color(0xFF667EEA)
                               : const Color(0xFFF8F9FA),
-                          borderRadius: BorderRadius.circular(10)),
+                          borderRadius: AppRadius.mediumAll),
                       child: Center(
                           child: Row(mainAxisSize: MainAxisSize.min, children: [
                         Icon(Icons.security,
@@ -2093,7 +2094,7 @@ class _AuthScreenState extends State<AuthScreen> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
             color: Colors.orange.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: AppRadius.smallAll,
             border: Border.all(color: Colors.orange.withOpacity(0.3))),
         child: Row(children: [
           Icon(Icons.info_outline, color: Colors.orange, size: 20),

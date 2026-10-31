@@ -157,7 +157,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
                   },
                 ),
           hintText: t('drawerSearchHint'),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          border: OutlineInputBorder(borderRadius: AppRadius.mediumAll),
         ),
       ),
     );
@@ -480,7 +480,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                   decoration: BoxDecoration(
                     color: Colors.red,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: AppRadius.mediumAll,
                   ),
                   child: Text(
                     badgeCount > 99 ? '99+' : badgeCount.toString(),
@@ -499,7 +499,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
                 height: 20,
                 decoration: BoxDecoration(
                   color: scheme.primary,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: AppRadius.smallAll,
                 ),
               )
             : null,

@@ -19,6 +19,7 @@ import 'package:drinks_calculator_fixed/utils/inventory_sort_helper.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
+import '../theme/app_theme.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({Key? key}) : super(key: key);
@@ -137,7 +138,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
         title: Row(children: [
           const Icon(Icons.fact_check_outlined, color: Colors.blue),
           const SizedBox(width: 10),
@@ -205,7 +206,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
         title: Row(
           children: [
             const Icon(Icons.add_shopping_cart, color: Colors.green),
@@ -313,7 +314,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
         title: Row(
           children: [
             DrinkAvatar(
@@ -321,8 +322,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
               size: 44,
               foreground: item.isLowStock ? Colors.orange : Colors.green,
               background: item.isLowStock
-                  ? Colors.orange.withValues(alpha: 0.1)
-                  : Colors.green.withValues(alpha: 0.1),
+                  ? Colors.orange.withValues(alpha: AppAlpha.subtle)
+                  : Colors.green.withValues(alpha: AppAlpha.subtle),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -339,7 +340,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                           color: Colors.orange,
-                          borderRadius: BorderRadius.circular(10)),
+                          borderRadius: AppRadius.mediumAll),
                       child: Text(t('lowStock'),
                           style: TextStyle(
                               fontSize: 10,
@@ -490,7 +491,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
         title: Text(t('updateMinStock')),
         content: TextField(
           controller: controller,
@@ -686,7 +687,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                                   )
                                 : null,
                             border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10)),
+                                borderRadius: AppRadius.mediumAll),
                           ),
                           onChanged: (value) =>
                               setState(() => _searchQuery = value),
@@ -793,11 +794,11 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.mediumAll),
       borderOnForeground: true,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.mediumAll,
           border: Border.all(
             color: isLowStock
                 ? Colors.orange.withOpacity(0.5)
@@ -833,7 +834,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
                     color: Colors.orange,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: AppRadius.mediumAll,
                   ),
                   child: Text(t('low'),
                       style: TextStyle(
@@ -974,7 +975,7 @@ class _InventorySkeletonListState extends State<_InventorySkeletonList>
                   height: 48,
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: AppRadius.mediumAll,
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -987,20 +988,20 @@ class _InventorySkeletonListState extends State<_InventorySkeletonList>
                           width: 140,
                           decoration: BoxDecoration(
                               color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(6))),
+                              borderRadius: AppRadius.smallAll)),
                       const SizedBox(height: 10),
                       Container(
                           height: 12,
                           decoration: BoxDecoration(
                               color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(6))),
+                              borderRadius: AppRadius.smallAll)),
                       const SizedBox(height: 8),
                       Container(
                           width: 90,
                           height: 12,
                           decoration: BoxDecoration(
                               color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(6))),
+                              borderRadius: AppRadius.smallAll)),
                     ],
                   ),
                 ),

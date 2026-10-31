@@ -1,6 +1,7 @@
 // widgets/floating_ai_button.dart
 import 'package:flutter/material.dart';
 import 'package:drinks_calculator_fixed/screens/ai_assistant_screen.dart';
+import '../theme/app_theme.dart';
 
 class FloatingAIButton extends StatefulWidget {
   final VoidCallback? onPressed;
@@ -115,7 +116,7 @@ class RingsOnlyIcon extends StatelessWidget {
             height: size * 0.5,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
+              border: Border.all(color: Colors.white.withValues(alpha: AppAlpha.strong), width: 2),
             ),
           ),
           Container(
@@ -123,7 +124,7 @@ class RingsOnlyIcon extends StatelessWidget {
             height: size * 0.68,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1.5),
+              border: Border.all(color: Colors.white.withValues(alpha: AppAlpha.medium), width: 1.5),
             ),
           ),
           Container(
@@ -131,7 +132,7 @@ class RingsOnlyIcon extends StatelessWidget {
             height: size * 0.85,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1),
+              border: Border.all(color: Colors.white.withValues(alpha: AppAlpha.subtle), width: 1),
             ),
           ),
           Text(

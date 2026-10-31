@@ -2,6 +2,7 @@
 // A compact, professional EN/FR segmented language switcher.
 import 'package:flutter/material.dart';
 import '../utils/i18n.dart';
+import '../theme/app_theme.dart';
 
 class LanguageToggle extends StatelessWidget {
   final Color? activeColor;
@@ -42,7 +43,7 @@ class LanguageToggle extends StatelessWidget {
               decoration: BoxDecoration(
                 color:
                     backgroundColor ?? theme.dividerColor.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: AppRadius.xlargeAll,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -70,7 +71,7 @@ class LanguageToggle extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
         decoration: BoxDecoration(
           color: selected ? active : Colors.transparent,
-          borderRadius: BorderRadius.circular(17),
+          borderRadius: AppRadius.largeAll,
         ),
         child: Text(
           label,

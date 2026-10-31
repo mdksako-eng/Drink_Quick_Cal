@@ -42,6 +42,7 @@ import 'package:drinks_calculator_fixed/utils/whatsapp_link_helper.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:drinks_calculator_fixed/screens/notifications_screen.dart';
 import '../main.dart' show ThemeProvider;
+import '../theme/app_theme.dart';
 
 enum PaymentMethod {
   cash,
@@ -718,7 +719,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
           return AlertDialog(
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
             title: Row(children: [
               const Icon(Icons.numbers),
               const SizedBox(width: 10),
@@ -1263,7 +1264,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadius.mediumAll,
                       ),
                       child: Image.memory(qrBytes,
                           width: 200, height: 200, gaplessPlayback: true),
@@ -1331,7 +1332,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadius.smallAll,
                     ),
                     child: Column(
                       children: [
@@ -1547,7 +1548,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
         title: Text(t('customerInformation'),
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
         content: SizedBox(
@@ -1601,9 +1602,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   hintText: t('enterCustomerName'),
                   prefixIcon: const Icon(Icons.person_outline),
                   border:
-                      OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      OutlineInputBorder(borderRadius: AppRadius.mediumAll),
                   focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppRadius.mediumAll,
                       borderSide:
                           const BorderSide(color: Color(0xFF667EEA), width: 2)),
                 ),
@@ -1638,7 +1639,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF667EEA),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12))),
+                    borderRadius: AppRadius.mediumAll)),
             child: Text(t('continue')),
           ),
         ],
@@ -1699,7 +1700,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         builder: (context, setState) {
           return AlertDialog(
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
             backgroundColor: Theme.of(context).cardColor,
             title: Column(
               children: [
@@ -1708,7 +1709,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   height: 60,
                   decoration: BoxDecoration(
                     color:
-                        Theme.of(context).primaryColor.withValues(alpha: 0.25),
+                        Theme.of(context).primaryColor.withValues(alpha: AppAlpha.medium),
                     shape: BoxShape.circle,
                     border: Border.all(
                         color: Theme.of(context).primaryColor, width: 2),
@@ -1735,7 +1736,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.mediumAll,
                     border: Border.all(
                         color: Theme.of(context).dividerColor, width: 1),
                   ),
@@ -1794,7 +1795,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                           foregroundColor: Theme.of(context).hintColor,
                           padding: EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: AppRadius.mediumAll,
                               side: BorderSide(
                                   color: Theme.of(context).dividerColor,
                                   width: 1))),
@@ -1822,7 +1823,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                           backgroundColor: Theme.of(context).primaryColor,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10))),
+                              borderRadius: AppRadius.mediumAll)),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -1850,7 +1851,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
         backgroundColor: Theme.of(context).cardColor,
         title: Column(
           children: [
@@ -1858,7 +1859,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.25),
+                  color: Colors.red.withValues(alpha: AppAlpha.medium),
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.red, width: 2)),
               child:
@@ -1884,7 +1885,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   padding:
                       EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10))),
+                      borderRadius: AppRadius.mediumAll)),
               child: Text(t('tryAgain'),
                   style: TextStyle(
                       color: Colors.white,
@@ -1902,7 +1903,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Theme.of(context).cardColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.xlargeAll),
         title: Column(
           children: [
             Icon(Icons.logout, size: 48, color: Color(0xFFFF6B6B)),
@@ -1939,7 +1940,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       backgroundColor: Theme.of(context).primaryColor,
                       padding: EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10))),
+                          borderRadius: AppRadius.mediumAll)),
                   child: Text(t('cancel'),
                       style: TextStyle(
                           color: Colors.white,
@@ -1964,7 +1965,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       backgroundColor: Color(0xFFFF6B6B),
                       padding: EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10))),
+                          borderRadius: AppRadius.mediumAll)),
                   child: Text(t('logout'),
                       style: TextStyle(
                           color: Colors.white,
@@ -2108,7 +2109,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                         padding: EdgeInsets.zero,
                         child: Card(
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)),
+                              borderRadius: AppRadius.xlargeAll),
                           elevation: 0,
                           color: theme.cardColor,
                           child: Padding(
@@ -2184,7 +2185,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                                               vertical: isMobile ? 16 : 20),
                                           shape: RoundedRectangleBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(15)),
+                                                  AppRadius.largeAll),
                                         ),
                                       ),
                                     ),
@@ -2284,7 +2285,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             Container(
               decoration: BoxDecoration(
                   color: primaryColor,
-                  borderRadius: BorderRadius.circular(10)),
+                  borderRadius: AppRadius.mediumAll),
               child: IconButton(
                 tooltip: 'Notifications',
                 padding: const EdgeInsets.all(8),
@@ -2340,7 +2341,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           children: [
             Container(
               decoration: BoxDecoration(
-                  color: primaryColor, borderRadius: BorderRadius.circular(12)),
+                  color: primaryColor, borderRadius: AppRadius.mediumAll),
               child: IconButton(
                   icon: Icon(Icons.menu, color: Colors.white, size: 32),
                   onPressed: () {
@@ -2371,8 +2372,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-              color: primaryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12)),
+              color: primaryColor.withValues(alpha: AppAlpha.subtle),
+              borderRadius: AppRadius.mediumAll),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2402,7 +2403,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 8),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20))),
+                                borderRadius: AppRadius.xlargeAll)),
                         icon: Icon(Icons.edit_note,
                             size: 14, color: Colors.white),
                         label: Text(t('manageDrinks'),
@@ -2424,7 +2425,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20))),
+                                borderRadius: AppRadius.xlargeAll)),
                         icon: Icon(Icons.receipt_long,
                             size: 16, color: Colors.white),
                         label: Text(t('invoiceHistory'),
@@ -2442,7 +2443,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                           padding: EdgeInsets.symmetric(
                               horizontal: 12, vertical: 8),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20))),
+                              borderRadius: AppRadius.xlargeAll)),
                       icon: Icon(Icons.logout,
                           size: 14, color: Colors.white),
                       label: Text(t('logout'),
@@ -2466,7 +2467,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           children: [
             Container(
               decoration: BoxDecoration(
-                  color: primaryColor, borderRadius: BorderRadius.circular(12)),
+                  color: primaryColor, borderRadius: AppRadius.mediumAll),
               child: IconButton(
                   icon: Icon(Icons.menu, color: Colors.white, size: 32),
                   onPressed: () {
@@ -2486,8 +2487,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-              color: primaryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20)),
+              color: primaryColor.withValues(alpha: AppAlpha.subtle),
+              borderRadius: AppRadius.xlargeAll),
           child: Row(
             children: [
               Text('${t('welcome')}, ',
@@ -2507,7 +2508,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       padding: EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20))),
+                          borderRadius: AppRadius.xlargeAll)),
                   icon: Icon(Icons.edit_note,
                       size: 16, color: Colors.white),
                   label: Text(t('manageDrinks'),
@@ -2527,7 +2528,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                         padding: EdgeInsets.symmetric(
                             horizontal: 16, vertical: 10),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20))),
+                            borderRadius: AppRadius.xlargeAll)),
                     icon: Icon(Icons.receipt_long,
                         size: 18, color: Colors.white),
                     label: Text(t('invoiceHistory'),
@@ -2543,7 +2544,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     padding:
                         EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20))),
+                        borderRadius: AppRadius.xlargeAll)),
                 icon: Icon(Icons.logout, size: 16, color: Colors.white),
                 label: Text(t('logout'),
                     style: TextStyle(fontSize: 12, color: Colors.white)),
@@ -2564,7 +2565,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           children: [
             Container(
               decoration: BoxDecoration(
-                  color: primaryColor, borderRadius: BorderRadius.circular(12)),
+                  color: primaryColor, borderRadius: AppRadius.mediumAll),
               child: IconButton(
                   icon: Icon(Icons.menu, color: Colors.white, size: 32),
                   onPressed: () {
@@ -2584,8 +2585,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: BoxDecoration(
-              color: primaryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(25)),
+              color: primaryColor.withValues(alpha: AppAlpha.subtle),
+              borderRadius: AppRadius.xlargeAll),
           child: Row(
             children: [
               Text('${t('welcome')}, ',
@@ -2605,7 +2606,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       padding: EdgeInsets.symmetric(
                           horizontal: 16, vertical: 10),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20))),
+                          borderRadius: AppRadius.xlargeAll)),
                   icon: Icon(Icons.edit_note,
                       size: 18, color: Colors.white),
                   label: Text(t('manageDrinks'),
@@ -2625,7 +2626,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                         padding: EdgeInsets.symmetric(
                             horizontal: 16, vertical: 10),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20))),
+                            borderRadius: AppRadius.xlargeAll)),
                     icon: Icon(Icons.receipt_long,
                         size: 18, color: Colors.white),
                     label: Text(t('invoiceHistory'),
@@ -2648,7 +2649,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       padding: EdgeInsets.symmetric(
                           horizontal: 16, vertical: 10),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20))),
+                          borderRadius: AppRadius.xlargeAll)),
                   icon: Icon(Icons.admin_panel_settings,
                       size: 18, color: Colors.white),
                   label: Text(t('adminPanel'),
@@ -2663,7 +2664,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     padding: EdgeInsets.symmetric(
                         horizontal: 16, vertical: 10),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20))),
+                        borderRadius: AppRadius.xlargeAll)),
                 icon: Icon(Icons.logout, size: 18, color: Colors.white),
                 label: Text(t('logout'),
                     style: TextStyle(fontSize: 14, color: Colors.white)),
@@ -2710,15 +2711,15 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     )
                   : const Icon(Icons.arrow_drop_down, size: 24),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppRadius.mediumAll,
                 borderSide: BorderSide(color: theme.dividerColor),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppRadius.mediumAll,
                 borderSide: BorderSide(color: primaryColor, width: 2),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppRadius.mediumAll,
                 borderSide: BorderSide(color: theme.dividerColor),
               ),
               filled: true,
@@ -2744,12 +2745,12 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             offset: Offset(0, 48),
             child: Material(
               elevation: 8,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: AppRadius.mediumAll,
               child: Container(
                 constraints: const BoxConstraints(maxHeight: 200),
                 decoration: BoxDecoration(
                   color: theme.cardColor,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: AppRadius.mediumAll,
                   border: Border.all(color: theme.dividerColor),
                 ),
                 child: _filteredDrinks.isEmpty
@@ -2871,7 +2872,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             Container(
               decoration: BoxDecoration(
                   border: Border.all(color: theme.dividerColor),
-                  borderRadius: BorderRadius.circular(8)),
+                  borderRadius: AppRadius.smallAll),
               child: Row(
                 children: [
                   IconButton(
@@ -2885,7 +2886,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   // Tap the number to type the quantity with the keyboard.
                   InkWell(
                     onTap: _promptQuantity,
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: AppRadius.smallAll,
                     child: Container(
                         width: 44,
                         alignment: Alignment.center,
@@ -3014,15 +3015,15 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                           )
                         : const Icon(Icons.arrow_drop_down, size: 24),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: AppRadius.mediumAll,
                       borderSide: BorderSide(color: theme.dividerColor),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: AppRadius.mediumAll,
                       borderSide: BorderSide(color: primaryColor, width: 2),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: AppRadius.mediumAll,
                       borderSide: BorderSide(color: theme.dividerColor),
                     ),
                     filled: true,
@@ -3049,12 +3050,12 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   offset: Offset(0, 48),
                   child: Material(
                     elevation: 8,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: AppRadius.mediumAll,
                     child: Container(
                       constraints: const BoxConstraints(maxHeight: 200),
                       decoration: BoxDecoration(
                         color: theme.cardColor,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: AppRadius.mediumAll,
                         border: Border.all(color: theme.dividerColor),
                       ),
                       child: _filteredDrinks.isEmpty
@@ -3180,7 +3181,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                         Container(
                           decoration: BoxDecoration(
                               border: Border.all(color: theme.dividerColor),
-                              borderRadius: BorderRadius.circular(8)),
+                              borderRadius: AppRadius.smallAll),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -3197,7 +3198,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                               // Tap the number to type the quantity.
                               InkWell(
                                 onTap: _promptQuantity,
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: AppRadius.smallAll,
                                 child: Container(
                                     width: isTablet ? 52 : 62,
                                     alignment: Alignment.center,
@@ -3313,7 +3314,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       Container(
         decoration: BoxDecoration(
           border: Border.all(color: primaryColor),
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: AppRadius.largeAll,
         ),
         child: Column(children: [
           // Header
@@ -3396,13 +3397,13 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Card(
                       color: isNewlyAdded
-                          ? Colors.green.withValues(alpha: 0.1)
+                          ? Colors.green.withValues(alpha: AppAlpha.subtle)
                           : (isExpanded
-                              ? primaryColor.withValues(alpha: 0.05)
+                              ? primaryColor.withValues(alpha: AppAlpha.faint)
                               : theme.cardColor),
                       elevation: isNewlyAdded ? 4 : (isExpanded ? 2 : 1),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadius.mediumAll,
                         side: isOutOfStock
                             ? BorderSide(color: Colors.red, width: 1)
                             : BorderSide.none,
@@ -3410,7 +3411,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       child: InkWell(
                         onTap: () => setState(() => _expandedDrinkName =
                             _expandedDrinkName == drinkName ? null : drinkName),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadius.mediumAll,
                         child: Column(children: [
                           Padding(
                             padding: EdgeInsets.all(isMobile ? 12 : 16),
@@ -3478,7 +3479,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                                             decoration: BoxDecoration(
                                               color: Colors.red,
                                               borderRadius:
-                                                  BorderRadius.circular(8),
+                                                  AppRadius.smallAll,
                                             ),
                                             child: Text(t('outOfStock'),
                                                 style: TextStyle(
@@ -3548,7 +3549,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             padding: EdgeInsets.all(isMobile ? 12 : 16),
             decoration: BoxDecoration(
               color: theme.cardColor,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: AppRadius.mediumAll,
               border: Border.all(color: theme.dividerColor),
             ),
             child: Row(
@@ -3621,7 +3622,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: theme.dividerColor),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppRadius.smallAll,
                 ),
                 child: IconButton(
                   icon: Icon(Icons.remove, size: isMobile ? 18 : 20),
@@ -3644,7 +3645,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: theme.dividerColor),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppRadius.smallAll,
                 ),
                 child: IconButton(
                   icon: Icon(Icons.add, size: isMobile ? 18 : 20),
@@ -3704,9 +3705,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           Container(
             padding: EdgeInsets.all(isMobile ? 12 : 16),
             decoration: BoxDecoration(
-                color: primaryColor.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: primaryColor.withValues(alpha: 0.2))),
+                color: primaryColor.withValues(alpha: AppAlpha.faint),
+                borderRadius: AppRadius.mediumAll,
+                border: Border.all(color: primaryColor.withValues(alpha: AppAlpha.medium))),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -3748,13 +3749,13 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             hintText: '${t('calcEnterAmount')} ${CurrencyHelper.getSymbol()}',
             prefixIcon: Icon(Icons.attach_money, size: isMobile ? 20 : 24),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppRadius.mediumAll,
                 borderSide: BorderSide(color: theme.dividerColor)),
             focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppRadius.mediumAll,
                 borderSide: BorderSide(color: primaryColor, width: 2)),
             enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppRadius.mediumAll,
                 borderSide: BorderSide(color: theme.dividerColor)),
           ),
           style: TextStyle(color: theme.textTheme.bodyLarge?.color),
@@ -3773,9 +3774,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             padding: EdgeInsets.all(isMobile ? 12 : 16),
             decoration: BoxDecoration(
                 color: _balance >= 0
-                    ? Colors.green.withValues(alpha: 0.1)
-                    : Colors.red.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
+                    ? Colors.green.withValues(alpha: AppAlpha.subtle)
+                    : Colors.red.withValues(alpha: AppAlpha.subtle),
+                borderRadius: AppRadius.mediumAll,
                 border: Border.all(
                     color: _balance >= 0 ? Colors.green : Colors.red,
                     width: 2)),
@@ -4025,8 +4026,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
-            color: isSelected ? color.withValues(alpha: 0.15) : null,
-            borderRadius: BorderRadius.circular(10),
+            color: isSelected ? color.withValues(alpha: AppAlpha.subtle) : null,
+            borderRadius: AppRadius.mediumAll,
             border: Border.all(
                 color: isSelected ? color : theme.dividerColor,
                 width: isSelected ? 2 : 1)),
@@ -4066,15 +4067,15 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         prefixIcon:
             Icon(Icons.phone_android, color: color, size: isMobile ? 18 : 20),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: AppRadius.mediumAll,
           borderSide: BorderSide(color: theme.dividerColor),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: AppRadius.mediumAll,
           borderSide: BorderSide(color: color, width: 2),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: AppRadius.mediumAll,
           borderSide: BorderSide(color: theme.dividerColor),
         ),
         contentPadding: EdgeInsets.symmetric(
@@ -4082,7 +4083,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           vertical: isMobile ? 12 : 14,
         ),
         filled: true,
-        fillColor: color.withValues(alpha: 0.05),
+        fillColor: color.withValues(alpha: AppAlpha.faint),
       ),
       style: TextStyle(color: theme.textTheme.bodyLarge?.color),
     );
@@ -4107,9 +4108,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     return Container(
       padding: EdgeInsets.all(isMobile ? 12 : 16),
       decoration: BoxDecoration(
-          color: statusColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: statusColor.withValues(alpha: 0.3))),
+          color: statusColor.withValues(alpha: AppAlpha.subtle),
+          borderRadius: AppRadius.mediumAll,
+          border: Border.all(color: statusColor.withValues(alpha: AppAlpha.strong))),
       child: Row(
         children: [
           if (_paymentStatus == 'processing')

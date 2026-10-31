@@ -22,6 +22,7 @@ import 'auth_screen.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
+import '../theme/app_theme.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -242,7 +243,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!_twoFactorAvailable) return const SizedBox.shrink();
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: SwitchListTile(
         secondary: Icon(Icons.verified_user, color: primary),
         title: Text(t('twoFactorTitle'),
@@ -497,7 +498,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Card(
       elevation: 2,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -508,7 +509,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 66,
                 height: 66,
                 decoration: BoxDecoration(
-                  color: primary.withValues(alpha: 0.12),
+                  color: primary.withValues(alpha: AppAlpha.subtle),
                   shape: BoxShape.circle,
                 ),
                 clipBehavior: Clip.antiAlias,
@@ -545,7 +546,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: primary.withValues(alpha: 0.14),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: AppRadius.xlargeAll,
                         ),
                         child: Text(
                           _roleLabel(role, isOwner),
@@ -560,8 +561,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.amber.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.amber.withValues(alpha: AppAlpha.medium),
+                            borderRadius: AppRadius.xlargeAll,
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -595,8 +596,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _accessCard(ThemeData theme, Color primary, String hint) {
     return Card(
       elevation: 1,
-      color: primary.withValues(alpha: 0.08),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: primary.withValues(alpha: AppAlpha.subtle),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Row(
@@ -704,7 +705,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Card(
       elevation: 1,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -793,7 +794,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Card(
       elevation: 1,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -848,7 +849,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Card(
       elevation: 1,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

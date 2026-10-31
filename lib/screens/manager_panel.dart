@@ -17,6 +17,7 @@ import 'package:drinks_calculator_fixed/services/secure_storage_service.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
+import '../theme/app_theme.dart';
 
 class ManagerPanel extends StatefulWidget {
   const ManagerPanel({Key? key}) : super(key: key);
@@ -396,7 +397,7 @@ class _ManagerPanelState extends State<ManagerPanel>
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                             color: Colors.orange.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8)),
+                            borderRadius: AppRadius.smallAll),
                         child:
                             const Icon(Icons.person_add, color: Colors.orange)),
                     const SizedBox(width: 12),
@@ -415,7 +416,7 @@ class _ManagerPanelState extends State<ManagerPanel>
                       prefixIcon: const Icon(Icons.person),
                       border: const OutlineInputBorder(),
                       focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: AppRadius.smallAll,
                           borderSide:
                               BorderSide(color: _primaryColor, width: 2)),
                     ),
@@ -428,7 +429,7 @@ class _ManagerPanelState extends State<ManagerPanel>
                       prefixIcon: const Icon(Icons.email),
                       border: const OutlineInputBorder(),
                       focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: AppRadius.smallAll,
                           borderSide:
                               BorderSide(color: _primaryColor, width: 2)),
                     ),
@@ -449,7 +450,7 @@ class _ManagerPanelState extends State<ManagerPanel>
                               setModalState(() => showPass = !showPass)),
                       border: const OutlineInputBorder(),
                       focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: AppRadius.smallAll,
                           borderSide:
                               BorderSide(color: _primaryColor, width: 2)),
                     ),
@@ -464,7 +465,7 @@ class _ManagerPanelState extends State<ManagerPanel>
                       labelText: "What was your first pet's name?",
                       border: const OutlineInputBorder(),
                       focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: AppRadius.smallAll,
                           borderSide:
                               BorderSide(color: _primaryColor, width: 2)),
                     ),
@@ -476,7 +477,7 @@ class _ManagerPanelState extends State<ManagerPanel>
                       labelText: 'What city were you born in?',
                       border: const OutlineInputBorder(),
                       focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: AppRadius.smallAll,
                           borderSide:
                               BorderSide(color: _primaryColor, width: 2)),
                     ),
@@ -499,7 +500,7 @@ class _ManagerPanelState extends State<ManagerPanel>
                             backgroundColor: _primaryColor,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10))),
+                                borderRadius: AppRadius.mediumAll)),
                       )),
                   const SizedBox(height: 10),
                 ]),
@@ -604,7 +605,7 @@ class _ManagerPanelState extends State<ManagerPanel>
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                             color: _primaryColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12)),
+                            borderRadius: AppRadius.mediumAll),
                         child: Icon(Icons.business,
                             color: _primaryColor, size: 30)),
                     const SizedBox(width: 12),
@@ -625,7 +626,7 @@ class _ManagerPanelState extends State<ManagerPanel>
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                             color: _primaryColor,
-                            borderRadius: BorderRadius.circular(12)),
+                            borderRadius: AppRadius.mediumAll),
                         child: const Text('MANAGER',
                             style: TextStyle(
                                 color: Colors.white,
@@ -722,7 +723,7 @@ class _ManagerPanelState extends State<ManagerPanel>
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              RoundedRectangleBorder(borderRadius: AppRadius.mediumAll),
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: isActive ? _primaryColor : Colors.grey,
@@ -747,7 +748,7 @@ class _ManagerPanelState extends State<ManagerPanel>
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: Colors.amber.shade100,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppRadius.smallAll,
                   ),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     const Icon(Icons.emoji_events,
@@ -785,7 +786,7 @@ class _ManagerPanelState extends State<ManagerPanel>
                   color: (s['role']?.toString().toLowerCase() == 'manager')
                       ? Colors.orange.withOpacity(0.15)
                       : Colors.blueGrey.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: AppRadius.mediumAll,
                 ),
                 child: Text(
                   s['role'] ?? 'Staff',

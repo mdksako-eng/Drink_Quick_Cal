@@ -1,6 +1,7 @@
 // widgets/skeleton.dart
 // Lightweight loading skeletons (no external dependency).
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 /// A subtle pulsing placeholder block.
 class SkeletonBox extends StatefulWidget {
@@ -34,8 +35,8 @@ class _SkeletonBoxState extends State<SkeletonBox>
   @override
   Widget build(BuildContext context) {
     final base = Theme.of(context).brightness == Brightness.dark
-        ? Colors.white.withValues(alpha: 0.08)
-        : Colors.black.withValues(alpha: 0.06);
+        ? Colors.white.withValues(alpha: AppAlpha.subtle)
+        : Colors.black.withValues(alpha: AppAlpha.faint);
     return FadeTransition(
       opacity: Tween<double>(begin: 0.4, end: 1.0).animate(
         CurvedAnimation(parent: _controller, curve: Curves.easeInOut),

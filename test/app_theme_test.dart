@@ -164,4 +164,46 @@ void main() {
       expect('AppGlass.surface('.allMatches(main).length, 1);
     });
   });
+
+  group('the migration holds (no drift back to hand-picked values)', () {
+    /// Every .dart under lib/, minus the token definitions themselves.
+    List<File> sources() => Directory('lib')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.dart'))
+        .where((f) => !f.path.endsWith('app_theme.dart'))
+        .toList();
+
+    test('no screen re-introduces a hand-picked token radius', () {
+      // 8 / 12 / 16 / 20 are the token steps. A literal one of those is the exact
+      // drift this migration removed 374 times.
+      final offenders = <String>[];
+      for (final file in sources()) {
+        final text = file.readAsStringSync();
+        for (final step in ['8', '12', '16', '20']) {
+          // Only Flutter's BorderRadius — the PDF package has its own (pw.BorderRadius).
+          final pattern = RegExp('(?<!pw\\.)BorderRadius\\.circular\\($step\\)');
+          if (pattern.hasMatch(text)) offenders.add('${file.path}: $step');
+        }
+      }
+      expect(offenders, isEmpty,
+          reason: 'use AppRadius.smallAll / mediumAll / largeAll / xlargeAll');
+    });
+
+    test('no screen re-introduces a hand-picked overlay tint', () {
+      // 0.1 / 0.2 / 0.06 are the alpha steps. The compositional ones (gradient stops,
+      // scrims, 0.4 and above) are deliberately NOT tokenised — see AppAlpha.
+      final offenders = <String>[];
+      for (final file in sources()) {
+        final text = file.readAsStringSync();
+        for (final step in ['0.06', '0.1', '0.2']) {
+          if (text.contains('withValues(alpha: $step)')) {
+            offenders.add('${file.path}: $step');
+          }
+        }
+      }
+      expect(offenders, isEmpty,
+          reason: 'use AppAlpha.faint / subtle / medium');
+    });
+  });
 }

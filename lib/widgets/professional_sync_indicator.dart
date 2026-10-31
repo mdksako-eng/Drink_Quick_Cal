@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:drinks_calculator_fixed/providers/sync_provider.dart';
 import '../utils/i18n.dart';
+import '../theme/app_theme.dart';
 
 class ProfessionalSyncIndicator extends StatefulWidget {
   final Widget child;
@@ -65,7 +66,7 @@ class _ProfessionalSyncIndicatorState extends State<ProfessionalSyncIndicator>
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
                       gradient: _getGradient(syncProvider.status),
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: AppRadius.xlargeAll,
                       boxShadow: [
                         BoxShadow(
                           color: _getShadowColor(syncProvider.status).withValues(alpha: 0.5),
@@ -74,7 +75,7 @@ class _ProfessionalSyncIndicatorState extends State<ProfessionalSyncIndicator>
                         ),
                       ],
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: Colors.white.withValues(alpha: AppAlpha.medium),
                         width: 1,
                       ),
                     ),
@@ -111,8 +112,8 @@ class _ProfessionalSyncIndicatorState extends State<ProfessionalSyncIndicator>
                           Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.white.withValues(alpha: AppAlpha.medium),
+                              borderRadius: AppRadius.xlargeAll,
                             ),
                             child: const Icon(
                               Icons.refresh,
@@ -249,7 +250,7 @@ class _ProfessionalSyncIndicatorState extends State<ProfessionalSyncIndicator>
         ),
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.mediumAll),
         backgroundColor: const Color(0xFF2C3E50),
       ),
     );

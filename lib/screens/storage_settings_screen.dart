@@ -29,6 +29,7 @@ import 'package:drinks_calculator_fixed/services/secure_storage_service.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
+import '../theme/app_theme.dart';
 
 class StorageSettingsScreen extends StatefulWidget {
   const StorageSettingsScreen({super.key});
@@ -610,7 +611,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
           duration: Duration(seconds: 3),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: AppRadius.mediumAll,
           ),
         ),
       );
@@ -771,8 +772,8 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
       builder: (context, themeProvider, _) {
         final theme = Theme.of(context);
         final primaryColorValue = parseHexColor(_primaryColor);
-        final primaryColorLight = primaryColorValue.withValues(alpha: 0.1);
-        final primaryColorVeryLight = primaryColorValue.withValues(alpha: 0.05);
+        final primaryColorLight = primaryColorValue.withValues(alpha: AppAlpha.subtle);
+        final primaryColorVeryLight = primaryColorValue.withValues(alpha: AppAlpha.faint);
         final authProvider = Provider.of<AuthProvider>(context);
         final role = authProvider.user?.role.toLowerCase() ?? '';
         final isStaff = role == 'staff';
@@ -827,7 +828,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                 color: theme.cardColor,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: Colors.black.withValues(alpha: AppAlpha.subtle),
                     blurRadius: 10,
                     offset: const Offset(0, -2),
                   ),
@@ -846,7 +847,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                             foregroundColor: Colors.red,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: AppRadius.mediumAll,
                             ),
                           ),
                         ),
@@ -882,7 +883,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: AppRadius.mediumAll,
                           ),
                         ),
                       ),
@@ -957,7 +958,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
           elevation: 2,
           color: theme.cardColor,
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -1044,7 +1045,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                                   : null,
                               boxShadow: [
                                 BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
+                                    color: Colors.black.withValues(alpha: AppAlpha.subtle),
                                     blurRadius: 4)
                               ],
                             ),
@@ -1111,8 +1112,8 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? primaryColorValue.withValues(alpha: 0.1) : null,
-            borderRadius: BorderRadius.circular(8),
+            color: isSelected ? primaryColorValue.withValues(alpha: AppAlpha.subtle) : null,
+            borderRadius: AppRadius.smallAll,
             border: Border.all(
                 color: isSelected ? primaryColorValue : theme.dividerColor,
                 width: isSelected ? 2 : 1),
@@ -1135,8 +1136,8 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: primaryColorValue.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
+                    color: primaryColorValue.withValues(alpha: AppAlpha.medium),
+                    borderRadius: AppRadius.smallAll,
                   ),
                   child: Text(
                     t('st_themeActive'),
@@ -1166,7 +1167,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
       return Card(
         elevation: 2,
         color: theme.cardColor, // ✅ Dark: dark grey, Light: white
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -1199,7 +1200,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                       // ✅ Dark: darker grey, Light: light grey
                       color:
                           isDark ? Colors.grey.shade700 : Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppRadius.mediumAll,
                     ),
                     child: Text(
                       t('st_readOnly'),
@@ -1247,7 +1248,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
     return Card(
       elevation: 2,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -1272,7 +1273,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.orange.shade100,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.mediumAll,
                   ),
                   child: Text(
                     t('st_companyWide'),
@@ -1304,7 +1305,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                   color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                 ),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mediumAll,
                 ),
                 prefixIcon: Icon(Icons.attach_money, color: primaryColorValue),
               ),
@@ -1449,7 +1450,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
       decoration: BoxDecoration(
         // ✅ Dark mode: darker background, Light mode: light background
         color: isDark ? Colors.grey.shade800 : Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.smallAll,
         border: Border.all(
           // ✅ Dark mode: lighter border, Light mode: darker border
           color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
@@ -1504,7 +1505,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
       elevation: 4,
       color: primaryColorVeryLight,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.largeAll,
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -1530,7 +1531,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.orange,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppRadius.mediumAll,
                     ),
                     child: Text(
                       t('st_unsaved'),
@@ -1544,9 +1545,9 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: theme.cardColor,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.mediumAll,
                 border:
-                    Border.all(color: primaryColorValue.withValues(alpha: 0.3)),
+                    Border.all(color: primaryColorValue.withValues(alpha: AppAlpha.strong)),
               ),
               child: Column(
                 children: [
@@ -1575,7 +1576,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: primaryColorLight,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadius.smallAll,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1598,7 +1599,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: primaryColorLight,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadius.smallAll,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1713,7 +1714,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
         title: Text(t('branding_title')),
         content: Text(t('branding_removeConfirm')),
         actions: [
@@ -1756,7 +1757,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
     return Card(
       elevation: 2,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -1788,8 +1789,8 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                   width: 76,
                   height: 76,
                   decoration: BoxDecoration(
-                    color: theme.dividerColor.withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(14),
+                    color: theme.dividerColor.withValues(alpha: AppAlpha.medium),
+                    borderRadius: AppRadius.largeAll,
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: (logo == null || logo.isEmpty)
@@ -1858,7 +1859,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
       return Card(
         elevation: 2,
         color: theme.cardColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -1886,7 +1887,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                     decoration: BoxDecoration(
                       color:
                           isDark ? Colors.grey.shade700 : Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppRadius.mediumAll,
                     ),
                     child: Text(
                       t('st_readOnly'),
@@ -1932,7 +1933,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
     return Card(
       elevation: 2,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -1959,13 +1960,13 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                 labelText: t('companyName'),
                 labelStyle: TextStyle(color: theme.hintColor),
                 border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    OutlineInputBorder(borderRadius: AppRadius.mediumAll),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mediumAll,
                   borderSide: BorderSide(color: theme.dividerColor),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mediumAll,
                   borderSide: BorderSide(color: primaryColorValue, width: 2),
                 ),
                 prefixIcon: Icon(Icons.business, color: primaryColorValue),
@@ -1988,13 +1989,13 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                 labelText: t('auth_country'),
                 labelStyle: TextStyle(color: theme.hintColor),
                 border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    OutlineInputBorder(borderRadius: AppRadius.mediumAll),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mediumAll,
                   borderSide: BorderSide(color: theme.dividerColor),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mediumAll,
                   borderSide: BorderSide(color: primaryColorValue, width: 2),
                 ),
                 prefixIcon: Icon(Icons.public, color: primaryColorValue),
@@ -2047,13 +2048,13 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                     .firstWhere((c) => c['code'] == _selectedCountry)['format'],
                 labelStyle: TextStyle(color: theme.hintColor),
                 border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    OutlineInputBorder(borderRadius: AppRadius.mediumAll),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mediumAll,
                   borderSide: BorderSide(color: theme.dividerColor),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mediumAll,
                   borderSide: BorderSide(color: primaryColorValue, width: 2),
                 ),
                 prefixIcon: Padding(
@@ -2178,13 +2179,13 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                 labelText: t('st_emailAddress'),
                 labelStyle: TextStyle(color: theme.hintColor),
                 border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    OutlineInputBorder(borderRadius: AppRadius.mediumAll),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mediumAll,
                   borderSide: BorderSide(color: theme.dividerColor),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mediumAll,
                   borderSide: BorderSide(color: primaryColorValue, width: 2),
                 ),
                 prefixIcon: Icon(Icons.email, color: primaryColorValue),
@@ -2208,13 +2209,13 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                 labelText: t('st_address'),
                 labelStyle: TextStyle(color: theme.hintColor),
                 border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    OutlineInputBorder(borderRadius: AppRadius.mediumAll),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mediumAll,
                   borderSide: BorderSide(color: theme.dividerColor),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mediumAll,
                   borderSide: BorderSide(color: primaryColorValue, width: 2),
                 ),
                 prefixIcon: Icon(Icons.location_on, color: primaryColorValue),
@@ -2246,7 +2247,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
     return Card(
       elevation: 2,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -2270,7 +2271,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                     color: _campayConnected
                         ? Colors.green.shade100
                         : Colors.orange.shade100,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.mediumAll,
                   ),
                   child: Text(
                     _campayConnected
@@ -2354,7 +2355,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                   color: theme.brightness == Brightness.dark
                       ? Colors.black26
                       : Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppRadius.smallAll,
                 ),
                 child: SelectableText(
                   _campayWebhookUrl,
@@ -2530,7 +2531,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
       return Card(
         elevation: 2,
         color: theme.cardColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -2555,7 +2556,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppRadius.mediumAll,
                     ),
                     child: Text(
                       t('st_readOnly'),
@@ -2591,7 +2592,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
     return Card(
       elevation: 2,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -2616,7 +2617,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.orange.shade100,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.mediumAll,
                   ),
                   child: Text(
                     t('st_companyWide'),
@@ -2664,10 +2665,10 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFCC00).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0xFFFFCC00).withValues(alpha: AppAlpha.subtle),
+                  borderRadius: AppRadius.mediumAll,
                   border: Border.all(
-                      color: const Color(0xFFFFCC00).withValues(alpha: 0.3)),
+                      color: const Color(0xFFFFCC00).withValues(alpha: AppAlpha.strong)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -2679,7 +2680,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                           height: 32,
                           decoration: BoxDecoration(
                             color: const Color(0xFFFFCC00),
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: AppRadius.smallAll,
                           ),
                           child: const Center(
                             child: Text(
@@ -2730,10 +2731,10 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF6600).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0xFFFF6600).withValues(alpha: AppAlpha.subtle),
+                  borderRadius: AppRadius.mediumAll,
                   border: Border.all(
-                      color: const Color(0xFFFF6600).withValues(alpha: 0.3)),
+                      color: const Color(0xFFFF6600).withValues(alpha: AppAlpha.strong)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -2745,7 +2746,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                           height: 32,
                           decoration: BoxDecoration(
                             color: const Color(0xFFFF6600),
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: AppRadius.smallAll,
                           ),
                           child: const Center(
                             child: Text(
@@ -2792,10 +2793,10 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: primaryColorValue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: primaryColorValue.withValues(alpha: AppAlpha.subtle),
+                  borderRadius: AppRadius.mediumAll,
                   border: Border.all(
-                      color: primaryColorValue.withValues(alpha: 0.3)),
+                      color: primaryColorValue.withValues(alpha: AppAlpha.strong)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -2807,7 +2808,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                           height: 32,
                           decoration: BoxDecoration(
                             color: primaryColorValue,
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: AppRadius.smallAll,
                           ),
                           child: const Center(
                             child: Icon(
@@ -2894,7 +2895,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
     return Card(
       elevation: 2,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -2945,7 +2946,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
     return Card(
       elevation: 2,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -3005,7 +3006,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
     return Card(
       elevation: 2,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -3090,7 +3091,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
     return Card(
       elevation: 2,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -3143,7 +3144,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
     return Card(
       elevation: 2,
       color: theme.cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.largeAll),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -3188,8 +3189,8 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
         decoration: BoxDecoration(
-          color: selected ? primaryColorValue.withValues(alpha: 0.1) : null,
-          borderRadius: BorderRadius.circular(8),
+          color: selected ? primaryColorValue.withValues(alpha: AppAlpha.subtle) : null,
+          borderRadius: AppRadius.smallAll,
           border: Border.all(
             color: selected ? primaryColorValue : theme.dividerColor,
           ),

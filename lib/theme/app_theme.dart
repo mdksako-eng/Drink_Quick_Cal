@@ -14,18 +14,29 @@ import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 
-/// Corner radii. Three sizes and a pill, so a panel and a card cannot disagree.
+/// Corner radii. Named steps, so a panel and a card cannot disagree.
+///
+/// These are `const` fields rather than getters on purpose: `BorderRadius.all` is a
+/// const constructor, so a token can be used inside a `const` widget — which is what
+/// lets the whole app migrate onto them without un-consting anything.
 class AppRadius {
   AppRadius._();
   static const double small = 8;
   static const double medium = 12;
   static const double large = 16;
+
+  /// Softer than [large]. Promoted to a token because the app already used 20 in more
+  /// places than [small] — the scale was wrong, the code was right.
+  static const double xlarge = 20;
   static const double pill = 999;
 
-  static BorderRadius get smallAll => BorderRadius.circular(small);
-  static BorderRadius get mediumAll => BorderRadius.circular(medium);
-  static BorderRadius get largeAll => BorderRadius.circular(large);
-  static BorderRadius get pillAll => BorderRadius.circular(pill);
+  static const BorderRadius smallAll = BorderRadius.all(Radius.circular(small));
+  static const BorderRadius mediumAll =
+      BorderRadius.all(Radius.circular(medium));
+  static const BorderRadius largeAll = BorderRadius.all(Radius.circular(large));
+  static const BorderRadius xlargeAll =
+      BorderRadius.all(Radius.circular(xlarge));
+  static const BorderRadius pillAll = BorderRadius.all(Radius.circular(pill));
 }
 
 /// Spacing steps. Named, so a layout reads as intent instead of magic numbers.

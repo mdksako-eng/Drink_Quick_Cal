@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../utils/i18n.dart';
+import '../theme/app_theme.dart';
 
 class BarcodeScanPage extends StatefulWidget {
   const BarcodeScanPage({super.key});
@@ -72,7 +73,7 @@ class _BarcodeScanPageState extends State<BarcodeScanPage> {
             height: 260,
             decoration: BoxDecoration(
               border: Border.all(color: primary, width: 3),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppRadius.largeAll,
             ),
           ),
         ),
@@ -86,7 +87,7 @@ class _BarcodeScanPageState extends State<BarcodeScanPage> {
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: AppRadius.xlargeAll,
               ),
               child: Text(t('scanHint'),
                   style: const TextStyle(color: Colors.white)),
