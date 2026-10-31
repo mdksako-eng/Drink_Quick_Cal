@@ -644,7 +644,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   // Stats Bar
                   Container(
                     padding: const EdgeInsets.all(12),
-                    color: theme.primaryColor.withOpacity(0.05),
+                    color: theme.primaryColor.withValues(alpha: AppAlpha.faint),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -801,7 +801,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
           borderRadius: AppRadius.mediumAll,
           border: Border.all(
             color: isLowStock
-                ? Colors.orange.withOpacity(0.5)
+                ? Colors.orange.withValues(alpha: 0.5)
                 : Colors.transparent,
             width: isLowStock ? 2 : 0,
           ),
@@ -816,8 +816,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
             circular: false,
             foreground: isLowStock ? Colors.orange : Colors.green,
             background: isLowStock
-                ? Colors.orange.withOpacity(0.1)
-                : Colors.green.withOpacity(0.1),
+                ? Colors.orange.withValues(alpha: AppAlpha.subtle)
+                : Colors.green.withValues(alpha: AppAlpha.subtle),
           ),
           title: Row(
             children: [

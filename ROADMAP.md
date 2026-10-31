@@ -1059,3 +1059,31 @@ that says where the line is.
   those two files was removed again.
 - Gates: Flutter **485 tests**, `flutter analyze lib` **534 issues** / 0 errors (unchanged). Backend untouched.
 
+## 2026-10-31 — The shadow/gradient pass: what it actually turned out to be
+The last open item was "36 hand-picked box shadows and 27 gradients". Measured properly, it is **not** a
+migration task, and this entry records why rather than pretending otherwise.
+- **The till has no shadows at all** and exactly one gradient — its background. That one *was* a surface, so it
+  now uses the `AppBrand.surface(primaryColor)` token, which is what makes the till and the drawer header
+  visibly the same surface. It used to fade the brand to 70 % opacity (letting the scaffold bleed through); the
+  token darkens it instead. **Dark mode keeps its neutral grey on purpose** — a brand-coloured till is a design
+  decision, not a token swap.
+- **Most "shadows" are not depth, they are colour.** Of the 19 `BoxShadow(` sites, the ones that carry meaning
+  are semantic glows: the sync indicator's status colour, the AI button's purple pulse, the auth screen's
+  orange warning, the subscription screen's brand glow. Mapping those onto `AppShadow.soft` / `raised`
+  (neutral black) would **delete the meaning** — a green "synced" glow would become grey depth.
+- **The depth shadows that remain are crisper than either token level.** They run blur 4–10 with offset (0,1)–
+  (0,2); `soft` is blur 16 / offset (0,4) and `raised` is blur 28 / offset (0,8). Forcing them onto the tokens
+  would make every card in the app noticeably fuzzier — a redesign, not a migration, and one no test can see.
+  There is also no dominant value to promote to a token the way `AppRadius.xlarge` promoted 20.
+- **The gradients are nearly all semantic too**: the AI button's green→purple, status colours, the lock
+  screen's translucent brand gradient (which the glass reads through — tokenising it would break the glass).
+  The till's background was the one that was a surface rather than a signal.
+- **What the pass did find and fix**: **53 deprecated `Color.withOpacity` calls** (missed by the earlier alpha
+  sweep because it only matched `withValues`). Renamed to `withValues(alpha:)` — which is also a precision fix
+  — and **46 of them moved onto the `AppAlpha` steps**. That is a measurable win: `flutter analyze lib` dropped
+  from **534 to 481 issues**, with the 53 deprecation infos gone.
+- Gates: Flutter **485 tests**, `flutter analyze lib` **481 issues** / 0 errors. Backend untouched.
+- **The honest finish line**: every category that could be decided mechanically is on the tokens (radii, overlay
+  tints, deprecated API). What is left is 11 intentional subtle depth shadows and ~28 semantic gradients, and
+  mapping those would make the app worse, not more consistent.
+

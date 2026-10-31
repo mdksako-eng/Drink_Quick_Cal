@@ -767,7 +767,7 @@ class _SideSliderState extends State<SideSlider> {
           border: Border.all(
             color: isSelected
                 ? widget.primaryColor
-                : widget.textSecondaryColor.withOpacity(0.3),
+                : widget.textSecondaryColor.withValues(alpha: AppAlpha.strong),
             width: 1.5,
           ),
         ),
@@ -853,14 +853,14 @@ class _SideSliderState extends State<SideSlider> {
                   color: widget.cardColor,
                   border: Border(
                     left: BorderSide(
-                      color: widget.primaryColor.withOpacity(0.1),
+                      color: widget.primaryColor.withValues(alpha: AppAlpha.subtle),
                       width: 1,
                     ),
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black
-                          .withOpacity(widget.isDarkMode ? 0.3 : 0.15),
+                          .withValues(alpha: widget.isDarkMode ? 0.3 : 0.15),
                       blurRadius: 25,
                       spreadRadius: 0,
                       offset: const Offset(-5, 0),
@@ -926,10 +926,10 @@ class _SideSliderState extends State<SideSlider> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: AppAlpha.medium),
                                 borderRadius: AppRadius.xlargeAll,
                                 border: Border.all(
-                                    color: Colors.white.withOpacity(0.3)),
+                                    color: Colors.white.withValues(alpha: AppAlpha.strong)),
                               ),
                               child: Text(
                                 // 🔢 This badge counts ORDERS, not items: it used to
@@ -958,7 +958,7 @@ class _SideSliderState extends State<SideSlider> {
                                   borderRadius: AppRadius.mediumAll,
                                   border: Border.all(
                                       color:
-                                          widget.primaryColor.withOpacity(0.1)),
+                                          widget.primaryColor.withValues(alpha: AppAlpha.subtle)),
                                 ),
                                 child: Padding(
                                   padding: EdgeInsets.all(
@@ -1010,10 +1010,10 @@ class _SideSliderState extends State<SideSlider> {
                                   borderRadius: AppRadius.mediumAll,
                                   border: Border.all(
                                       color:
-                                          widget.primaryColor.withOpacity(0.2)),
+                                          widget.primaryColor.withValues(alpha: AppAlpha.medium)),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
+                                      color: Colors.black.withValues(alpha: AppAlpha.faint),
                                       blurRadius: 4,
                                       offset: const Offset(0, 2),
                                     ),
@@ -1188,7 +1188,7 @@ class _SideSliderState extends State<SideSlider> {
                             const SizedBox(height: 12),
                             Container(
                               height: 1,
-                              color: widget.primaryColor.withOpacity(0.1),
+                              color: widget.primaryColor.withValues(alpha: AppAlpha.subtle),
                             ),
                             const SizedBox(height: 8),
                             filteredOrders.isEmpty
@@ -1211,7 +1211,7 @@ class _SideSliderState extends State<SideSlider> {
                                               Icons.receipt_long,
                                               size: 60,
                                               color: widget.textSecondaryColor
-                                                  .withOpacity(0.2),
+                                                  .withValues(alpha: AppAlpha.medium),
                                             ),
                                             const SizedBox(height: 16),
                                             Text(
@@ -1236,7 +1236,7 @@ class _SideSliderState extends State<SideSlider> {
                                               style: TextStyle(
                                                 fontSize: 14,
                                                 color: widget.textSecondaryColor
-                                                    .withOpacity(0.7),
+                                                    .withValues(alpha: 0.7),
                                               ),
                                             ),
                                           ],
@@ -1324,16 +1324,16 @@ class _SideSliderState extends State<SideSlider> {
           vertical: 8.0,
         ),
         decoration: BoxDecoration(
-          color: isActive ? widget.cardColor : _warningColor.withOpacity(0.05),
+          color: isActive ? widget.cardColor : _warningColor.withValues(alpha: AppAlpha.faint),
           borderRadius: BorderRadius.circular(isMobile ? 10.0 : 12.0),
           border: Border.all(
             color: isActive
-                ? widget.primaryColor.withOpacity(0.1)
-                : _warningColor.withOpacity(0.3),
+                ? widget.primaryColor.withValues(alpha: AppAlpha.subtle)
+                : _warningColor.withValues(alpha: AppAlpha.strong),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 6,
               offset: const Offset(0, 1),
             ),
@@ -1476,7 +1476,7 @@ class _SideSliderState extends State<SideSlider> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: widget.backgroundColor.withOpacity(0.5),
+                    color: widget.backgroundColor.withValues(alpha: 0.5),
                     borderRadius: AppRadius.smallAll,
                   ),
                   child: Column(
@@ -1547,13 +1547,13 @@ class _SideSliderState extends State<SideSlider> {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 decoration: BoxDecoration(
                   color: order.balance >= 0
-                      ? _successColor.withOpacity(0.05)
-                      : _errorColor.withOpacity(0.05),
+                      ? _successColor.withValues(alpha: AppAlpha.faint)
+                      : _errorColor.withValues(alpha: AppAlpha.faint),
                   borderRadius: AppRadius.smallAll,
                   border: Border.all(
                     color: order.balance >= 0
-                        ? _successColor.withOpacity(0.2)
-                        : _errorColor.withOpacity(0.2),
+                        ? _successColor.withValues(alpha: AppAlpha.medium)
+                        : _errorColor.withValues(alpha: AppAlpha.medium),
                     width: 1,
                   ),
                 ),
@@ -1587,8 +1587,8 @@ class _SideSliderState extends State<SideSlider> {
                       onPressed: isActive ? () => _importInvoice(order) : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isActive
-                            ? widget.primaryColor.withOpacity(0.1)
-                            : widget.primaryColor.withOpacity(0.05),
+                            ? widget.primaryColor.withValues(alpha: AppAlpha.subtle)
+                            : widget.primaryColor.withValues(alpha: AppAlpha.faint),
                         foregroundColor:
                             isActive ? widget.primaryColor : Colors.grey,
                         padding: EdgeInsets.symmetric(
@@ -1599,8 +1599,8 @@ class _SideSliderState extends State<SideSlider> {
                           borderRadius: AppRadius.smallAll,
                           side: BorderSide(
                             color: isActive
-                                ? widget.primaryColor.withOpacity(0.3)
-                                : Colors.grey.withOpacity(0.3),
+                                ? widget.primaryColor.withValues(alpha: AppAlpha.strong)
+                                : Colors.grey.withValues(alpha: AppAlpha.strong),
                             width: 1,
                           ),
                         ),
@@ -1633,8 +1633,8 @@ class _SideSliderState extends State<SideSlider> {
                           // trace records a correction (block / warning), one that
                           // carries a trace is put back (check / success).
                           backgroundColor: !order.isVoided
-                              ? _warningColor.withOpacity(0.1)
-                              : _successColor.withOpacity(0.1),
+                              ? _warningColor.withValues(alpha: AppAlpha.subtle)
+                              : _successColor.withValues(alpha: AppAlpha.subtle),
                           foregroundColor:
                               !order.isVoided ? _warningColor : _successColor,
                           padding: EdgeInsets.zero,
@@ -1642,8 +1642,8 @@ class _SideSliderState extends State<SideSlider> {
                             borderRadius: AppRadius.smallAll,
                             side: BorderSide(
                               color: !order.isVoided
-                                  ? _warningColor.withOpacity(0.3)
-                                  : _successColor.withOpacity(0.3),
+                                  ? _warningColor.withValues(alpha: AppAlpha.strong)
+                                  : _successColor.withValues(alpha: AppAlpha.strong),
                               width: 1,
                             ),
                           ),
@@ -1668,13 +1668,13 @@ class _SideSliderState extends State<SideSlider> {
                       child: ElevatedButton(
                         onPressed: () => _returnItems(order),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: widget.primaryColor.withOpacity(0.1),
+                          backgroundColor: widget.primaryColor.withValues(alpha: AppAlpha.subtle),
                           foregroundColor: widget.primaryColor,
                           padding: EdgeInsets.zero,
                           shape: RoundedRectangleBorder(
                             borderRadius: AppRadius.smallAll,
                             side: BorderSide(
-                              color: widget.primaryColor.withOpacity(0.3),
+                              color: widget.primaryColor.withValues(alpha: AppAlpha.strong),
                               width: 1,
                             ),
                           ),
@@ -1896,7 +1896,7 @@ class _SideSliderState extends State<SideSlider> {
                 ),
 
                 const SizedBox(height: 16),
-                Divider(color: widget.primaryColor.withOpacity(0.1), height: 1),
+                Divider(color: widget.primaryColor.withValues(alpha: AppAlpha.subtle), height: 1),
                 const SizedBox(height: 20),
                 // Customer Name
                 if (order.customerName.isNotEmpty) ...[
@@ -2023,17 +2023,17 @@ class _SideSliderState extends State<SideSlider> {
                 ),
 
                 const SizedBox(height: 20),
-                Divider(color: widget.primaryColor.withOpacity(0.1), height: 1),
+                Divider(color: widget.primaryColor.withValues(alpha: AppAlpha.subtle), height: 1),
                 const SizedBox(height: 20),
 
                 // Summary
                 Container(
                   padding: EdgeInsets.all(isMobile ? 12.0 : 16.0),
                   decoration: BoxDecoration(
-                    color: widget.primaryColor.withOpacity(0.05),
+                    color: widget.primaryColor.withValues(alpha: AppAlpha.faint),
                     borderRadius: AppRadius.mediumAll,
                     border: Border.all(
-                      color: widget.primaryColor.withOpacity(0.2),
+                      color: widget.primaryColor.withValues(alpha: AppAlpha.medium),
                       width: 1,
                     ),
                   ),

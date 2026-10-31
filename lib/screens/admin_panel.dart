@@ -510,7 +510,7 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(children: [
-                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: _primaryColor.withOpacity(0.1), borderRadius: AppRadius.mediumAll), child: Icon(Icons.admin_panel_settings, color: _primaryColor, size: 30)),
+                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: _primaryColor.withValues(alpha: AppAlpha.subtle), borderRadius: AppRadius.mediumAll), child: Icon(Icons.admin_panel_settings, color: _primaryColor, size: 30)),
                   const SizedBox(width: 12),
                   Expanded(child: Text('${t('admin_welcome')} ${authProvider.user?.username ?? t('role_Admin')}!', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
                   Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: _primaryColor, borderRadius: AppRadius.mediumAll), child: Text(t('admin_adminBadge'), style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))),
@@ -641,7 +641,7 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
             leading: CircleAvatar(backgroundColor: roleColor, child: Text((user['username'] ?? '?')[0].toUpperCase(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
             title: Row(children: [
               Expanded(child: Text(user['username'] ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.w500))),
-              Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: roleColor.withOpacity(0.1), borderRadius: AppRadius.mediumAll), child: Text(t('role_' + role), style: TextStyle(fontSize: 10, color: roleColor, fontWeight: FontWeight.bold))),
+              Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: roleColor.withValues(alpha: AppAlpha.subtle), borderRadius: AppRadius.mediumAll), child: Text(t('role_' + role), style: TextStyle(fontSize: 10, color: roleColor, fontWeight: FontWeight.bold))),
             ]),
             subtitle: Text(user['email'] ?? '', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
             children: [

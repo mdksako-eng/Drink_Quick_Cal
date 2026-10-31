@@ -2718,7 +2718,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                                 }
                               : null,
                           activeTrackColor:
-                              const Color(0xFFFFCC00).withOpacity(0.5),
+                              const Color(0xFFFFCC00).withValues(alpha: 0.5),
                           activeThumbColor: const Color(0xFFFFCC00),
                         ),
                       ],

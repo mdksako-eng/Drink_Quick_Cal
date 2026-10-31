@@ -914,7 +914,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                      color: Colors.orange.withOpacity(0.1),
+                      color: Colors.orange.withValues(alpha: AppAlpha.subtle),
                       shape: BoxShape.circle),
                   child: const Icon(Icons.wifi_off,
                       size: 36, color: Colors.orange)),
@@ -958,7 +958,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                      color: color.withOpacity(0.1), shape: BoxShape.circle),
+                      color: color.withValues(alpha: AppAlpha.subtle), shape: BoxShape.circle),
                   child: Icon(icon, size: 36, color: color)),
               title: Text(heading,
                   textAlign: TextAlign.center,
@@ -987,7 +987,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                      color: color.withOpacity(0.1), shape: BoxShape.circle),
+                      color: color.withValues(alpha: AppAlpha.subtle), shape: BoxShape.circle),
                   child: Icon(icon, size: 36, color: color)),
               title: Text(heading,
                   textAlign: TextAlign.center,
@@ -1082,7 +1082,7 @@ class _AuthScreenState extends State<AuthScreen> {
         margin: const EdgeInsets.symmetric(vertical: 10),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: AppAlpha.medium),
             borderRadius: AppRadius.xlargeAll),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           SizedBox(
@@ -1102,7 +1102,7 @@ class _AuthScreenState extends State<AuthScreen> {
         margin: const EdgeInsets.symmetric(vertical: 10),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-            color: Colors.orange.withOpacity(0.9),
+            color: Colors.orange.withValues(alpha: 0.9),
             borderRadius: AppRadius.xlargeAll),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.wifi_off, size: 16, color: Colors.white),
@@ -1171,7 +1171,7 @@ class _AuthScreenState extends State<AuthScreen> {
     return IgnorePointer(
       ignoring: true, // ✅ Blocks all taps
       child: Container(
-        color: Colors.black.withOpacity(0.3),
+        color: Colors.black.withValues(alpha: AppAlpha.strong),
         child: Center(
           child: Card(
             child: Padding(
@@ -2093,9 +2093,9 @@ class _AuthScreenState extends State<AuthScreen> {
     return Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-            color: Colors.orange.withOpacity(0.1),
+            color: Colors.orange.withValues(alpha: AppAlpha.subtle),
             borderRadius: AppRadius.smallAll,
-            border: Border.all(color: Colors.orange.withOpacity(0.3))),
+            border: Border.all(color: Colors.orange.withValues(alpha: AppAlpha.strong))),
         child: Row(children: [
           Icon(Icons.info_outline, color: Colors.orange, size: 20),
           const SizedBox(width: 10),

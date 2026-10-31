@@ -396,7 +396,7 @@ class _ManagerPanelState extends State<ManagerPanel>
                     Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.1),
+                            color: Colors.orange.withValues(alpha: AppAlpha.subtle),
                             borderRadius: AppRadius.smallAll),
                         child:
                             const Icon(Icons.person_add, color: Colors.orange)),
@@ -604,7 +604,7 @@ class _ManagerPanelState extends State<ManagerPanel>
                     Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                            color: _primaryColor.withOpacity(0.1),
+                            color: _primaryColor.withValues(alpha: AppAlpha.subtle),
                             borderRadius: AppRadius.mediumAll),
                         child: Icon(Icons.business,
                             color: _primaryColor, size: 30)),
@@ -784,8 +784,8 @@ class _ManagerPanelState extends State<ManagerPanel>
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: (s['role']?.toString().toLowerCase() == 'manager')
-                      ? Colors.orange.withOpacity(0.15)
-                      : Colors.blueGrey.withOpacity(0.15),
+                      ? Colors.orange.withValues(alpha: AppAlpha.subtle)
+                      : Colors.blueGrey.withValues(alpha: AppAlpha.subtle),
                   borderRadius: AppRadius.mediumAll,
                 ),
                 child: Text(

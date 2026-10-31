@@ -2088,13 +2088,19 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       ),
             body: Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: isDarkMode
-                      ? [Colors.grey[900]!, Colors.grey[800]!]
-                      : [primaryColor, primaryColor.withValues(alpha: 0.7)],
-                ),
+                // 🎨 The brand surface token, so the till's background and the drawer
+                // header are visibly the same surface. It used to fade the brand to
+                // 70 % opacity, which let the scaffold bleed through; the token darkens
+                // it instead — same hue, no bleed-through.
+                // Dark mode keeps its neutral grey on purpose: a brand-coloured till is
+                // a different design decision, not a token swap.
+                gradient: isDarkMode
+                    ? LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Colors.grey[900]!, Colors.grey[800]!],
+                      )
+                    : AppBrand.surface(primaryColor),
               ),
               child: SafeArea(
                 child: LayoutBuilder(
