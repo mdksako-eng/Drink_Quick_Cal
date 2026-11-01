@@ -11,14 +11,18 @@ _Updated: 2026-11-01_
 - **Re-probed 19:04 UTC**: `/rest/v1/drink_recipes` -> `401 42501 permission denied for table
   drink_recipes`; `/rest/v1/drinks` answers 42501 as well. So the table exists and anon/authenticated
   are revoked — the state the boot routine and `sql/rls_recipes.sql` both produce.
-- **A push does NOT deploy** (measured, not assumed): `RELEASE` was bumped to `2026-11-01-recipes`
-  (`9e9c4de`), pushed, and `/health` polled for 25 minutes — the marker never changed and
-  `uptimeSeconds` only climbed. Live host: `https://drink-quick-cal-kja1.onrender.com`. DEPLOY.md's
-  `drink-quic-cal-kj1` was a typo that 404s on every path (now fixed there).
-- **Owner action**: Render Dashboard -> Manual Deploy, then `/health` must report
-  `"release":"2026-11-01-recipes"`. Until that marker changes the recipe routes stay unverified in
-  production, and no unauthenticated request can settle it: the data router authenticates at router
-  level, so `/api/data/zzz_nonsense` answers 401 exactly like `/api/data/recipes/costing`.
+- **The deploy landed — which falsifies how this bullet first read.** The marker push (`9e9c4de`) went
+  out at `18:52:09Z` and was live at `19:13:55Z`: **21m46s later**, well past the 17-minute window that
+  was polled. A short poll proves nothing either way — that is exactly the mistake made here. The
+  2026-10-29 entry further down records that deploys here are MANUAL, and a click landing ~2 min later
+  fits that (a 22-minute "build queue" does not). So the likeliest trigger is the owner clicking Manual
+  Deploy; Render's Deploys list names the trigger for certain. Never assume a push deploys. Live host:
+  `https://drink-quick-cal-kja1.onrender.com` (DEPLOY.md's `drink-quic-cal-kj1` was a typo that 404s on
+  every path — fixed there).
+- **Production now runs the newest commit**, so the Phase 18 recipe routes ARE deployed: the marker
+  commit is a descendant of the recipe commit, which proves the routes exist in the running image.
+  No unauthenticated probe can show that on its own — the data router authenticates at router level,
+  so `/api/data/zzz_nonsense` answers 401 exactly like `/api/data/recipes/costing`.
 - Also stale, now corrected in DEPLOY.md: "still running the OLD code (plaintext, open /users)".
   `/api/ping` -> `pong` and `/api/users` -> 401.
 - Commit state: Phase 18 had been left uncommitted and is now `04a6b03` (pickers `2be7d64`, rules +
