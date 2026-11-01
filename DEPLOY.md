@@ -255,10 +255,14 @@ curl https://<your-service>/health
   means the new code is live; a large number means the deploy has not happened yet.
 * Bump `const RELEASE` in `server.js` when you want a new, unmistakable marker.
 
-The backend you have on Render (`drink-quic-cal-kj1.onrender.com`) is still running the OLD code (plaintext, open /users). Two ways to update it:
+The backend you have on Render is `drink-quick-cal-kja1.onrender.com`. (The
+`drink-quic-cal-kj1` host written here before was a typo: probing it 404s on every
+path, which is exactly how a live problem gets misdiagnosed.) Verified 2026-11-01:
+`/api/ping` answers `pong` and `/api/users` answers 401 — the open-plaintext
+release is long gone. Two ways to update it:
 
 **Option A — existing Render service (simplest, no new repo):**
-1. Go to Render Dashboard → service `drink-quick-backend` (or whatever hosts drink-quick-cal-kj1).
+1. Go to Render Dashboard → the service that serves `drink-quick-cal-kja1.onrender.com`.
 2. Push your updated code to the repo/service Render is hooked to (or use Render's manual deploy).
    - If Render is linked to a GitHub repo: `git add -A; git commit -m "Harden auth"; git push`
    - Right now this folder is **not a git repo** — you'll need to link it to the repo that feeds Render.
