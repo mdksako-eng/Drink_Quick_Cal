@@ -1,0 +1,24 @@
+{
+  "search.exclude": {
+    "**/build": true,
+    "**/.dart_tool": true,
+    "**/node_modules": true,
+    "**/.git": true,
+    "**/*.log": true,
+    "**/*.lock": true,
+    "**/package-lock.json": true,
+    "**/pubspec.lock": true
+  },
+  "files.watcherExclude": {
+    "**/build/**": true,
+    "**/.dart_tool/**": true,
+    "**/node_modules/**": true,
+    "**/.git/**": true
+  },
+  "dart.analysisExcludedFolders": [
+    "build",
+    ".dart_tool",
+    "node_modules",
+    "drinks-calculator-backend/node_modules"
+  ]
+}

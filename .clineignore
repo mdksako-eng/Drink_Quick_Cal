@@ -1,0 +1,88 @@
+# ============================================================
+# .clineignore — what Cline skips when it builds context
+# ------------------------------------------------------------
+# This workspace holds 29,824 files (build output, native toolchains and
+# node_modules included) of which only 366 are real source. Without this
+# file Cline can try to load the rest, which burns tokens on every
+# request (Cline usage is metered per token, 5h/weekly/monthly).
+#
+# Measured 2026-09-23: 29,458 of 29,824 files filtered → 366 visible,
+# with zero source/test/config paths caught by the patterns below.
+#
+# Syntax is .gitignore syntax. This file is NOT a security
+# boundary: an explicit @-mention or a shell command can still
+# reach ignored paths.
+# ============================================================
+
+# ---------- Generated / build output ----------
+/build/
+**/build/
+.dart_tool/
+**/.dart_tool/
+.flutter-plugins-dependencies
+**/.gradle/
+**/.kotlin/
+android/app/debug/
+android/app/profile/
+android/app/release/
+**/ephemeral/
+**/Pods/
+**/GeneratedPluginRegistrant.*
+app.*.symbols
+app.*.map.json
+*.g.dart
+*.freezed.dart
+
+# ---------- Dependencies ----------
+node_modules/
+**/node_modules/
+.pub-cache/
+.pub/
+
+# ---------- Version control / IDE ----------
+.git/
+.idea/
+*.iml
+devtools_options.yaml
+
+# ---------- Logs & debug output ----------
+*.log
+*.log.*
+flutter_*.log
+drinks-calculator-backend/logs/
+**/npm-debug.log*
+
+# ---------- Lockfiles & bulky data ----------
+package-lock.json
+**/package-lock.json
+pubspec.lock
+*.csv
+*.xlsx
+*.sqlite
+*.parquet
+*.bak
+*.backup
+pubspec.yaml.backup
+code.png
+
+# ---------- Secrets (never auto-load) ----------
+.env
+.env.*
+!.env.example
+drinks-calculator-backend/scripts/live_smoke.js
+drinks-calculator-backend/scripts/debug_login.js
+drinks-calculator-backend/scripts/reset_test_pwd.js
+
+# ---------- Stale copies ----------
+drinks-calculator-backend_old_mongo/
+
+# ============================================================
+# Deliberately KEPT visible (do not add here):
+#   lib/**, test/**, assets/**
+#   drinks-calculator-backend/{config,controllers,middleware,
+#     models,routes,scripts,sql,tests,utils,public}/**,
+#     server.js, package.json, .env.example
+#   android/app/**, ios/**, macos/**, windows/**, linux/**, web/**
+#   pubspec.yaml, analysis_options.yaml, server.js, render.yaml,
+#   DEPLOY.md, ROADMAP.md, package.json, .gitignore
+# ============================================================

@@ -83,3 +83,13 @@ drinks-calculator-backend/scripts/debug_login.js
 drinks-calculator-backend/scripts/reset_test_pwd.js
 
 *.log.*
+
+# Root-level scratch dumps (search/test output captured to a file while working).
+# The only tracked .txt files are CMakeLists.txt files in subdirectories, so a
+# root-only pattern is safe.
+/*.txt
+
+# Local agent/skills installs and IDE state (machine specific)
+.agents/
+.claude/
+skills-lock.json
