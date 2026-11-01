@@ -251,9 +251,14 @@ curl https://<your-service>/health
                 "ownerSelfHeal": true } }
 ```
 
-* `uptimeSeconds` **resets on every restart** — a small number right after a push
-  means the new code is live; a large number means the deploy has not happened yet.
-* Bump `const RELEASE` in `server.js` when you want a new, unmistakable marker.
+* `uptimeSeconds` **resets on every restart**, so a small number right after a push
+  *suggests* the new code is live — but a free-tier spin-down/wake restarts the process
+  too (seen 2026-11-01: `uptime=11s` with no deploy at all). Treat a small uptime as a
+  hint, never as proof.
+* **`RELEASE` is the proof.** Bump `const RELEASE` in `server.js`, push, and compare it in
+  `GET /health`: only a changed marker means the new code is actually serving. Allow
+  ~20 minutes before concluding a push did nothing — a 17-minute poll has already produced
+  one wrong conclusion in this repo.
 
 The backend you have on Render is `drink-quick-cal-kja1.onrender.com`. (The
 `drink-quic-cal-kj1` host written here before was a typo: probing it 404s on every
