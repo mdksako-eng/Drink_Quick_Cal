@@ -2,6 +2,18 @@
 
 _Updated: 2026-11-01_
 
+## ⚠️ Owner action: the recipe table is not in production (2026-11-01)
+- The Phase 18 work (backend `server.js` + `routes/data.routes.js`, the Flutter recipe editor and
+  provider) had been sitting **uncommitted** for the whole session - the earlier "committed + pushed"
+  note was wrong. It is now committed and pushed as `04a6b03`; searchable pickers as `2be7d64`;
+  rules/memory bank/editor config as `5d486bc`. Working tree is clean.
+- **Probed live** with the app's publishable key: `GET /rest/v1/drink_recipes?select=id&limit=1` returns
+  **404** (relation absent), while `/rest/v1/drinks` returns **401** (exists, anon-blocked). So
+  `drinks-calculator-backend/sql/rls_recipes.sql` has **never been applied**.
+- **Consequence**: every recipe route answers 500 in production until it is run. Run that script in the
+  Supabase SQL editor, then redeploy Render **by hand** - a push deploys nothing.
+- The guide PDF (`docs/CamerPay-Setup-Guide.pdf`) needs no deploy: it is a repo artifact.
+
 ## CamerPay setup guide: a generated PDF, not a hand-made one (2026-11-01)
 - **`docs/CamerPay-Setup-Guide.pdf`** (5 pages) is what a shop hands to whoever configures its
   CamerPay account. It is BUILT, not written: the source of truth is
