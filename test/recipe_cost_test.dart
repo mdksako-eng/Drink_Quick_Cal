@@ -210,5 +210,60 @@ void main() {
       expect(costing.pourCostPercent, closeTo(53.33, 0.01));
     });
   });
+
+  group('the shop-wide total', () {
+    test('weights by units sold, not by drink', () {
+      // A 45 % pour cost on one unit and a 15 % one on a hundred units: the shop's
+      // real figure is the one the hundred units produce.
+      final totals = RecipeCostHelper.totals(const [
+        PourCostSample(cost: 45, sellingPrice: 100, units: 1),
+        PourCostSample(cost: 15, sellingPrice: 100, units: 100),
+      ]);
+      expect(totals.units, 101);
+      expect(totals.revenue, closeTo(10100, 0.001));
+      expect(totals.costOfGoods, closeTo(1545, 0.001));
+      expect(totals.earned, closeTo(8555, 0.001));
+      expect(totals.weightedPourCost, closeTo(15.297, 0.01));
+    });
+
+    test('a drink that did not sell contributes nothing', () {
+      final totals = RecipeCostHelper.totals(const [
+        PourCostSample(cost: 900, sellingPrice: 1000, units: 0),
+        PourCostSample(cost: 20, sellingPrice: 100, units: 10),
+      ]);
+      expect(totals.units, 10);
+      expect(totals.revenue, closeTo(1000, 0.001));
+      expect(totals.earned, closeTo(800, 0.001));
+      expect(totals.weightedPourCost, closeTo(20, 0.001));
+    });
+
+    test('nothing sold gives 0, never NaN or Infinity', () {
+      final totals = RecipeCostHelper.totals(const [
+        PourCostSample(cost: 100, sellingPrice: 0, units: 0),
+      ]);
+      expect(totals.units, 0);
+      expect(totals.earned, 0);
+      expect(totals.weightedPourCost, 0);
+      expect(totals.weightedPourCost.isNaN, isFalse);
+    });
+
+    test('an empty report is all zeros', () {
+      final totals = RecipeCostHelper.totals(const <PourCostSample>[]);
+      expect(totals.units, 0);
+      expect(totals.earned, 0);
+      expect(totals.weightedPourCost, 0);
+    });
+
+    test('a negative movement is not counted as a sale', () {
+      // A return or a correction logs a negative quantity; it must not invent
+      // revenue that never happened.
+      final totals = RecipeCostHelper.totals(const [
+        PourCostSample(cost: 20, sellingPrice: 100, units: -5),
+        PourCostSample(cost: 20, sellingPrice: 100, units: 5),
+      ]);
+      expect(totals.units, 5);
+      expect(totals.revenue, closeTo(500, 0.001));
+    });
+  });
 }
 

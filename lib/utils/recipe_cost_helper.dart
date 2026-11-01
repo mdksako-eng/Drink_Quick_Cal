@@ -260,6 +260,67 @@ class RecipeCostHelper {
       });
     return entries;
   }
+
+  /// The shop-wide figures the report header shows.
+  ///
+  /// Weighted BY UNITS SOLD on purpose: a 45 % pour cost on a drink nobody orders is
+  /// not the same problem as one on the best seller, and a plain average would say
+  /// they were. Drinks that did not sell contribute nothing.
+  static PourCostTotals totals(Iterable<PourCostSample> samples) {
+    var units = 0;
+    var revenue = 0.0;
+    var costOfGoods = 0.0;
+    for (final sample in samples) {
+      final sold = sample.units > 0 ? sample.units : 0;
+      units += sold;
+      revenue += sample.sellingPrice * sold;
+      costOfGoods += sample.cost * sold;
+    }
+    return PourCostTotals(
+      units: units,
+      earned: revenue - costOfGoods,
+      revenue: revenue,
+      costOfGoods: costOfGoods,
+      weightedPourCost: revenue > 0 ? (costOfGoods / revenue) * 100 : 0,
+    );
+  }
+}
+
+/// One drink reduced to what a shop-wide total needs.
+class PourCostSample {
+  const PourCostSample({
+    required this.cost,
+    required this.sellingPrice,
+    required this.units,
+  });
+
+  final double cost;
+  final double sellingPrice;
+  final int units;
+}
+
+/// Ingredients as a share of what the shop took, and what it earned.
+class PourCostTotals {
+  const PourCostTotals({
+    required this.units,
+    required this.earned,
+    required this.revenue,
+    required this.costOfGoods,
+    required this.weightedPourCost,
+  });
+
+  /// Units sold in the window.
+  final int units;
+
+  /// Margin × units: what the window earned once ingredients were paid for.
+  final double earned;
+
+  /// What those units were sold for, and what their ingredients cost.
+  final double revenue;
+  final double costOfGoods;
+
+  /// Ingredients as a share of the money taken. 0 when nothing sold — never NaN.
+  final double weightedPourCost;
 }
 
 double? _asDouble(Object? value) {

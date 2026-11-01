@@ -25,6 +25,8 @@ import 'package:drinks_calculator_fixed/providers/order_provider.dart';
 import 'package:drinks_calculator_fixed/providers/customer_provider.dart';
 import 'package:drinks_calculator_fixed/providers/shift_provider.dart';
 import 'package:drinks_calculator_fixed/providers/recipe_provider.dart';
+import 'package:drinks_calculator_fixed/models/recipe_model.dart';
+import 'package:drinks_calculator_fixed/utils/recipe_cost_helper.dart';
 import 'package:drinks_calculator_fixed/utils/payment_helper.dart';
 import 'package:drinks_calculator_fixed/screens/profile_screen.dart';
 import 'package:drinks_calculator_fixed/screens/forecast_screen.dart';
@@ -39,6 +41,7 @@ import 'package:drinks_calculator_fixed/screens/customer_ledger_screen.dart';
 import 'package:drinks_calculator_fixed/screens/manager_dashboard.dart';
 import 'package:drinks_calculator_fixed/screens/shift_screen.dart';
 import 'package:drinks_calculator_fixed/screens/variance_screen.dart';
+import 'package:drinks_calculator_fixed/screens/pour_cost_report_screen.dart';
 import 'package:drinks_calculator_fixed/utils/flutter_assertion_guard.dart';
 import 'package:drinks_calculator_fixed/widgets/upgrade_required.dart';
 
@@ -81,6 +84,7 @@ void main() {
     Widget screen, {
     Size size = const Size(390, 844),
     PlanProvider? plan,
+    RecipeProvider? recipes,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1.0;
@@ -104,7 +108,7 @@ void main() {
           ChangeNotifierProvider(create: (_) => PaymentHelper()),
         // 🍸 Recipe costing: the drink form reads a margin (and opens the recipe
         // editor) for a drink that already exists.
-        ChangeNotifierProvider(create: (_) => RecipeProvider()),
+        ChangeNotifierProvider(create: (_) => recipes ?? RecipeProvider()),
         ],
         child: MaterialApp(home: screen),
       ),
@@ -203,6 +207,77 @@ void main() {
     await pumpScreen(tester, const ForecastScreen(), size: phone);
     expectNoLayoutError();
     await pumpScreen(tester, const ForecastScreen(), size: tablet);
+    expectNoLayoutError();
+  });
+
+  testWidgets('PourCostReportScreen lays out on phone and tablet',
+      (tester) async {
+    // The CARDS are what can overflow on a phone: a long drink name, four figures
+    // and a pour cost chip on one 390 px row. A fresh provider per pump, seeded
+    // through the provider so the real body is laid out and not just the plan gate
+    // (an admin is let through it exactly as the backend's requirePlan does).
+    RecipeProvider seeded() => RecipeProvider()
+      ..seedReport(
+        [
+          RecipeCostRow(
+            drinkId: '1',
+            drinkName: 'Gin tonic maison, double, avec citron vert presse',
+            costing: const RecipeCosting(
+              cost: 1650,
+              complete: true,
+              uncosted: [],
+              sellingPrice: 3000,
+              hasRecipe: true,
+            ),
+            hasRecipe: true,
+            unitsSold: 42,
+            profitInWindow: 56700,
+          ),
+          RecipeCostRow(
+            drinkId: '2',
+            drinkName: 'Biere 33cl',
+            costing: const RecipeCosting(
+              cost: 900,
+              complete: false,
+              uncosted: ['Crate de 24', 'Glace'],
+              sellingPrice: 1000,
+              hasRecipe: true,
+            ),
+            hasRecipe: true,
+            unitsSold: 3,
+            profitInWindow: 300,
+          ),
+          // Nobody can cost this one: the "-" path and the "no recipe" note.
+          const RecipeCostRow(
+            drinkId: '3',
+            drinkName: 'Cocktail mystere',
+            costing: RecipeCosting(
+              cost: 0,
+              complete: false,
+              uncosted: [],
+              sellingPrice: 0,
+              hasRecipe: false,
+            ),
+          ),
+        ],
+        targetPourCost: 22,
+      );
+
+    await pumpScreen(
+      tester,
+      const PourCostReportScreen(),
+      size: phone,
+      plan: PlanProvider()..setIsAdmin(true),
+      recipes: seeded(),
+    );
+    expectNoLayoutError();
+    await pumpScreen(
+      tester,
+      const PourCostReportScreen(),
+      size: tablet,
+      plan: PlanProvider()..setIsAdmin(true),
+      recipes: seeded(),
+    );
     expectNoLayoutError();
   });
 

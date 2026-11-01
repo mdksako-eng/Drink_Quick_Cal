@@ -19,6 +19,7 @@ import '../screens/inventory_screen.dart';
 import '../screens/manager_approval_screen.dart';
 import '../screens/manager_dashboard.dart';
 import '../screens/manager_panel.dart';
+import '../screens/pour_cost_report_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/purchasing_screen.dart';
 import '../screens/scanner_screen.dart';
@@ -292,6 +293,19 @@ class _DrawerMenuState extends State<DrawerMenu> {
             _requireFeature(context, 'reports', () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const VarianceScreen()));
+            });
+          }),
+        // 💰 What each drink costs to make: the same "which one is losing me money"
+        // question, answered with the ingredients rather than the stock movements.
+        if ((isManager || isAdmin) && _shows(t('pourCostReport')))
+          _buildItem(context, DrawerScreen.pourCost, Icons.price_check,
+              t('pourCostReport'), () {
+            Navigator.pop(context);
+            _requireFeature(context, 'recipes', () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const PourCostReportScreen()));
             });
           }),
       ];

@@ -27,6 +27,7 @@ enum DrawerScreen {
   analytics,
   forecast,
   variance,
+  pourCost,
   drinks,
   inventory,
   settings,

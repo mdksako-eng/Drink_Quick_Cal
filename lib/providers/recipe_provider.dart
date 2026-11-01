@@ -157,4 +157,13 @@ class RecipeProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// Seeds a report without a server round-trip, so the layout harness lays out the
+  /// real cards (long names, four figures, a chip) instead of only the plan gate.
+  @visibleForTesting
+  void seedReport(List<RecipeCostRow> rows, {double? targetPourCost}) {
+    _report = List.unmodifiable(rows);
+    if (targetPourCost != null) _targetPourCost = targetPourCost;
+    notifyListeners();
+  }
 }

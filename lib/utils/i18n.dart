@@ -1668,6 +1668,8 @@ const Map<String, String> _en = {
   'recipeNotStocked': 'Not in the catalogue',
   'pourCostReport': 'Pour cost',
   'pourCostSubtitle': 'What each drink costs and what it earns.',
+  'pourCostEarned': 'Earned',
+  'pourCostEmpty': 'Nothing to cost yet: add a recipe to a made drink, or a purchase price to a stocked one.',
   // 🔎 Picking from a long list: a search box, not a scroll.
   'pickSearchHint': 'Search by name or number',
   'pickNoMatch': 'Nothing matches',
@@ -3312,6 +3314,8 @@ const Map<String, String> _fr = {
   'recipeNotStocked': 'Hors catalogue',
   'pourCostReport': 'Coût matière',
   'pourCostSubtitle': "Ce que chaque boisson coûte et ce qu'elle rapporte.",
+  'pourCostEarned': 'Gagné',
+  'pourCostEmpty': "Rien à chiffrer pour l'instant : ajoutez une recette à une boisson préparée, ou un prix d'achat à une boisson du stock.",
   // 🔎 Choisir dans une longue liste : une recherche, pas un défilement.
   'pickSearchHint': 'Rechercher par nom ou numéro',
   'pickNoMatch': 'Aucun résultat',
