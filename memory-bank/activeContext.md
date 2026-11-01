@@ -2,17 +2,27 @@
 
 _Updated: 2026-11-01_
 
-## ⚠️ Owner action: the recipe table is not in production (2026-11-01)
-- The Phase 18 work (backend `server.js` + `routes/data.routes.js`, the Flutter recipe editor and
-  provider) had been sitting **uncommitted** for the whole session - the earlier "committed + pushed"
-  note was wrong. It is now committed and pushed as `04a6b03`; searchable pickers as `2be7d64`;
-  rules/memory bank/editor config as `5d486bc`. Working tree is clean.
-- **Probed live** with the app's publishable key: `GET /rest/v1/drink_recipes?select=id&limit=1` returns
-  **404** (relation absent), while `/rest/v1/drinks` returns **401** (exists, anon-blocked). So
-  `drinks-calculator-backend/sql/rls_recipes.sql` has **never been applied**.
-- **Consequence**: every recipe route answers 500 in production until it is run. Run that script in the
-  Supabase SQL editor, then redeploy Render **by hand** - a push deploys nothing.
-- The guide PDF (`docs/CamerPay-Setup-Guide.pdf`) needs no deploy: it is a repo artifact.
+## Recipe table in production: present — and the deploy question (2026-11-01)
+- **This corrects the entry that stood here**: it claimed `drink_recipes` "has never been applied" and
+  that recipe routes would 500. That was **not proven**. The probe behind it read PostgREST's
+  `404 PGRST205`, and a control query (`/rest/v1/zzz_not_a_real_table`) returns the *same* code:
+  PGRST205 only means "not in PostgREST's schema cache" — true both for a table that does not exist and
+  for one created minutes earlier. **Read the body's `code`/`message`, never the status alone.**
+- **Re-probed 19:04 UTC**: `/rest/v1/drink_recipes` -> `401 42501 permission denied for table
+  drink_recipes`; `/rest/v1/drinks` answers 42501 as well. So the table exists and anon/authenticated
+  are revoked — the state the boot routine and `sql/rls_recipes.sql` both produce.
+- **A push does NOT deploy** (measured, not assumed): `RELEASE` was bumped to `2026-11-01-recipes`
+  (`9e9c4de`), pushed, and `/health` polled for 25 minutes — the marker never changed and
+  `uptimeSeconds` only climbed. Live host: `https://drink-quick-cal-kja1.onrender.com`. DEPLOY.md's
+  `drink-quic-cal-kj1` was a typo that 404s on every path (now fixed there).
+- **Owner action**: Render Dashboard -> Manual Deploy, then `/health` must report
+  `"release":"2026-11-01-recipes"`. Until that marker changes the recipe routes stay unverified in
+  production, and no unauthenticated request can settle it: the data router authenticates at router
+  level, so `/api/data/zzz_nonsense` answers 401 exactly like `/api/data/recipes/costing`.
+- Also stale, now corrected in DEPLOY.md: "still running the OLD code (plaintext, open /users)".
+  `/api/ping` -> `pong` and `/api/users` -> 401.
+- Commit state: Phase 18 had been left uncommitted and is now `04a6b03` (pickers `2be7d64`, rules +
+  memory bank + editor config `5d486bc`, guide PDF `d3c439c`).
 
 ## CamerPay setup guide: a generated PDF, not a hand-made one (2026-11-01)
 - **`docs/CamerPay-Setup-Guide.pdf`** (5 pages) is what a shop hands to whoever configures its
