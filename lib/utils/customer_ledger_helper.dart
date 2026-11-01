@@ -10,6 +10,7 @@
 //   * only an approved account may hold credit
 
 import '../models/customer_model.dart';
+import 'text_search.dart';
 
 /// charged / paid / balance for one customer (or the whole shop).
 class LedgerTotals {
@@ -158,7 +159,41 @@ class CustomerLedgerHelper {
     }
   }
 
+  // ============================================================
+  // FINDING A CUSTOMER
+  // ============================================================
+  // A shop with a few hundred accounts cannot be browsed. The person at the counter
+  // knows the NAME, or the NUMBER (the account's identity — what the statement, the
+  // ledger and the tab all refer to), or the PHONE in their hand. All three must
+  // find the same account, and a French name typed without its accents ("emile" for
+  // "Émile") must find it too — otherwise the operator gives up and types a walk-in.
+
+  /// Lower-cased, trimmed and stripped of accents. The implementation is shared
+  /// with every other picker (utils/text_search.dart), so one search behaves the
+  /// same everywhere.
+  static String fold(String? text) => TextSearch.fold(text);
+
+  /// True when [query] matches any of [fields] — the folded text, or digits only so
+  /// a phone typed with spaces still finds the stored number. See TextSearch.
+  static bool textMatches(String query, Iterable<String?> fields) =>
+      TextSearch.textMatches(query, fields);
+
+  /// True when [customer] matches [query]: name, customer number, phone or address.
+  static bool matches(Customer customer, String query) => textMatches(query, [
+        customer.name,
+        customer.customerNumber,
+        customer.phone,
+        customer.address,
+      ]);
+
+  /// The customers matching [query], in the order they arrived — the caller decides
+  /// whether that order is by debt, by name or by number.
+  static List<Customer> search(List<Customer> customers, String query) {
+    final wanted = query.trim();
+    if (wanted.isEmpty) return customers;
+    return customers.where((customer) => matches(customer, wanted)).toList();
+  }
+
   /// Digits only, so "6 77 12 34 56" matches "+237 677123456".
-  static String normalizePhone(String? phone) =>
-      (phone ?? '').replaceAll(RegExp(r'\D'), '');
+  static String normalizePhone(String? phone) => TextSearch.digitsOnly(phone);
 }

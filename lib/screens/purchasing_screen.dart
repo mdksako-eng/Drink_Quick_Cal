@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/purchasing_model.dart';
+import '../models/drink_model.dart';
 import '../providers/auth_provider.dart';
 import '../providers/drink_provider.dart';
 import '../providers/purchasing_provider.dart';
@@ -21,6 +22,8 @@ import '../widgets/offline_indicator.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
+import '../utils/text_search.dart';
+import '../widgets/searchable_picker_list.dart';
 
 class PurchasingScreen extends StatefulWidget {
   /// Lines handed over by the forecast screen, ready to become an order. When
@@ -402,12 +405,26 @@ class _PurchasingScreenState extends State<PurchasingScreen> {
       context: context,
       builder: (dialogContext) => SimpleDialog(
         title: Text(t('purPickDrink')),
-        children: drinks
-            .map((drink) => SimpleDialogOption(
+        // Searchable by name or barcode: a shop with hundreds of drinks cannot
+        // scroll a dialog by hand, and the buyer usually has the barcode in hand.
+        children: [
+          SizedBox(
+            width: double.maxFinite,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: SearchablePickerList<Drink>(
+                items: drinks,
+                maxHeight: 260,
+                matches: (drink, query) =>
+                    TextSearch.textMatches(query, [drink.name, drink.barcode]),
+                itemBuilder: (context, drink) => SimpleDialogOption(
                   onPressed: () => Navigator.pop(dialogContext, drink),
                   child: Text(drink.name),
-                ))
-            .toList(),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
     if (picked == null) return null;

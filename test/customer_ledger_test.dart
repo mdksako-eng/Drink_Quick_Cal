@@ -11,6 +11,8 @@ Customer customer({
   String status = 'approved',
   double limit = 0,
   String name = 'Awa',
+  String phone = '',
+  String address = '',
 }) =>
     Customer(
       id: id,
@@ -18,6 +20,8 @@ Customer customer({
       name: name,
       status: status,
       creditLimit: limit,
+      phone: phone,
+      address: address,
     );
 
 CustomerLedgerEntry entry({
@@ -229,6 +233,56 @@ void main() {
       });
       expect(parsed.amount, 1500);
       expect(parsed.isPayment, isFalse);
+    });
+  });
+
+  group('finding a customer at the counter', () {
+    final emile = customer(
+      id: 7,
+      number: 'C-0007',
+      name: 'Émile Nkolo',
+      phone: '+237 677 12 34 56',
+      address: 'Marché Mokolo',
+    );
+    final awa = customer(id: 1, number: 'C-0001', name: 'Awa', phone: '699887766');
+    final all = [emile, awa];
+
+    test('an empty search keeps everyone', () {
+      expect(CustomerLedgerHelper.search(all, ''), all);
+      expect(CustomerLedgerHelper.search(all, '   '), all);
+    });
+
+    test('finds by name, with or without the accent and in any case', () {
+      expect(CustomerLedgerHelper.search(all, 'emile'), [emile]);
+      expect(CustomerLedgerHelper.search(all, 'ÉMILE'), [emile]);
+      expect(CustomerLedgerHelper.search(all, 'nkolo'), [emile]);
+      expect(CustomerLedgerHelper.search(all, 'awa'), [awa]);
+    });
+
+    test('finds by the customer number, which is the account identity', () {
+      expect(CustomerLedgerHelper.search(all, 'C-0007'), [emile]);
+      expect(CustomerLedgerHelper.search(all, '0007'), [emile]);
+      // A partial number is a legitimate way to search a long list.
+      expect(CustomerLedgerHelper.search(all, 'c-000'), all);
+    });
+
+    test('finds by phone however it is typed', () {
+      // Digits only, so a space every three digits still finds the stored number.
+      expect(CustomerLedgerHelper.search(all, '677 12 34 56'), [emile]);
+      expect(CustomerLedgerHelper.search(all, '677123456'), [emile]);
+      expect(CustomerLedgerHelper.search(all, '+237677'), [emile]);
+    });
+
+    test('finds by address, and answers nothing when nothing matches', () {
+      expect(CustomerLedgerHelper.search(all, 'mokolo'), [emile]);
+      expect(CustomerLedgerHelper.search(all, 'zzz'), isEmpty);
+    });
+
+    test('one customer is never confused with another', () {
+      expect(CustomerLedgerHelper.matches(awa, 'C-0007'), isFalse);
+      expect(CustomerLedgerHelper.matches(emile, 'C-0007'), isTrue);
+      // A single digit must not drag in everyone whose number starts with it.
+      expect(CustomerLedgerHelper.matches(awa, '699887766'), isTrue);
     });
   });
 }

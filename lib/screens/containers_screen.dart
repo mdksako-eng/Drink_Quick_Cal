@@ -14,10 +14,12 @@ import '../models/container_model.dart';
 import '../providers/auth_provider.dart';
 import '../providers/container_provider.dart';
 import '../utils/container_ledger_helper.dart';
+import '../utils/text_search.dart';
 import '../utils/helpers.dart';
 import '../utils/i18n.dart';
 import '../widgets/offline_indicator.dart';
 import '../widgets/custom_drawer.dart';
+import '../widgets/searchable_picker_list.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
 
@@ -90,8 +92,14 @@ class _ContainersScreenState extends State<ContainersScreen> {
                     if (provider.holders.isEmpty)
                       _emptyState(provider, manager)
                     else
-                      ...provider.holders.map(
-                        (holder) => Card(
+                      // Searchable by name or number: a shop where many customers
+                      // hold crates should not have to scroll to find one.
+                      SearchablePickerList<ContainerHolder>(
+                        items: provider.holders,
+                        matches: (holder, query) =>
+                            TextSearch.textMatches(
+                                query, [holder.name, holder.customerNumber]),
+                        itemBuilder: (context, holder) => Card(
                           margin: const EdgeInsets.only(bottom: 8),
                           child: ListTile(
                             leading: CircleAvatar(child: Text('${holder.outstanding}')),

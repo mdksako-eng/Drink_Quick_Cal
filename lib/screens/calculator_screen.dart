@@ -13,6 +13,7 @@ import 'package:drinks_calculator_fixed/providers/drink_provider.dart';
 import 'package:drinks_calculator_fixed/providers/customer_provider.dart';
 import 'package:drinks_calculator_fixed/models/customer_model.dart';
 import 'package:drinks_calculator_fixed/utils/customer_ledger_helper.dart';
+import 'package:drinks_calculator_fixed/widgets/searchable_picker_list.dart';
 import 'package:drinks_calculator_fixed/providers/order_provider.dart';
 import 'package:drinks_calculator_fixed/providers/plan_provider.dart';
 import 'package:drinks_calculator_fixed/models/drink_model.dart';
@@ -1562,32 +1563,36 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     style: TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 6),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 180),
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: approvedCustomers.length,
-                    itemBuilder: (context, i) {
-                      final c = approvedCustomers[i];
-                      // The number is the account's identity: it is what the
-                      // statement, the ledger and the tab all refer to.
-                      final identity = [c.customerNumber, c.phone]
-                          .where((part) => part.isNotEmpty)
-                          .join(' · ');
-                      return ListTile(
-                        dense: true,
-                        leading: const Icon(Icons.person_outline),
-                        title: Text(c.name),
-                        subtitle: identity.isEmpty ? null : Text(identity),
-                        onTap: () {
-                          // Remember the ACCOUNT, not just the name: the customer
-                          // number identifies them and a tab needs this id.
-                          _selectedCustomerAccount = c;
-                          Navigator.pop(context, c.name);
-                        },
-                      );
-                    },
-                  ),
+                // Searchable: a shop with a few hundred accounts cannot be scrolled
+                // in a small box, and the operator knows the name, the number on the
+                // statement or the phone in their hand.
+                SearchablePickerList<Customer>(
+                  items: approvedCustomers,
+                  hintText: t('custSearchHint'),
+                  // The search box costs about 60 px, so the list keeps roughly the
+                  // height the dialog had before — an AlertDialog's content does not
+                  // scroll, and a taller one overflows on a short phone.
+                  maxHeight: 140,
+                  matches: CustomerLedgerHelper.matches,
+                  itemBuilder: (context, c) {
+                    // The number is the account's identity: it is what the
+                    // statement, the ledger and the tab all refer to.
+                    final identity = [c.customerNumber, c.phone]
+                        .where((part) => part.isNotEmpty)
+                        .join(' · ');
+                    return ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.person_outline),
+                      title: Text(c.name),
+                      subtitle: identity.isEmpty ? null : Text(identity),
+                      onTap: () {
+                        // Remember the ACCOUNT, not just the name: the customer
+                        // number identifies them and a tab needs this id.
+                        _selectedCustomerAccount = c;
+                        Navigator.pop(context, c.name);
+                      },
+                    );
+                  },
                 ),
                 const Divider(),
                 Text(t('walkInCustomer'),

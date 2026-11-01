@@ -21,6 +21,7 @@ import '../utils/i18n.dart';
 import '../utils/price_extension.dart';
 import '../utils/whatsapp_helper.dart';
 import '../widgets/custom_drawer.dart';
+import '../widgets/searchable_picker_list.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
 import '../theme/app_theme.dart';
@@ -159,17 +160,24 @@ class _CustomerLedgerScreenState extends State<CustomerLedgerScreen>
         ],
       );
 
-  /// Everyone with an approved account, biggest debt first.
+  /// Everyone with an approved account, biggest debt first — and searchable, because
+  /// a shop with a few hundred accounts cannot be scrolled by hand.
   Widget _customersTab(CustomerProvider provider, Color primary) {
     final customers = provider.byDebt;
     if (customers.isEmpty) {
       return _emptyState(Icons.people_outline, t('custNoCustomers'));
     }
-    return ListView.builder(
+    return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-      itemCount: customers.length,
-      itemBuilder: (context, index) =>
-          _customerTile(provider, customers[index], primary),
+      children: [
+        SearchablePickerList<Customer>(
+          items: customers,
+          hintText: t('custSearchHint'),
+          matches: CustomerLedgerHelper.matches,
+          itemBuilder: (context, customer) =>
+              _customerTile(provider, customer, primary),
+        ),
+      ],
     );
   }
 
