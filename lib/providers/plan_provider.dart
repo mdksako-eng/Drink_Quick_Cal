@@ -30,6 +30,10 @@ class PlanProvider extends ChangeNotifier {
     'printing': 'pro',
     'ai': 'pro',
     'inbox': 'pro',
+    // 🍸 Recipe / pour cost: the backend gates every /recipes route with
+    // requirePlan(['pro']), so the app must not offer the entry on a lower plan —
+    // otherwise a manager taps it and hits a wall the server built.
+    'recipes': 'pro',
   };
 
   int _rank(String plan) {

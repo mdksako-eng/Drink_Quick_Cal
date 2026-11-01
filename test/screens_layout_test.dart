@@ -24,6 +24,7 @@ import 'package:drinks_calculator_fixed/providers/plan_provider.dart';
 import 'package:drinks_calculator_fixed/providers/order_provider.dart';
 import 'package:drinks_calculator_fixed/providers/customer_provider.dart';
 import 'package:drinks_calculator_fixed/providers/shift_provider.dart';
+import 'package:drinks_calculator_fixed/providers/recipe_provider.dart';
 import 'package:drinks_calculator_fixed/utils/payment_helper.dart';
 import 'package:drinks_calculator_fixed/screens/profile_screen.dart';
 import 'package:drinks_calculator_fixed/screens/forecast_screen.dart';
@@ -101,6 +102,9 @@ void main() {
           ChangeNotifierProvider(create: (_) => CustomerProvider()),
           ChangeNotifierProvider(create: (_) => ShiftProvider()),
           ChangeNotifierProvider(create: (_) => PaymentHelper()),
+        // 🍸 Recipe costing: the drink form reads a margin (and opens the recipe
+        // editor) for a drink that already exists.
+        ChangeNotifierProvider(create: (_) => RecipeProvider()),
         ],
         child: MaterialApp(home: screen),
       ),

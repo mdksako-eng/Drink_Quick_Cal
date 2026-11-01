@@ -970,6 +970,106 @@ class SupabaseService {
     }
   }
 
+  /// 🍸 Recipes / pour cost — what a MADE drink costs (a cocktail, a bottle sold by
+  /// the glass). The backend computes the cost from the ingredients' current
+  /// purchase prices on EVERY read and never stores it, so one supplier price change
+  /// moves every margin at once and no figure can disagree with its own history.
+  ///
+  /// Managers only: the backend refuses anyone else with 403 (a margin is the
+  /// shop's own business, and staff only need the selling price).
+  static Future<Map<String, dynamic>?> getRecipe(String drinkId) async {
+    if (!canUseSupabase) return null;
+    try {
+      final response = await http.get(
+        Uri.parse(ApiConfig.dataRecipe(drinkId)),
+        headers: await _authedHeaders(),
+      );
+      if (response.statusCode != 200) {
+        print('❌ Failed to load the recipe: ${response.statusCode}');
+        return null;
+      }
+      return Map<String, dynamic>.from(jsonDecode(response.body));
+    } catch (e) {
+      print('❌ Supabase getRecipe error: $e');
+      return null;
+    }
+  }
+
+  /// Replaces a recipe whole: the editor always sends the complete list, and the
+  /// backend writes it in one statement, so a failure leaves the old recipe intact
+  /// rather than a drink holding half its ingredients.
+  static Future<Map<String, dynamic>?> saveRecipe(
+    String drinkId,
+    List<Map<String, dynamic>> lines,
+  ) async {
+    if (!canUseSupabase) return null;
+    try {
+      final response = await http.post(
+        Uri.parse(ApiConfig.dataRecipe(drinkId)),
+        headers: await _authedHeaders(),
+        body: jsonEncode({'lines': lines}),
+      );
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        print('❌ Failed to save the recipe: ${response.statusCode}');
+        return null;
+      }
+      return Map<String, dynamic>.from(jsonDecode(response.body));
+    } catch (e) {
+      print('❌ Supabase saveRecipe error: $e');
+      return null;
+    }
+  }
+
+  /// Removes a recipe: the drink goes back to being priced from its own purchase
+  /// price. Answers whether the call succeeded.
+  static Future<bool> deleteRecipe(String drinkId) async {
+    if (!canUseSupabase) return false;
+    try {
+      final response = await http.delete(
+        Uri.parse(ApiConfig.dataRecipe(drinkId)),
+        headers: await _authedHeaders(),
+      );
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        print('❌ Failed to remove the recipe: ${response.statusCode}');
+        return false;
+      }
+      return true;
+    } catch (e) {
+      print('❌ Supabase deleteRecipe error: $e');
+      return false;
+    }
+  }
+
+  /// The pour cost report: every drink, what it costs, what it earns and how much
+  /// of it moved in the window.
+  static Future<Map<String, dynamic>?> getRecipeCosting({
+    String? from,
+    String? to,
+  }) async {
+    if (!canUseSupabase) return null;
+    try {
+      final query = <String>[
+        if (from != null && from.isNotEmpty) 'from=$from',
+        if (to != null && to.isNotEmpty) 'to=$to',
+      ];
+      final url = query.isEmpty
+          ? ApiConfig.dataRecipeCosting
+          : '${ApiConfig.dataRecipeCosting}?${query.join('&')}';
+      final response = await http.get(
+        Uri.parse(url),
+        headers: await _authedHeaders(),
+      );
+      if (response.statusCode != 200) {
+        print('❌ Failed to load the pour cost report: ${response.statusCode}');
+        return null;
+      }
+      return Map<String, dynamic>.from(jsonDecode(response.body));
+    } catch (e) {
+      print('❌ Supabase getRecipeCosting error: $e');
+      return null;
+    }
+  }
+
   /// Adds a container, or updates its deposit. Managers only (the backend
   /// refuses anyone else with 403).
   static Future<Map<String, dynamic>?> saveContainerType({

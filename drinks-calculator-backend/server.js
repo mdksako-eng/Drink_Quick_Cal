@@ -464,6 +464,42 @@ pool.on('error', (err) => {
         console.log('⚠️ containers table warning:', containerTableErr.message);
       }
 
+      // 🍸 RECIPES — what a MADE drink is made of (a cocktail, a bottle sold by the
+      // glass). `drinks.purchase_price` prices a drink bought and resold whole;
+      // this prices the ones assembled at the counter, which is where a bar's
+      // margin is really decided. The cost is always COMPUTED from the ingredients
+      // (utils/recipeCosting.js) and never stored, so changing one purchase price
+      // flows through every margin at once and no row can disagree with its own
+      // history.
+      try {
+        await pool.query(`
+          CREATE TABLE IF NOT EXISTS drink_recipes (
+            id SERIAL PRIMARY KEY,
+            company_id INTEGER NOT NULL,
+            drink_id TEXT NOT NULL,
+            ingredient_drink_id TEXT,
+            ingredient_name VARCHAR(120),
+            quantity NUMERIC(12,3) NOT NULL,
+            unit VARCHAR(20),
+            unit_cost NUMERIC(12,2),
+            pack_size INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          )
+        `);
+        await pool.query(
+          `CREATE INDEX IF NOT EXISTS idx_drink_recipes_drink
+             ON drink_recipes(company_id, drink_id)`
+        );
+        // SECURITY: same rule as every other money table — the anon key shipped in
+        // the app must never read or forge what the shop pays for its stock.
+        await pool.query(`ALTER TABLE drink_recipes ENABLE ROW LEVEL SECURITY`);
+        await pool.query(`REVOKE ALL ON drink_recipes FROM anon, authenticated`);
+        console.log('✅ drink recipes table ensured');
+      } catch (recipeTableErr) {
+        console.log('⚠️ drink recipes table warning:', recipeTableErr.message);
+      }
+
       // 🛒 PURCHASING — suppliers, purchase orders and receiving.
       // The forecast already recommends what to reorder; this is the document
       // that turns that into an order and remembers what a supplier charges

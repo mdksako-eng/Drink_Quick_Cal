@@ -26,6 +26,10 @@ import '../widgets/custom_drawer.dart';
 import '../widgets/drawer_menu_button.dart';
 import '../utils/drawer_navigation.dart';
 import '../theme/app_theme.dart';
+import 'package:drinks_calculator_fixed/providers/auth_provider.dart';
+import 'package:drinks_calculator_fixed/providers/plan_provider.dart';
+import 'package:drinks_calculator_fixed/providers/recipe_provider.dart';
+import '../widgets/recipe_editor_dialog.dart';
 
 class DrinkManagementScreen extends StatefulWidget {
   const DrinkManagementScreen({Key? key}) : super(key: key);
@@ -369,6 +373,9 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
   }
 
   void _editDrink(Drink drink) {
+    // Load what this drink is MADE of, so the margin is already there when the
+    // manager looks at the form (and the editor opens filled, not empty).
+    Provider.of<RecipeProvider>(context, listen: false).loadFor(drink.id);
     setState(() {
       _editingDrinkId = drink.id;
       _nameController.text = drink.name;
@@ -1205,7 +1212,126 @@ class _DrinkManagementScreenState extends State<DrinkManagementScreen> {
     );
   }
 
+  /// The role of the signed-in user, for the money-only entries.
+  String? get _role => context.read<AuthProvider>().user?.role;
+
+  /// The margin block under the price fields: what the drink earns, plus — when it
+  /// is MADE at the counter — what its ingredients cost.
   Widget _buildProfitPreview() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildProfitCard(),
+        _buildRecipeRow(),
+      ],
+    );
+  }
+
+  /// What the drink is MADE of. Hidden for a drink that does not exist yet (there is
+  /// nothing to attach a recipe to) and for anyone but a manager: a margin is the
+  /// shop's own business, and the backend refuses the call anyway.
+  Widget _buildRecipeRow() {
+    final drinkId = _editingDrinkId;
+    if (drinkId == null) return const SizedBox.shrink();
+    if (!RecipeProvider.canManage(_role)) return const SizedBox.shrink();
+
+    // Recipe costing is a Pro feature on the server (requirePlan(['pro'])), so a
+    // manager on a lower plan is TOLD that instead of being offered a button the
+    // server would refuse — a dead end dressed up as a feature.
+    if (!Provider.of<PlanProvider>(context).canAccess('recipes')) {
+      return Container(
+        margin: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          borderRadius: AppRadius.smallAll,
+          border: Border.all(color: Colors.orange.withValues(alpha: AppAlpha.strong)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.lock_outline, size: 18, color: Colors.orange),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                t('recipeProOnly'),
+                style: const TextStyle(fontSize: 12, color: Colors.orange),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final provider = Provider.of<RecipeProvider>(context);
+    final costing = provider.costingFor(drinkId);
+    final hasRecipe = provider.linesFor(drinkId).isNotEmpty;
+
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: AppRadius.smallAll,
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.local_bar_outlined, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  t('recipe'),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+              TextButton.icon(
+                onPressed: _openRecipeEditor,
+                icon: const Icon(Icons.edit, size: 16),
+                label: Text(hasRecipe ? t('recipeEdit') : t('recipeAdd')),
+              ),
+            ],
+          ),
+          if (!hasRecipe)
+            Text(
+              t('recipeNoneHint'),
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            )
+          else if (costing != null) ...[
+            Text(
+              '${t('recipeCost')}: ${CurrencyHelper.format(costing.cost)}'
+              '   ·   ${t('recipePourCost')}: ${costing.pourCostPercent.toStringAsFixed(1)}%',
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            ),
+            // Never show a margin without its caveat: a line with no price on record
+            // makes the cost a lower bound, not the truth.
+            if (costing.hasCaveat)
+              Text(
+                '${t('recipeUncosted')} ${costing.uncosted.join(', ')}',
+                style: const TextStyle(fontSize: 11, color: Colors.orange),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Opens the recipe editor for the drink being edited.
+  void _openRecipeEditor() {
+    final drinkId = _editingDrinkId;
+    if (drinkId == null) return;
+    RecipeEditorDialog.show(
+      context,
+      drinkId: drinkId,
+      drinkName: _nameController.text.trim(),
+      sellingPrice: double.tryParse(_priceController.text) ?? 0,
+    );
+  }
+
+  Widget _buildProfitCard() {
     final sellingPrice = double.tryParse(_priceController.text) ?? 0;
     final purchasePrice = double.tryParse(_purchasePriceController.text) ?? 0;
 

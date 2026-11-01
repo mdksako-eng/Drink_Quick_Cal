@@ -1059,7 +1059,41 @@ that says where the line is.
   those two files was removed again.
 - Gates: Flutter **485 tests**, `flutter analyze lib` **534 issues** / 0 errors (unchanged). Backend untouched.
 
-## 2026-10-31 — The shadow/gradient pass: what it actually turned out to be
+## 2026-11-01 — Recipe / pour cost (Phase 18): what a MADE drink costs
+The gap every serious competitor closes and this app did not. `drinks.purchase_price` prices a drink bought
+and resold whole, but a drink **assembled at the counter** (a cocktail, a bottle served by the glass) had no
+cost at all — so the margin on the best-selling item in the shop was invisible.
+- **New table `drink_recipes`** (company-scoped, RLS + REVOKE at boot *and* in `sql/rls_recipes.sql`), one row
+  per ingredient line: `quantity NUMERIC(12,3)` (0.05 of a litre is a normal pour), `unit`, an optional cost
+  override and an optional pack size. An ingredient is either a stocked drink or a free-text input (ice, a
+  garnish) — the catalogue is not a prerequisite for costing a garnish.
+- **The cost is COMPUTED, never stored** (`utils/recipeCosting.js`): every read prices the recipe from the
+  ingredients' current purchase prices, so one supplier price change moves every margin at once and no row can
+  ever disagree with its own history. Nested recipes work (a pre-mix), with a cycle guard (A→B→A) and a depth
+  cap — both unit tested.
+- **It never invents a 0 cost.** A line with no price on record is left OUT and COUNTED (`complete: false`) and
+  the screen shows the caveat. This is deliberately the same discipline as the Reports profit fix: a "free"
+  ingredient reads as a 100 % margin.
+- **Routes** (manager-only via `canManageRecipes`, `requirePlan(['pro'])`): `GET /recipes/costing`,
+  `GET|POST|DELETE /recipes/:drinkId`, `GET /drinks/:id/cost`. A recipe is replaced in ONE statement (a
+  data-modifying CTE), so a failure leaves the old recipe intact instead of a drink holding half its
+  ingredients. `/recipes/costing` is declared before `/recipes/:drinkId` (a test pins the order).
+- **Receiving now remembers what the delivery cost** (`UPDATE drinks SET purchase_price`). Until now a delivery
+  moved stock but never refreshed the cost, so the Reports "average purchase price" card and every margin went
+  stale silently. A line priced at 0 is left alone — that is "no price given", not a free delivery.
+- **App**: `utils/recipe_cost_helper.dart` (pure, 13 tests) + `models/recipe_model.dart` +
+  `providers/recipe_provider.dart` + `widgets/recipe_editor_dialog.dart`, reached from the drink form, which
+  shows cost / pour cost / the price that would hold the target **live while typing**. No offline cache on
+  purpose: a margin from last week shown as today's is the exact confident-wrong-number this feature exists to
+  prevent.
+- **PHASE A: a recipe does not move stock.** Selling a cocktail still deducts the cocktail, so the variance
+  report and the Z-report are untouched. Ingredient deduction is a deliberate, opt-in Phase B, and a test
+  asserts no recipe route touches `inventory`.
+- Gates: backend **643 tests** / 48 suites (+22), Flutter **498 tests** (+13), `flutter analyze lib` **489
+  issues / 0 errors**, i18n **EN=1515 FR=1515**.
+- **Open**: the pour cost report screen (`GET /recipes/costing` is served and parsed, no screen renders it
+  yet); Phase B ingredient deduction; per-company target pour cost (currently the 20 % default).
+
 The last open item was "36 hand-picked box shadows and 27 gradients". Measured properly, it is **not** a
 migration task, and this entry records why rather than pretending otherwise.
 - **The till has no shadows at all** and exactly one gradient — its background. That one *was* a surface, so it

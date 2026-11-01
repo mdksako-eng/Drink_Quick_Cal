@@ -140,6 +140,13 @@ class ApiConfig {
       '$apiBase/data/containers/transactions';
   static const String dataContainersOutstanding =
       '$apiBase/data/containers/outstanding';
+  // 🍸 Recipes / pour cost: what a MADE drink costs (a cocktail, a bottle by the
+  // glass). The cost is computed from the ingredients by the backend on every read
+  // and never stored, so one supplier price change moves every margin at once.
+  static const String dataRecipeCosting = '$apiBase/data/recipes/costing';
+  static String dataRecipe(String drinkId) => '$apiBase/data/recipes/$drinkId';
+  static String dataDrinkCost(String drinkId) =>
+      '$apiBase/data/drinks/$drinkId/cost';
   // 🛒 Buying stock: suppliers, purchase orders and receiving. The forecast
   // recommends what to reorder; this is where that becomes an order.
   static const String dataSuppliers = '$apiBase/data/suppliers';

@@ -29,6 +29,21 @@ const {
   outstandingByType,
   orderByOutstanding,
 } = require('../utils/containerLedger');
+// 🍸 Recipes / pour cost: what a MADE drink costs. Computed from the ingredients on
+// every read (utils/recipeCosting.js) and never stored, so one supplier price change
+// moves every margin at once.
+const {
+  canManageRecipes,
+  validateRecipe,
+  resolveCost,
+  pourCostPercent,
+  marginPerUnit,
+  marginPercent,
+  priceForTargetPourCost,
+  rankByPourCost,
+  DEFAULT_TARGET_POUR_COST,
+} = require('../utils/recipeCosting');
+const { requirePlan } = require('../middleware/planAuth');
 const {
   summariseShift,
   canCloseShift,
@@ -1336,6 +1351,328 @@ router.post('/containers/transactions', async (req, res) => {
 });
 
 // ============================================================
+// 🍸 RECIPES — what a MADE drink costs (a cocktail, a bottle by the glass)
+// ============================================================
+// `drinks.purchase_price` prices a drink bought and resold whole. A drink that is
+// ASSEMBLED at the counter has a cost made of its ingredients, and that is where a
+// bar's margin is really decided. Rules: utils/recipeCosting.js (unit tested).
+//
+// The cost is COMPUTED on every read and never stored, so changing one supplier
+// price moves every margin at once and no row can disagree with its own history.
+//
+// PHASE A — A RECIPE DOES NOT MOVE STOCK. Selling a cocktail still deducts the
+// cocktail, exactly as before, so the variance report and the Z-report are
+// untouched. Deducting the ingredients instead is a separate, opt-in change.
+//
+// WHO: a manager (or the owner) sets a recipe and reads a margin. Staff sell the
+// drink; they do not need to know what it cost.
+
+// The catalogue, keyed by drink id: the prices a recipe is valued against.
+async function loadCatalogue(db, companyId) {
+  const result = await db.query(
+    `SELECT id, name, price, purchase_price, units_per_pack
+       FROM drinks WHERE company_id = $1`,
+    [companyId]
+  );
+  const byId = new Map();
+  for (const row of result.rows) {
+    byId.set(String(row.id), {
+      id: String(row.id),
+      name: row.name,
+      price: Number(row.price) || 0,
+      purchasePrice: Number(row.purchase_price) || 0,
+      unitsPerPack: Number(row.units_per_pack) || 1,
+    });
+  }
+  return byId;
+}
+
+// Every recipe of the company as { drinkId: [lines] } — the shape resolveCost wants.
+async function loadRecipes(db, companyId) {
+  const result = await db.query(
+    'SELECT * FROM drink_recipes WHERE company_id = $1 ORDER BY id ASC',
+    [companyId]
+  );
+  const byDrink = {};
+  for (const row of result.rows) {
+    const key = String(row.drink_id);
+    if (!byDrink[key]) byDrink[key] = [];
+    byDrink[key].push({
+      ingredientDrinkId: row.ingredient_drink_id,
+      ingredientName: row.ingredient_name,
+      quantity: row.quantity,
+      unit: row.unit,
+      unitCost: row.unit_cost,
+      packSize: row.pack_size,
+    });
+  }
+  return byDrink;
+}
+
+const priceFrom = (catalogue) => (key) => catalogue.get(String(key)) || null;
+
+// The costing report: what every drink the shop sells costs, what it earns, and how
+// much of it moved in the window. Declared BEFORE '/recipes/:drinkId' so the word
+// 'costing' is never mistaken for a drink id — the same trap the credit ledger and
+// the container ledger both document.
+router.get('/recipes/costing', requirePlan(['pro']), async (req, res) => {
+  try {
+    const companyId = resolveCompanyId(req, res);
+    if (companyId == null) return;
+    const allowed = canManageRecipes(req.user);
+    if (!allowed.ok) return res.status(403).json({ message: allowed.reason });
+
+    const catalogue = await loadCatalogue(req.db, companyId);
+    const recipes = await loadRecipes(req.db, companyId);
+
+    // How much of each drink actually moved, so the ranking can be read as money at
+    // stake rather than as a theoretical percentage.
+    const params = [companyId];
+    let windowSql = '';
+    if (req.query.from) {
+      params.push(req.query.from);
+      windowSql += ` AND date >= $${params.length}`;
+    }
+    if (req.query.to) {
+      params.push(req.query.to);
+      windowSql += ` AND date <= $${params.length}`;
+    }
+    const sold = await req.db.query(
+      `SELECT drink_id, SUM(quantity)::int AS units
+         FROM inventory_transactions
+        WHERE company_id = $1 AND type = 'out' AND reason = 'sale'${windowSql}
+        GROUP BY drink_id`,
+      params
+    );
+    const soldByDrink = new Map(
+      sold.rows.map((row) => [String(row.drink_id), Number(row.units) || 0])
+    );
+
+    // resolveCost covers BOTH kinds of drink in one pass: a made drink is valued
+    // from its recipe, a drink bought and resold whole from its own purchase price.
+    const rows = [];
+    for (const [id, drink] of catalogue) {
+      const resolved = resolveCost({ drinkId: id, recipes, priceFor: priceFrom(catalogue) });
+      const selling = drink.price || 0;
+      const units = soldByDrink.get(id) || 0;
+      rows.push({
+        drinkId: id,
+        drinkName: drink.name,
+        hasRecipe: (recipes[id] || []).length > 0,
+        cost: resolved.cost,
+        complete: resolved.complete,
+        uncosted: resolved.uncosted,
+        cycle: resolved.cycle || null,
+        sellingPrice: selling,
+        margin: marginPerUnit(resolved.cost, selling),
+        marginPercent: marginPercent(resolved.cost, selling),
+        pourCostPercent: pourCostPercent(resolved.cost, selling),
+        targetPrice: priceForTargetPourCost(resolved.cost, DEFAULT_TARGET_POUR_COST),
+        unitsSold: units,
+        profitInWindow: units > 0 ? marginPerUnit(resolved.cost, selling) * units : 0,
+      });
+    }
+
+    res.json({
+      targetPourCost: DEFAULT_TARGET_POUR_COST,
+      totalDrinks: rows.length,
+      withRecipe: rows.filter((row) => row.hasRecipe).length,
+      // Anything unpriced is a caveat, exactly like the profit report: the caller
+      // shows it instead of a flattering margin.
+      uncosted: rows
+        .filter((row) => !row.complete)
+        .map((row) => ({ drinkId: row.drinkId, drinkName: row.drinkName, missing: row.uncosted })),
+      rows: rankByPourCost(rows),
+    });
+  } catch (error) {
+    console.error('GET /recipes/costing error:', error.message);
+    res.status(500).json({ message: 'Failed to build the pour cost report' });
+  }
+});
+
+// One drink's recipe, with what it costs at today's ingredient prices.
+router.get('/recipes/:drinkId', requirePlan(['pro']), async (req, res) => {
+  try {
+    const companyId = resolveCompanyId(req, res);
+    if (companyId == null) return;
+    const allowed = canManageRecipes(req.user);
+    if (!allowed.ok) return res.status(403).json({ message: allowed.reason });
+
+    const drinkId = String(req.params.drinkId);
+    const drinkRes = await req.db.query(
+      'SELECT id, name, price FROM drinks WHERE id = $1 AND company_id = $2',
+      [drinkId, companyId]
+    );
+    const drink = drinkRes.rows[0];
+    if (!drink) return res.status(404).json({ message: 'Unknown drink' });
+
+    const lines = await req.db.query(
+      'SELECT * FROM drink_recipes WHERE company_id = $1 AND drink_id = $2 ORDER BY id ASC',
+      [companyId, drinkId]
+    );
+    const catalogue = await loadCatalogue(req.db, companyId);
+    const recipes = await loadRecipes(req.db, companyId);
+    const resolved = resolveCost({ drinkId, recipes, priceFor: priceFrom(catalogue) });
+    const selling = Number(drink.price) || 0;
+
+    res.json({
+      drinkId,
+      drinkName: drink.name,
+      lines: lines.rows,
+      // What the recipe costs with the CURRENT ingredient prices, plus the caveat
+      // when something could not be priced.
+      cost: resolved.cost,
+      complete: resolved.complete,
+      uncosted: resolved.uncosted,
+      cycle: resolved.cycle || null,
+      sellingPrice: selling,
+      margin: marginPerUnit(resolved.cost, selling),
+      marginPercent: marginPercent(resolved.cost, selling),
+      pourCostPercent: pourCostPercent(resolved.cost, selling),
+      targetPourCost: DEFAULT_TARGET_POUR_COST,
+      targetPrice: priceForTargetPourCost(resolved.cost, DEFAULT_TARGET_POUR_COST),
+    });
+  } catch (error) {
+    console.error('GET /recipes/:drinkId error:', error.message);
+    res.status(500).json({ message: 'Failed to load this recipe' });
+  }
+});
+
+// Save a recipe. The editor always sends the WHOLE list, and it is written in ONE
+// statement (a data-modifying CTE that deletes then inserts), so a failure leaves
+// the old recipe intact instead of a drink holding half its ingredients.
+router.post('/recipes/:drinkId', requirePlan(['pro']), async (req, res) => {
+  try {
+    const companyId = resolveCompanyId(req, res);
+    if (companyId == null) return;
+    const allowed = canManageRecipes(req.user);
+    if (!allowed.ok) return res.status(403).json({ message: allowed.reason });
+
+    const drinkId = String(req.params.drinkId);
+    const drinkRes = await req.db.query(
+      'SELECT id FROM drinks WHERE id = $1 AND company_id = $2',
+      [drinkId, companyId]
+    );
+    if (!drinkRes.rows[0]) return res.status(404).json({ message: 'Unknown drink' });
+
+    const checked = validateRecipe(req.body.lines, { drinkId });
+    if (!checked.ok) return res.status(400).json({ message: checked.reason });
+
+    // Every ingredient must be a drink of THIS company: a recipe is not a way to
+    // read another company's catalogue.
+    for (const line of checked.lines) {
+      if (!line.ingredientDrinkId) continue;
+      const known = await req.db.query(
+        'SELECT id FROM drinks WHERE id = $1 AND company_id = $2',
+        [line.ingredientDrinkId, companyId]
+      );
+      if (!known.rows[0]) {
+        return res.status(400).json({
+          message: `${line.ingredientName || line.ingredientDrinkId} is not a drink of this company`,
+        });
+      }
+    }
+
+    const values = [];
+    const params = [companyId, drinkId];
+    for (const line of checked.lines) {
+      const base = params.length;
+      values.push(
+        `($1,$2,$${base + 1},$${base + 2},$${base + 3},$${base + 4},$${base + 5},$${base + 6})`
+      );
+      params.push(
+        line.ingredientDrinkId,
+        line.ingredientName || null,
+        line.quantity,
+        line.unit || null,
+        line.unitCost,
+        line.packSize || 1
+      );
+    }
+
+    await req.db.query(
+      `WITH removed AS (
+         DELETE FROM drink_recipes WHERE company_id = $1 AND drink_id = $2
+       )
+       INSERT INTO drink_recipes
+         (company_id, drink_id, ingredient_drink_id, ingredient_name, quantity, unit, unit_cost, pack_size)
+       VALUES ${values.join(', ')}`,
+      params
+    );
+
+    const catalogue = await loadCatalogue(req.db, companyId);
+    const recipes = await loadRecipes(req.db, companyId);
+    const resolved = resolveCost({ drinkId, recipes, priceFor: priceFrom(catalogue) });
+    res.status(201).json({
+      saved: checked.lines.length,
+      cost: resolved.cost,
+      complete: resolved.complete,
+      uncosted: resolved.uncosted,
+    });
+  } catch (error) {
+    console.error('POST /recipes/:drinkId error:', error.message);
+    res.status(500).json({ message: 'Failed to save this recipe' });
+  }
+});
+
+// Remove a recipe: the drink goes back to being priced from its own purchase price.
+router.delete('/recipes/:drinkId', requirePlan(['pro']), async (req, res) => {
+  try {
+    const companyId = resolveCompanyId(req, res);
+    if (companyId == null) return;
+    const allowed = canManageRecipes(req.user);
+    if (!allowed.ok) return res.status(403).json({ message: allowed.reason });
+
+    const result = await req.db.query(
+      'DELETE FROM drink_recipes WHERE company_id = $1 AND drink_id = $2',
+      [companyId, String(req.params.drinkId)]
+    );
+    res.json({ removed: result.rowCount || 0 });
+  } catch (error) {
+    console.error('DELETE /recipes/:drinkId error:', error.message);
+    res.status(500).json({ message: 'Failed to remove this recipe' });
+  }
+});
+
+// What one drink costs right now — the light call the drink card uses. A drink with
+// no recipe is still answered: its own purchase price is its cost.
+router.get('/drinks/:id/cost', requirePlan(['pro']), async (req, res) => {
+  try {
+    const companyId = resolveCompanyId(req, res);
+    if (companyId == null) return;
+    const allowed = canManageRecipes(req.user);
+    if (!allowed.ok) return res.status(403).json({ message: allowed.reason });
+
+    const drinkId = String(req.params.id);
+    const catalogue = await loadCatalogue(req.db, companyId);
+    if (!catalogue.has(drinkId)) {
+      return res.status(404).json({ message: 'Unknown drink' });
+    }
+    const recipes = await loadRecipes(req.db, companyId);
+    const resolved = resolveCost({ drinkId, recipes, priceFor: priceFrom(catalogue) });
+    const selling = catalogue.get(drinkId).price || 0;
+
+    res.json({
+      drinkId,
+      hasRecipe: (recipes[drinkId] || []).length > 0,
+      cost: resolved.cost,
+      complete: resolved.complete,
+      uncosted: resolved.uncosted,
+      cycle: resolved.cycle || null,
+      sellingPrice: selling,
+      margin: marginPerUnit(resolved.cost, selling),
+      marginPercent: marginPercent(resolved.cost, selling),
+      pourCostPercent: pourCostPercent(resolved.cost, selling),
+      targetPourCost: DEFAULT_TARGET_POUR_COST,
+      targetPrice: priceForTargetPourCost(resolved.cost, DEFAULT_TARGET_POUR_COST),
+    });
+  } catch (error) {
+    console.error('GET /drinks/:id/cost error:', error.message);
+    res.status(500).json({ message: 'Failed to cost this drink' });
+  }
+});
+
+// ============================================================
 // 🛒 PURCHASING — suppliers, purchase orders and receiving
 // ============================================================
 // A manager commits the shop's money (create / edit / send / cancel); any staff
@@ -1600,6 +1937,19 @@ router.post('/purchase-orders/:id/receive', async (req, res) => {
             : `Could not add ${line.quantity} of ${line.drinkName}`,
           code: 'RECEIVE_FAILED',
         });
+      }
+
+      // Remember what this delivery actually cost. The purchase price is what every
+      // margin is valued against (utils/recipeCosting.js) and what the Reports
+      // "average purchase price" card reads — and nothing ever refreshed it before,
+      // so a supplier price rise left every cost figure stale. A line priced at 0 is
+      // left alone: that is "no price given", not a free delivery.
+      if (line.unitCost > 0) {
+        await req.db.query(
+          `UPDATE drinks SET purchase_price = $1
+            WHERE company_id = $2 AND id = $3 AND purchase_price IS DISTINCT FROM $1`,
+          [line.unitCost, companyId, line.drinkId]
+        );
       }
       applied.push({ ...line, remaining: outcome.remaining });
     }

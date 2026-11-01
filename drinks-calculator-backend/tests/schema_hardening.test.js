@@ -282,3 +282,57 @@ describe('purchasing hardening', () => {
     expect(routes).toContain('purchasing.canWriteOrders(req.user)');
   });
 });
+
+describe('recipe costing hardening', () => {
+  test('server.js creates drink_recipes with RLS on', () => {
+    const server = read('server.js');
+    expect(server).toContain('CREATE TABLE IF NOT EXISTS drink_recipes');
+    expect(server).toContain('ALTER TABLE drink_recipes ENABLE ROW LEVEL SECURITY');
+    expect(server).toContain('REVOKE ALL ON drink_recipes FROM anon, authenticated');
+  });
+
+  test('a runnable RLS script exists for drink_recipes', () => {
+    const sql = read('sql/rls_recipes.sql');
+    expect(sql).toContain('ALTER TABLE public.drink_recipes ENABLE ROW LEVEL SECURITY');
+    expect(sql).toContain('REVOKE ALL ON public.drink_recipes FROM anon, authenticated');
+  });
+
+  test('a recipe is manager-only and company-scoped', () => {
+    const routes = read('routes/data.routes.js');
+    // Every recipe route checks the role; the company comes from the session.
+    expect(routes).toContain('canManageRecipes(req.user)');
+    expect(routes).toContain("router.get('/recipes/costing'");
+    expect(routes).toContain("router.get('/recipes/:drinkId'");
+    expect(routes).toContain("router.post('/recipes/:drinkId'");
+    expect(routes).toContain("router.delete('/recipes/:drinkId'");
+    // Costing is the paid feature, the same gate the AI routes use.
+    expect(routes).toContain("requirePlan(['pro'])");
+  });
+
+  test('the costing report is declared before the :drinkId route', () => {
+    // '/recipes/costing' must come first or Express reads 'costing' as a drink id.
+    const routes = read('routes/data.routes.js');
+    const costing = routes.indexOf("router.get('/recipes/costing'");
+    const one = routes.indexOf("router.get('/recipes/:drinkId'");
+    expect(costing).toBeGreaterThan(-1);
+    expect(one).toBeGreaterThan(costing);
+  });
+
+  test('a recipe does not move stock (Phase A)', () => {
+    // Deducting the ingredients would change the variance report and the Z-report,
+    // so it is a deliberate later change: no recipe route may touch stock.
+    const routes = read('routes/data.routes.js');
+    const start = routes.indexOf("router.get('/recipes/costing'");
+    const end = routes.indexOf("router.post('/purchase-orders/:id/receive'");
+    const block = routes.slice(start, end);
+    expect(block).not.toContain('applyStockDelta');
+    expect(block).not.toContain('UPDATE inventory');
+  });
+
+  test('receiving remembers what the delivery cost', () => {
+    // The purchase price values every margin and the Reports cost card; before this
+    // nothing refreshed it, so a supplier price rise left every figure stale.
+    const routes = read('routes/data.routes.js');
+    expect(routes).toContain('UPDATE drinks SET purchase_price = $1');
+  });
+});
