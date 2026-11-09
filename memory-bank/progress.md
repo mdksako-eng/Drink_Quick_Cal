@@ -116,6 +116,24 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
 - Gates: backend **643 tests** / 48 suites, Flutter **498 tests**, analyze **489 issues / 0 errors**,
   i18n **EN=1515 FR=1515**.
 
+## Recipe follow-ons — report screen, Phase B stock, per-shop target — 2026-11-01
+- **Landed** (`e90619b`, `4d26cca`, `9bd63e7`):
+  1. `lib/screens/pour_cost_report_screen.dart` — `GET /recipes/costing` finally has a screen: shop-wide
+     pour cost **weighted by units sold**, every drink worst-first, and the caveat instead of a flattering
+     margin when a price is missing.
+  2. **Phase B** — a sale takes the recipe's whole-unit ingredients (`utils/recipeStock.js`, **9 Jest
+     tests**) through the same atomic primitive a sale uses; ledger reason `'recipe'`, which the shrinkage
+     report classifies as neither a sale nor a loss.
+  3. `companies.target_pour_cost` + `PATCH /recipes/target` — the shop's own target; refused with 400 when
+     unusable, NULL meaning the built-in default.
+- **Decision of record**: stock stays a **whole-unit ledger**. A fractional pour is reported
+  (`notTracked`), never deducted — the business is a whole-unit retailer, and 0.05 in an int column would
+  be a wrong number.
+- Gates: backend **49 suites / 655 tests**, Flutter **522 tests**, `flutter analyze lib` **0 errors**,
+  i18n **EN=1524 FR=1524**.
+- **Owner action**: the `target_pour_cost` column is added by the boot `ALTER`, so it exists after the next
+  **manual** Render deploy; until then the read falls back to 20 % and a save is best-effort.
+
 ## Not started
 - **Phase 4 — Real-time IoT sensor integration (automated replenishment)** ⬜ needs
   ESP32/load-cell firmware, a device-authenticated `POST /api/sensors/reading`, and

@@ -2,6 +2,26 @@
 
 _Updated: 2026-11-01_
 
+## Recipe follow-ons: report screen, Phase B stock, per-shop target (2026-11-01)
+- **`e90619b`** — the pour cost report screen (`lib/screens/pour_cost_report_screen.dart`, drawer Reports
+  group, `canAccess('recipes')`): shop-wide pour cost weighted by units sold, units + margin earned, every
+  drink worst-first, the caveat when a price is missing, tap a drink to open its recipe.
+  `RecipeCostHelper.totals` is pure and tested; the layout harness seeds a report via
+  `RecipeProvider.seedReport` (a new `recipes:` hook in `pumpScreen`) so the CARDS lay out, not only the gate.
+- **`4d26cca`** — Phase B: a sale takes the recipe's **whole units** off the shelf (`utils/recipeStock.js`
+  pure, 9 Jest tests; `moveIngredientsForSale` inside `POST /inventory/sell`). **Whole units only,
+  deliberately**: `inventory.quantity` is an int everywhere, so a fractional pour is REPORTED
+  (`notTracked`) and never written. Best-effort: a completed sale never fails on a recipe. Ledger reason
+  `'recipe'` is neither a sale nor a loss (`VarianceHelper.consumptionReasons`) — changing that
+  classification breaks the loss rate or the shrinkage list.
+- **`9bd63e7`** — per-shop target pour cost: `companies.target_pour_cost` (boot `ALTER`, NULL = the built-in
+  default), `PATCH /recipes/target` (manager + Pro), refused with 400 when unusable rather than silently
+  defaulted. The report, the drink card and the editor all read it.
+- Gates: backend **49 suites / 655 tests**, Flutter **522**, `flutter analyze lib` **0 errors**, i18n
+  **EN=1524 FR=1524**.
+- **Owner action**: the `target_pour_cost` column arrives with the next **manual** Render deploy; until then
+  the report falls back to 20 % (the read is best-effort).
+
 ## Recipe table in production: present — and the deploy question (2026-11-01)
 - **This corrects the entry that stood here**: it claimed `drink_recipes` "has never been applied" and
   that recipe routes would 500. That was **not proven**. The probe behind it read PostgREST's

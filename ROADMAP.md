@@ -1121,3 +1121,39 @@ migration task, and this entry records why rather than pretending otherwise.
   tints, deprecated API). What is left is 11 intentional subtle depth shadows and ~28 semantic gradients, and
   mapping those would make the app worse, not more consistent.
 
+---
+
+## 2026-11-01 — Recipe follow-ons: the pour cost report, Phase B, a per-shop target ✅
+
+**Value:** High · **Risk:** Medium (Phase B moves stock) · **Hardware:** none
+
+Three follow-ons from Phase 18 — all manager-only and Pro, the same two gates the backend enforces.
+
+### 1. The pour cost report screen
+- `GET /recipes/costing` was served and parsed into `RecipeProvider.report` with **nothing rendering it**. The screen answers the question the whole feature exists for: **which drink is losing me money**.
+- Header: a shop-wide pour cost **weighted by units sold** — 45 % on a drink nobody orders is not the same problem as 45 % on the best seller, and a plain average would say it was. Plus the units and the margin the window earned, and the target every margin is read against.
+- Every drink worst-first (the server's ranking): cost, margin, units sold, suggested price, a pour-cost chip coloured against the shop's own target, and **the caveat instead of a flattering margin** when a price is missing. Tapping a drink opens its recipe.
+- 7/30/90-day window — the same choice the shrinkage report offers, so the two read alike. **No offline cache**: a margin from last week shown as today's is exactly the wrong number this feature exists to prevent.
+- Drawer entry in the **Reports** group, gated by `canAccess('recipes')` — the app's mirror of `requirePlan(['pro'])`.
+- `RecipeCostHelper.totals` (+ `PourCostSample` / `PourCostTotals`) is pure and tested; the layout harness now seeds a report through the provider (`RecipeProvider.seedReport`, a `recipes:` hook in `pumpScreen`) so the **cards** are laid out on phone and tablet instead of only the plan gate.
+
+### 2. Phase B — a sale takes the recipe's ingredients with it
+- Selling a made drink now moves the **whole units** its recipe calls for, through the same atomic primitive a sale uses, so two tills cannot both take the last crate.
+- **Whole units only, deliberately**: `inventory.quantity` is an integer everywhere in the app, so a fractional pour (0.05 of a bottle) cannot be written into that ledger — it would fail or truncate to zero. Such a line comes back in `notTracked` and is **reported, never dropped silently**. It is also the business: a whole-unit retailer.
+- **Best-effort**: the sale is already saved, so a missing recipe, an unstocked ingredient or not-enough-on-the-shelf is reported and never fails a completed sale.
+- The movement is logged with reason `'recipe'`, which the shrinkage report now classifies as **neither a sale nor a loss** (`VarianceHelper.consumptionReasons`): the ingredient was never sold at its own price, so counting it as a sale would inflate the sold value the loss rate is measured against, and counting it as a loss would call a sold cocktail missing stock.
+- New pure module `utils/recipeStock.js` (**9 Jest tests**) + `moveIngredientsForSale` in `POST /inventory/sell`.
+
+### 3. Per-company target pour cost
+- The "charge X" hint and the margin colours were read against a hard-coded 20 %. It is now a company setting: `companies.target_pour_cost`, set with `PATCH /recipes/target` (manager-only, Pro) and read per request so a change follows at once.
+- **NULL means the built-in default**, so clearing it is a real choice. A value the server cannot use is **refused with 400**, never silently replaced by the default — a setting that looks saved but is not is worse than an error — and the app applies the same rule (`RecipeCostHelper.normaliseTargetPourCost`) before sending.
+- The target line on the report is tappable to change it.
+
+### Validation
+- Backend **49 suites / 655 tests**, Flutter **522 tests**, `flutter analyze lib` **0 errors**, i18n **EN=1524 FR=1524**.
+
+### Still open (named, not pretended)
+- Phase B is whole-unit only by decision. A shop that sells by the pour would need a fractional ledger (a remainder column plus pour accumulation) — not built.
+- A shop stocking BOTH a bundle and its parts will see both move (the recipe adds to the sale's own deduction). That is a catalogue setup question, flagged rather than guessed.
+- The `companies.target_pour_cost` column is added by the boot `ALTER`, so it exists after the next **manual** deploy; until then the read falls back to the built-in 20 % and saving is best-effort.
+
