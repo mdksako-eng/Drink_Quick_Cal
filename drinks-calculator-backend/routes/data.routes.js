@@ -41,6 +41,7 @@ const {
   marginPercent,
   priceForTargetPourCost,
   rankByPourCost,
+  normaliseTargetPourCost,
   DEFAULT_TARGET_POUR_COST,
 } = require('../utils/recipeCosting');
 const { planIngredientMoves } = require('../utils/recipeStock');
@@ -1412,6 +1413,30 @@ async function loadRecipes(db, companyId) {
 
 const priceFrom = (catalogue) => (key) => catalogue.get(String(key)) || null;
 
+/**
+ * The pour cost this company aims at, or the built-in default.
+ *
+ * Read per request rather than cached: a manager who changes it expects the report to
+ * follow at once, it is a single primary-key row, and a stale target would put a wrong
+ * "charge X" hint in front of them. Best-effort: a database where the column has not
+ * been added yet must not break a report.
+ */
+async function targetPourCostFor(db, companyId) {
+  try {
+    const result = await db.query(
+      'SELECT target_pour_cost FROM companies WHERE id = $1',
+      [companyId]
+    );
+    const stored =
+      result && result.rows && result.rows[0]
+        ? Number(result.rows[0].target_pour_cost)
+        : null;
+    return Number.isFinite(stored) && stored > 0 ? stored : DEFAULT_TARGET_POUR_COST;
+  } catch (e) {
+    return DEFAULT_TARGET_POUR_COST;
+  }
+}
+
 // The costing report: what every drink the shop sells costs, what it earns, and how
 // much of it moved in the window. Declared BEFORE '/recipes/:drinkId' so the word
 // 'costing' is never mistaken for a drink id — the same trap the credit ledger and
@@ -1425,6 +1450,7 @@ router.get('/recipes/costing', requirePlan(['pro']), async (req, res) => {
 
     const catalogue = await loadCatalogue(req.db, companyId);
     const recipes = await loadRecipes(req.db, companyId);
+    const target = await targetPourCostFor(req.db, companyId);
 
     // How much of each drink actually moved, so the ranking can be read as money at
     // stake rather than as a theoretical percentage.
@@ -1468,14 +1494,14 @@ router.get('/recipes/costing', requirePlan(['pro']), async (req, res) => {
         margin: marginPerUnit(resolved.cost, selling),
         marginPercent: marginPercent(resolved.cost, selling),
         pourCostPercent: pourCostPercent(resolved.cost, selling),
-        targetPrice: priceForTargetPourCost(resolved.cost, DEFAULT_TARGET_POUR_COST),
+        targetPrice: priceForTargetPourCost(resolved.cost, target),
         unitsSold: units,
         profitInWindow: units > 0 ? marginPerUnit(resolved.cost, selling) * units : 0,
       });
     }
 
     res.json({
-      targetPourCost: DEFAULT_TARGET_POUR_COST,
+      targetPourCost: target,
       totalDrinks: rows.length,
       withRecipe: rows.filter((row) => row.hasRecipe).length,
       // Anything unpriced is a caveat, exactly like the profit report: the caller
@@ -1488,6 +1514,42 @@ router.get('/recipes/costing', requirePlan(['pro']), async (req, res) => {
   } catch (error) {
     console.error('GET /recipes/costing error:', error.message);
     res.status(500).json({ message: 'Failed to build the pour cost report' });
+  }
+});
+
+// The pour cost this shop aims at (Pro, managers). It belongs to the COMPANY rather
+// than to a device: the report's "charge X" hint, the drink card and the editor all
+// read it, so two devices in one shop must not disagree.
+//
+// An empty value clears it back to the built-in default, which is a real choice.
+router.patch('/recipes/target', requirePlan(['pro']), async (req, res) => {
+  try {
+    const companyId = resolveCompanyId(req, res);
+    if (companyId == null) return;
+    const allowed = canManageRecipes(req.user);
+    if (!allowed.ok) return res.status(403).json({ message: allowed.reason });
+
+    const raw = req.body ? req.body.targetPourCost ?? req.body.target_pour_cost : null;
+    const clearing = raw === null || raw === undefined || String(raw).trim() === '';
+    const target = clearing ? null : normaliseTargetPourCost(raw);
+    if (!clearing && target === null) {
+      // Refused rather than silently replaced by the default: a setting that looks
+      // saved but is not is worse than an error.
+      return res.status(400).json({
+        code: 'TARGET_POUR_COST',
+        message: 'A target pour cost is a percentage above 0 and up to 100',
+      });
+    }
+
+    await req.db.query('UPDATE companies SET target_pour_cost = $1 WHERE id = $2', [
+      target,
+      companyId,
+    ]);
+
+    res.json({ success: true, targetPourCost: target ?? DEFAULT_TARGET_POUR_COST });
+  } catch (error) {
+    console.error('PATCH /recipes/target error:', error.message);
+    res.status(500).json({ message: 'Failed to save the target pour cost' });
   }
 });
 
@@ -1513,6 +1575,7 @@ router.get('/recipes/:drinkId', requirePlan(['pro']), async (req, res) => {
     );
     const catalogue = await loadCatalogue(req.db, companyId);
     const recipes = await loadRecipes(req.db, companyId);
+    const target = await targetPourCostFor(req.db, companyId);
     const resolved = resolveCost({ drinkId, recipes, priceFor: priceFrom(catalogue) });
     const selling = Number(drink.price) || 0;
 
@@ -1530,8 +1593,8 @@ router.get('/recipes/:drinkId', requirePlan(['pro']), async (req, res) => {
       margin: marginPerUnit(resolved.cost, selling),
       marginPercent: marginPercent(resolved.cost, selling),
       pourCostPercent: pourCostPercent(resolved.cost, selling),
-      targetPourCost: DEFAULT_TARGET_POUR_COST,
-      targetPrice: priceForTargetPourCost(resolved.cost, DEFAULT_TARGET_POUR_COST),
+      targetPourCost: target,
+      targetPrice: priceForTargetPourCost(resolved.cost, target),
     });
   } catch (error) {
     console.error('GET /recipes/:drinkId error:', error.message);
@@ -1650,6 +1713,7 @@ router.get('/drinks/:id/cost', requirePlan(['pro']), async (req, res) => {
       return res.status(404).json({ message: 'Unknown drink' });
     }
     const recipes = await loadRecipes(req.db, companyId);
+    const target = await targetPourCostFor(req.db, companyId);
     const resolved = resolveCost({ drinkId, recipes, priceFor: priceFrom(catalogue) });
     const selling = catalogue.get(drinkId).price || 0;
 
@@ -1664,8 +1728,8 @@ router.get('/drinks/:id/cost', requirePlan(['pro']), async (req, res) => {
       margin: marginPerUnit(resolved.cost, selling),
       marginPercent: marginPercent(resolved.cost, selling),
       pourCostPercent: pourCostPercent(resolved.cost, selling),
-      targetPourCost: DEFAULT_TARGET_POUR_COST,
-      targetPrice: priceForTargetPourCost(resolved.cost, DEFAULT_TARGET_POUR_COST),
+      targetPourCost: target,
+      targetPrice: priceForTargetPourCost(resolved.cost, target),
     });
   } catch (error) {
     console.error('GET /drinks/:id/cost error:', error.message);

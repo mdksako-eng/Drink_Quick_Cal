@@ -318,15 +318,27 @@ describe('recipe costing hardening', () => {
     expect(one).toBeGreaterThan(costing);
   });
 
-  test('a recipe does not move stock (Phase A)', () => {
-    // Deducting the ingredients would change the variance report and the Z-report,
-    // so it is a deliberate later change: no recipe route may touch stock.
+  test('no recipe route moves stock directly (Phase B put it in the sale)', () => {
+    // Phase B DOES deduct a recipe's whole-unit ingredients, but it does that inside
+    // POST /inventory/sell, where the sale already moves stock — so a manager editing
+    // a recipe can never move the shelf by saving one. The guard stays: nothing under
+    // /recipes may reach for the stock primitives.
     const routes = read('routes/data.routes.js');
     const start = routes.indexOf("router.get('/recipes/costing'");
     const end = routes.indexOf("router.post('/purchase-orders/:id/receive'");
     const block = routes.slice(start, end);
     expect(block).not.toContain('applyStockDelta');
     expect(block).not.toContain('UPDATE inventory');
+  });
+
+  test('a sale takes the recipe ingredients with it (Phase B)', () => {
+    const routes = read('routes/data.routes.js');
+    // The deduction lives in the sale, and its ledger reason is deliberately neither a
+    // sale nor a loss (lib/utils/variance_helper.dart), so the shrinkage report does
+    // not call a sold cocktail missing stock.
+    expect(routes).toContain("require('../utils/recipeStock')");
+    expect(routes).toContain('moveIngredientsForSale({');
+    expect(routes).toContain("reason: 'recipe'");
   });
 
   test('receiving remembers what the delivery cost', () => {

@@ -237,6 +237,21 @@ class RecipeCostHelper {
     return (marginPerUnit(cost, sellingPrice) / sellingPrice) * 100;
   }
 
+  /// A usable target pour cost: a percentage above 0 and up to 100, rounded to two
+  /// decimals. Null when the value cannot be used.
+  ///
+  /// This is the SAME rule the backend enforces (utils/recipeCosting.js →
+  /// normaliseTargetPourCost), so the app never offers a number the server would
+  /// refuse — and a refusal is never quietly replaced by the default, because a
+  /// setting that looks saved is worse than an error.
+  static double? normaliseTargetPourCost(Object? value) {
+    if (value == null) return null;
+    final parsed =
+        value is num ? value.toDouble() : double.tryParse(value.toString().trim());
+    if (parsed == null || parsed.isNaN || parsed <= 0 || parsed > 100) return null;
+    return (parsed * 100).round() / 100;
+  }
+
   /// The price that would hold [targetPercent] pour cost — the sellable sentence
   /// ("to keep 20 %, charge X"). Null when there is nothing to price or the target
   /// is not a usable percentage.

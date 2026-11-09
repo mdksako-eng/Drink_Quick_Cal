@@ -15,6 +15,7 @@ const {
   marginPerUnit,
   marginPercent,
   priceForTargetPourCost,
+  normaliseTargetPourCost,
   drinkCosting,
   rankByPourCost,
 } = require('../utils/recipeCosting');
@@ -190,6 +191,25 @@ describe('pour cost and margin', () => {
     expect(priceForTargetPourCost(500, 0)).toBeNull();
     expect(priceForTargetPourCost(500, 150)).toBeNull();
     expect(priceForTargetPourCost(0, 20)).toBeNull();
+  });
+
+  describe('the target pour cost a company sets', () => {
+    test('accepts a usable percentage and rounds it to two decimals', () => {
+      expect(normaliseTargetPourCost(20)).toBe(20);
+      expect(normaliseTargetPourCost('22.5')).toBe(22.5);
+      expect(normaliseTargetPourCost(22.567)).toBe(22.57);
+      // Giving the whole price to the pour is a choice, not an error.
+      expect(normaliseTargetPourCost(100)).toBe(100);
+    });
+
+    test('refuses what cannot be used, instead of defaulting behind the manager', () => {
+      expect(normaliseTargetPourCost(0)).toBeNull();
+      expect(normaliseTargetPourCost(-1)).toBeNull();
+      expect(normaliseTargetPourCost(100.5)).toBeNull();
+      expect(normaliseTargetPourCost('abc')).toBeNull();
+      expect(normaliseTargetPourCost(null)).toBeNull();
+      expect(normaliseTargetPourCost(undefined)).toBeNull();
+    });
   });
 });
 

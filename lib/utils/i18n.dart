@@ -1670,6 +1670,10 @@ const Map<String, String> _en = {
   'pourCostSubtitle': 'What each drink costs and what it earns.',
   'pourCostEarned': 'Earned',
   'pourCostEmpty': 'Nothing to cost yet: add a recipe to a made drink, or a purchase price to a stocked one.',
+  'pourCostTargetHint': 'The pour cost this shop aims at, in percent. Every margin on this report is read against it.',
+  'pourCostTargetDefault': 'Use the default',
+  'pourCostTargetInvalid': 'Enter a percentage above 0 and up to 100',
+  'pourCostTargetFailed': 'Could not save the target pour cost',
   // 🔎 Picking from a long list: a search box, not a scroll.
   'pickSearchHint': 'Search by name or number',
   'pickNoMatch': 'Nothing matches',
@@ -3316,6 +3320,10 @@ const Map<String, String> _fr = {
   'pourCostSubtitle': "Ce que chaque boisson coûte et ce qu'elle rapporte.",
   'pourCostEarned': 'Gagné',
   'pourCostEmpty': "Rien à chiffrer pour l'instant : ajoutez une recette à une boisson préparée, ou un prix d'achat à une boisson du stock.",
+  'pourCostTargetHint': "Le coût matière visé par l'entreprise, en pourcentage. Toutes les marges de ce rapport s'y comparent.",
+  'pourCostTargetDefault': 'Utiliser la valeur par défaut',
+  'pourCostTargetInvalid': "Saisissez un pourcentage supérieur à 0 et jusqu'à 100",
+  'pourCostTargetFailed': "Impossible d'enregistrer le coût matière visé",
   // 🔎 Choisir dans une longue liste : une recherche, pas un défilement.
   'pickSearchHint': 'Rechercher par nom ou numéro',
   'pickNoMatch': 'Aucun résultat',

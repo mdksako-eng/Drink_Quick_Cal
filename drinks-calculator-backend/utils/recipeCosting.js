@@ -325,12 +325,23 @@ function canManageRecipes(user) {
   return { ok: false, reason: 'Only a manager can change a recipe or a cost' };
 }
 
+/// A usable target pour cost: a percentage above 0 and up to 100, rounded to two
+/// decimals. Null when the value cannot be used, so a caller REFUSES it instead of
+/// substituting the default behind the manager's back — a silently ignored setting
+/// looks exactly like a saved one.
+function normaliseTargetPourCost(value) {
+  const parsed = toNumber(value);
+  if (parsed === null || parsed <= 0 || parsed > 100) return null;
+  return Math.round(parsed * 100) / 100;
+}
+
 module.exports = {
   RECIPE_LIMITS,
   DEFAULT_TARGET_POUR_COST,
   canManageRecipes,
   normaliseLine,
   validateRecipe,
+  normaliseTargetPourCost,
   lineCost,
   recipeCost,
   resolveCost,

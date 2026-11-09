@@ -223,6 +223,10 @@ pool.on('error', (err) => {
     await pool.query(`ALTER TABLE companies ADD COLUMN IF NOT EXISTS campay_webhook_token TEXT`);
     await pool.query(`ALTER TABLE companies ADD COLUMN IF NOT EXISTS campay_webhook_secret_enc TEXT`);
     await pool.query(`ALTER TABLE companies ADD COLUMN IF NOT EXISTS campay_connected_at TIMESTAMPTZ`);
+    // 🍸 The pour cost this shop aims at, per company. NULL means "use the default",
+    // so a shop that never sets one keeps the built-in 20 % — and clearing it is a
+    // real choice, not an error.
+    await pool.query(`ALTER TABLE companies ADD COLUMN IF NOT EXISTS target_pour_cost NUMERIC(5,2)`);
     // The webhook path resolves the company BY this token, so it must be unique;
     // NULLs (companies that never connected) are excluded from the constraint.
     await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS companies_campay_webhook_token_idx ON companies (campay_webhook_token) WHERE campay_webhook_token IS NOT NULL`);

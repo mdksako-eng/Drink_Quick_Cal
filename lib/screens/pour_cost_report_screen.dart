@@ -19,6 +19,7 @@ import '../providers/plan_provider.dart';
 import '../providers/recipe_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/drawer_navigation.dart';
+import '../utils/helpers.dart';
 import '../utils/i18n.dart';
 import '../utils/price_extension.dart';
 import '../utils/recipe_cost_helper.dart';
@@ -66,6 +67,78 @@ class _PourCostReportScreenState extends State<PourCostReportScreen> {
   void _setPeriod(int days) {
     setState(() => _days = days);
     _load();
+  }
+
+  /// Lets a manager set the pour cost this shop aims at.
+  ///
+  /// It is a COMPANY setting, not a device one: the report, the drink card and the
+  /// editor all read it, so two devices in one shop must agree. The dialog hands back
+  /// the default to mean "clear it", and the backend stores NULL for that.
+  Future<void> _editTarget(RecipeProvider recipes) async {
+    final controller = TextEditingController(
+      text: recipes.targetPourCost.toStringAsFixed(0),
+    );
+    final chosen = await showDialog<double>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(t('recipeTargetPourCost')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: controller,
+              autofocus: true,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(suffixText: '%'),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              t('pourCostTargetHint'),
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(
+                dialogContext, RecipeCostHelper.defaultTargetPourCost),
+            child: Text(t('pourCostTargetDefault')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(t('cancel')),
+          ),
+          TextButton(
+            onPressed: () {
+              final value =
+                  RecipeCostHelper.normaliseTargetPourCost(controller.text);
+              if (value == null) {
+                // Refused here as well as on the server: a setting that looks saved
+                // but is not is worse than an error.
+                Helpers.showToast(t('pourCostTargetInvalid'), isError: true);
+                return;
+              }
+              Navigator.pop(dialogContext, value);
+            },
+            child: Text(t('save')),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (chosen == null) return;
+
+    final isDefault =
+        (chosen - RecipeCostHelper.defaultTargetPourCost).abs() < 0.001;
+    final saved = await recipes.setTarget(isDefault ? null : chosen);
+    if (!mounted) return;
+    if (!saved) {
+      Helpers.showToast(t('pourCostTargetFailed'), isError: true);
+      return;
+    }
+    await _load();
   }
 
   /// Tapping a drink opens its recipe: the answer to "why is this one 40 %?" is one
@@ -205,25 +278,36 @@ class _PourCostReportScreenState extends State<PourCostReportScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Icon(
-                  overTarget ? Icons.trending_up : Icons.verified_outlined,
-                  size: 16,
-                  color: overTarget ? Colors.orange : Colors.green,
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    '${t('recipeTargetPourCost')}: '
-                    '${recipes.targetPourCost.toStringAsFixed(0)}%',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: overTarget ? Colors.orange : Colors.grey[600],
+            // Tapping it sets the shop's own target: the number this whole report is
+            // read against, so it must be changeable where it is used.
+            InkWell(
+              onTap: () => _editTarget(recipes),
+              borderRadius: AppRadius.smallAll,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Row(
+                  children: [
+                    Icon(
+                      overTarget ? Icons.trending_up : Icons.verified_outlined,
+                      size: 16,
+                      color: overTarget ? Colors.orange : Colors.green,
                     ),
-                  ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        '${t('recipeTargetPourCost')}: '
+                        '${recipes.targetPourCost.toStringAsFixed(0)}%',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: overTarget ? Colors.orange : Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                    Icon(Icons.edit_outlined,
+                        size: 14, color: Colors.grey[600]),
+                  ],
                 ),
-              ],
+              ),
             ),
           ],
         ),

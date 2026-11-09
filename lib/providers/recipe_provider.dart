@@ -158,6 +158,27 @@ class RecipeProvider extends ChangeNotifier {
     }
   }
 
+  /// Sets the shop's own target pour cost, or clears it back to the default when
+  /// [percent] is null. Returns false when it could not be saved, so the screen says
+  /// so rather than showing a target the server never stored.
+  Future<bool> setTarget(double? percent) async {
+    _saving = true;
+    _offline = false;
+    notifyListeners();
+    try {
+      final done = await SupabaseService.setRecipeTarget(percent);
+      if (!done) {
+        _offline = true;
+        return false;
+      }
+      _targetPourCost = percent ?? RecipeCostHelper.defaultTargetPourCost;
+      return true;
+    } finally {
+      _saving = false;
+      notifyListeners();
+    }
+  }
+
   /// Seeds a report without a server round-trip, so the layout harness lays out the
   /// real cards (long names, four figures, a chip) instead of only the plan gate.
   @visibleForTesting

@@ -265,5 +265,26 @@ void main() {
       expect(totals.revenue, closeTo(500, 0.001));
     });
   });
+
+  group('the target pour cost a shop sets', () {
+    test('accepts a usable percentage, and rounds it to two decimals', () {
+      expect(RecipeCostHelper.normaliseTargetPourCost(20), 20);
+      expect(RecipeCostHelper.normaliseTargetPourCost('22.5'), 22.5);
+      expect(RecipeCostHelper.normaliseTargetPourCost(22.567), 22.57);
+      expect(RecipeCostHelper.normaliseTargetPourCost(' 30 '), 30);
+      // Giving the whole price to the pour is a choice, not an error.
+      expect(RecipeCostHelper.normaliseTargetPourCost(100), 100);
+    });
+
+    test('refuses exactly what the backend refuses', () {
+      expect(RecipeCostHelper.normaliseTargetPourCost(0), isNull);
+      expect(RecipeCostHelper.normaliseTargetPourCost(-5), isNull);
+      expect(RecipeCostHelper.normaliseTargetPourCost(100.01), isNull);
+      expect(RecipeCostHelper.normaliseTargetPourCost('abc'), isNull);
+      expect(RecipeCostHelper.normaliseTargetPourCost(''), isNull);
+      expect(RecipeCostHelper.normaliseTargetPourCost(null), isNull);
+      expect(RecipeCostHelper.normaliseTargetPourCost(double.nan), isNull);
+    });
+  });
 }
 

@@ -1070,6 +1070,28 @@ class SupabaseService {
     }
   }
 
+  /// Sets this company's target pour cost, or clears it back to the built-in default
+  /// when [percent] is null. Answers whether the call succeeded, so the screen can say
+  /// so instead of pretending it saved.
+  static Future<bool> setRecipeTarget(double? percent) async {
+    if (!canUseSupabase) return false;
+    try {
+      final response = await http.patch(
+        Uri.parse(ApiConfig.dataRecipeTarget),
+        headers: await _authedHeaders(),
+        body: jsonEncode({'targetPourCost': percent}),
+      );
+      if (response.statusCode != 200) {
+        print('❌ Failed to save the target pour cost: ${response.statusCode}');
+        return false;
+      }
+      return true;
+    } catch (e) {
+      print('❌ Supabase setRecipeTarget error: $e');
+      return false;
+    }
+  }
+
   /// Adds a container, or updates its deposit. Managers only (the backend
   /// refuses anyone else with 403).
   static Future<Map<String, dynamic>?> saveContainerType({

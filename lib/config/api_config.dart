@@ -144,6 +144,8 @@ class ApiConfig {
   // glass). The cost is computed from the ingredients by the backend on every read
   // and never stored, so one supplier price change moves every margin at once.
   static const String dataRecipeCosting = '$apiBase/data/recipes/costing';
+  // The pour cost this shop aims at: one row on the company, set by a manager.
+  static const String dataRecipeTarget = '$apiBase/data/recipes/target';
   static String dataRecipe(String drinkId) => '$apiBase/data/recipes/$drinkId';
   static String dataDrinkCost(String drinkId) =>
       '$apiBase/data/drinks/$drinkId/cost';
