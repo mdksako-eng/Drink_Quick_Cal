@@ -80,6 +80,12 @@ class VarianceHelper {
     'customer',
   };
 
+  /// Stock a sale consumed as an ingredient (a recipe). Deliberately NEITHER a sale nor
+  /// a loss: the ingredient was never sold at its own price, so counting it as a sale
+  /// would inflate the sold value the loss rate is measured against, and counting it as
+  /// a loss would report a perfectly explained cocktail as shrinkage.
+  static const Set<String> consumptionReasons = {'recipe'};
+
   /// Reasons a manager has actually given. Anything else (including a blank
   /// reason) counts as "unexplained".
   static const Set<String> explainedReasons = {
@@ -103,7 +109,9 @@ class VarianceHelper {
 
   /// True when this movement is money leaving the shop without a sale.
   static bool isLoss(InventoryTransaction t) =>
-      t.isOutgoing && !saleReasons.contains(t.reason.trim().toLowerCase());
+      t.isOutgoing &&
+      !saleReasons.contains(t.reason.trim().toLowerCase()) &&
+      !consumptionReasons.contains(t.reason.trim().toLowerCase());
 
   /// True when this movement is a sale.
   static bool isSale(InventoryTransaction t) =>

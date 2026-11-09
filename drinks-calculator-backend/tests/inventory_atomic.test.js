@@ -122,10 +122,15 @@ describe('POST /inventory/sell — race condition guard', () => {
     );
 
     expect(res.statusCode).toBe(200);
+    // `ingredients` is the Phase B side effect (the recipe's whole units leave the
+    // shelf with the sale). This fake db has no drink_recipes table, so the step
+    // reports nothing — and the sale still succeeds, which is the whole point of
+    // making it best-effort.
     expect(res.body).toEqual({
       success: true,
       remaining: 3,
       drinkName: 'Craft Beer',
+      ingredients: { moved: [], notTracked: [] },
     });
     expect(db.state.transactions).toHaveLength(1);
     expect(db.state.transactions[0]).toContain(2);

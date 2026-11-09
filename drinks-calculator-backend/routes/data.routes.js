@@ -43,6 +43,7 @@ const {
   rankByPourCost,
   DEFAULT_TARGET_POUR_COST,
 } = require('../utils/recipeCosting');
+const { planIngredientMoves } = require('../utils/recipeStock');
 const { requirePlan } = require('../middleware/planAuth');
 const {
   summariseShift,
@@ -2397,6 +2398,72 @@ async function applyStockDelta({ db, companyId, userId, drinkId, delta, body, lo
   return { ok: true, remaining: Number(row.quantity), drinkName: row.drink_name };
 }
 
+/**
+ * Takes a made drink's ingredients off the shelf after a sale.
+ *
+ * BEST-EFFORT BY DESIGN, exactly like the void's stock move: the sale is already
+ * recorded and the drink's own movement is already done, so a missing recipe table,
+ * an ingredient nobody stocks or a fractional pour must never fail a completed sale.
+ * Every outcome is therefore REPORTED back (`moved` / `notTracked`) instead of thrown,
+ * and a line that could not move is named rather than silently dropped.
+ *
+ * Whole units only: stock is a whole-unit ledger, so a fractional pour (0.05 of a
+ * bottle) is reported as `fractional` and not deducted — see utils/recipeStock.js.
+ *
+ * The movement is logged with reason 'recipe', which is deliberately neither a sale
+ * nor a loss: the ingredient was never sold at its own price, and it did not go
+ * missing. Both reports depend on that distinction (GET /recipes/costing counts only
+ * reason 'sale'; the shrinkage report treats anything else as loss).
+ */
+async function moveIngredientsForSale({ db, companyId, userId, drinkId, unitsSold, body }) {
+  const report = { moved: [], notTracked: [] };
+  try {
+    const lines = await db.query(
+      'SELECT * FROM drink_recipes WHERE company_id = $1 AND drink_id = $2 ORDER BY id ASC',
+      [companyId, String(drinkId)]
+    );
+    if (!lines || !lines.rows || lines.rows.length === 0) return report;
+
+    const plan = planIngredientMoves({
+      lines: lines.rows,
+      unitsSold,
+      selfDrinkId: drinkId,
+    });
+    report.notTracked = plan.notTracked;
+
+    for (const move of plan.moves) {
+      const outcome = await applyStockDelta({
+        db,
+        companyId,
+        userId,
+        drinkId: move.drinkId,
+        delta: -move.quantity,
+        // The sale's own order id / performer are kept, so the movement stays
+        // attributable; only the reason changes.
+        body: { ...(body || {}), reason: 'recipe' },
+      });
+      if (outcome.ok) {
+        report.moved.push({
+          drinkId: move.drinkId,
+          name: move.name,
+          quantity: move.quantity,
+          remaining: outcome.remaining,
+        });
+      } else {
+        report.notTracked.push({
+          name: move.name,
+          quantity: move.quantity,
+          why: outcome.notStocked ? 'not_stocked' : 'insufficient_stock',
+        });
+      }
+    }
+  } catch (e) {
+    // Never fail a sale because a recipe could not be read.
+    console.log('⚠️ ingredient move skipped:', e.message);
+  }
+  return report;
+}
+
 function buildMovementTransaction({ companyId, userId, drinkId, drinkName, quantity, type, body }) {
   const txn = {
     id: crypto.randomUUID(),
@@ -2451,7 +2518,23 @@ router.post('/inventory/sell', async (req, res) => {
       });
     }
 
-    res.json({ success: true, remaining: outcome.remaining, drinkName: outcome.drinkName });
+    // 🍸 A made drink takes its ingredients with it. Best-effort and REPORTED: the
+    // sale is already saved, and anything that could not move is named in the reply.
+    const ingredients = await moveIngredientsForSale({
+      db: req.db,
+      companyId,
+      userId: req.user && req.user.id,
+      drinkId: String(drink_id),
+      unitsSold: qty,
+      body: req.body,
+    });
+
+    res.json({
+      success: true,
+      remaining: outcome.remaining,
+      drinkName: outcome.drinkName,
+      ingredients,
+    });
   } catch (error) {
     console.error('POST /inventory/sell error:', error.message);
     res.status(500).json({ message: 'Failed to sell stock' });

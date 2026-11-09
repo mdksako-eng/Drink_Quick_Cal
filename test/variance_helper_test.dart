@@ -246,4 +246,38 @@ void main() {
       expect(parsed.sellingPriceAtSale, 1200);
     });
   });
+
+  group('stock a recipe consumed (Phase B)', () {
+    // The sale logs an ingredient movement with reason 'recipe'. It is deliberately
+    // neither a sale nor a loss: the ingredient was never sold at its own price, and
+    // nothing went missing. Getting this wrong would either report a perfectly
+    // explained cocktail as shrinkage, or inflate the sold value the loss rate is
+    // measured against.
+    final consumed = movement(
+      drinkId: 'gin',
+      drinkName: 'Gin 70cl',
+      quantity: 2,
+      reason: 'recipe',
+      cost: 9000,
+      price: 15000,
+    );
+
+    test('is not a loss, so it never shows up as shrinkage', () {
+      expect(VarianceHelper.isLoss(consumed), isFalse);
+      expect(VarianceHelper.fromTransaction(consumed), isNull);
+      expect(VarianceHelper.fromTransactions([consumed]), isEmpty);
+    });
+
+    test('is not a sale either, so it cannot inflate the sold value', () {
+      expect(VarianceHelper.isSale(consumed), isFalse);
+      expect(VarianceHelper.soldValue([consumed]), 0);
+    });
+
+    test('a real loss next to it is still counted', () {
+      final lost = movement(reason: 'waste', cost: 1000);
+      final events = VarianceHelper.fromTransactions([consumed, lost]);
+      expect(events, hasLength(1));
+      expect(events.first.reason, 'waste');
+    });
+  });
 }
