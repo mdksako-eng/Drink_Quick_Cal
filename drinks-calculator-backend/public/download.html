@@ -29,6 +29,9 @@
   .note strong{display:block;margin-bottom:4px}
   .btn{display:inline-block;background:var(--brand);color:#fff;text-decoration:none;font-weight:800;border-radius:12px;padding:14px 22px;margin:6px 0}
   .btn[aria-disabled="true"]{background:var(--line);color:var(--muted);pointer-events:none}
+  /* `.btn` sets display, so it would beat the user agent's [hidden] rule: without this the
+     button hidden by the script would still be laid out. */
+  .btn[hidden]{display:none}
   .hash{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;background:var(--code);border:1px solid var(--line);border-radius:10px;padding:10px 12px;word-break:break-all}
   code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;background:var(--code);border-radius:6px;padding:2px 5px}
   .copy{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;margin-top:8px}
@@ -139,6 +142,12 @@
       line.removeAttribute('data-en');
       line.removeAttribute('data-fr');
       line.textContent = none[lang()];
+      // No link to offer, so no button: a disabled button that goes nowhere is worse than
+      // none at all. The known branch below brings it back.
+      if (button) {
+        button.hidden = true;
+        button.setAttribute('aria-disabled', 'true');
+      }
       if (notes) notes.hidden = true;
       if (hash) hash.textContent = none[lang()];
       if (copy) copy.hidden = true;
@@ -156,6 +165,7 @@
     }
 
     if (button) {
+      button.hidden = false;
       if (r.downloadUrl) {
         button.href = r.downloadUrl;
         button.removeAttribute('aria-disabled');

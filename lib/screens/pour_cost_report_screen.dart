@@ -172,21 +172,44 @@ class _PourCostReportScreenState extends State<PourCostReportScreen> {
         elevation: 4,
         actions: const [DrawerMenuButton(color: Colors.white)],
       ),
-      body: ListView(
+      // LAZY WIDGETS, ONE PER DRINK. This used to spread every card into a plain
+      // ListView(children: [...]), which allocates EVERY card widget on every build — each
+      // one a Card + InkWell + a dozen Texts + its formatted strings. A shop with 200 drinks
+      // paid for all 200 before seeing the first, and paid again on every period change and
+      // provider notification. Building on demand costs only the rows on screen.
+      // (Both forms build their ELEMENTS lazily; the difference is the widget construction.)
+      // The pixels are unchanged: the preamble is item 0 and keeps the gap before the first
+      // card inside it.
+      body: ListView.builder(
         padding: const EdgeInsets.all(16),
-        children: [
-          Text(t('pourCostSubtitle'),
-              style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-          const SizedBox(height: 12),
-          _periodSelector(),
-          const SizedBox(height: 14),
-          ..._body(theme, recipes),
-        ],
+        itemCount: 1 + (recipes.hasReport ? recipes.report.length : 0),
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(t('pourCostSubtitle'),
+                    style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+                const SizedBox(height: 12),
+                _periodSelector(),
+                const SizedBox(height: 14),
+                ..._body(theme, recipes),
+              ],
+            );
+          }
+          return _drinkCard(
+            theme,
+            recipes.report[index - 1],
+            recipes.targetPourCost,
+          );
+        },
       ),
     );
   }
 
-  /// What the list shows: the figures, or the honest reason there are none.
+  /// What stands above the drinks: the figures, or the honest reason there are none.
+  ///
+  /// The drink cards are deliberately NOT in here — the list above builds them lazily.
   List<Widget> _body(ThemeData theme, RecipeProvider recipes) {
     if (recipes.loading && !recipes.hasReport) {
       return const [
@@ -218,9 +241,8 @@ class _PourCostReportScreenState extends State<PourCostReportScreen> {
     }
     return [
       _summaryCard(theme, recipes),
+      // The gap before the first card, which now lives in the list rather than here.
       const SizedBox(height: 16),
-      ...recipes.report
-          .map((row) => _drinkCard(theme, row, recipes.targetPourCost)),
     ];
   }
 

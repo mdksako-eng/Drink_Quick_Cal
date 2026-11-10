@@ -42,6 +42,7 @@ class _UpdateNoticeHostState extends State<UpdateNoticeHost>
   AppUpdateProvider? _updates;
   Timer? _startupTimer;
   bool _shown = false;
+  bool _dialogOpen = false;
   bool _checking = false;
 
   @override
@@ -103,50 +104,60 @@ class _UpdateNoticeHostState extends State<UpdateNoticeHost>
 
   Future<void> _show(AppUpdateProvider updates) async {
     final release = updates.release;
-    if (release == null) return;
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(t('updateAvailableTitle')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(t('updateBody')
-                .replaceAll('@version', release.latestVersion ?? '')
-                .replaceAll('@current', AppConstants.appVersion)),
-            if (release.notes != null) ...[
-              const SizedBox(height: 8),
-              Text(release.notes!, style: const TextStyle(fontSize: 12)),
+    // A mandatory notice is re-armed on every provider change (above), and a check notifies
+    // TWICE — once when it starts, once when it answers. Without this guard the second
+    // notification pushed a SECOND dialog on top of the one already on screen, so tapping
+    // "Later" still left a dialog behind.
+    if (release == null || _dialogOpen || !mounted) return;
+    _dialogOpen = true;
+    try {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(t('updateAvailableTitle')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(t('updateBody')
+                  .replaceAll('@version', release.latestVersion ?? '')
+                  .replaceAll('@current', AppConstants.appVersion)),
+              if (release.notes != null) ...[
+                const SizedBox(height: 8),
+                Text(release.notes!, style: const TextStyle(fontSize: 12)),
+              ],
+              if (release.mandatory) ...[
+                const SizedBox(height: 8),
+                Text(
+                  t('updateMandatory'),
+                  style: const TextStyle(fontSize: 12, color: Colors.orange),
+                ),
+              ],
             ],
-            if (release.mandatory) ...[
-              const SizedBox(height: 8),
-              Text(
-                t('updateMandatory'),
-                style: const TextStyle(fontSize: 12, color: Colors.orange),
+          ),
+          actions: [
+            if (release.downloadUrl != null)
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+                  _open(release.downloadUrl!);
+                },
+                child: Text(t('updateDownload')),
               ),
-            ],
-          ],
-        ),
-        actions: [
-          if (release.downloadUrl != null)
             TextButton(
               onPressed: () {
+                updates.dismiss();
                 Navigator.pop(dialogContext);
-                _open(release.downloadUrl!);
               },
-              child: Text(t('updateDownload')),
+              child: Text(t('updateLater')),
             ),
-          TextButton(
-            onPressed: () {
-              updates.dismiss();
-              Navigator.pop(dialogContext);
-            },
-            child: Text(t('updateLater')),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    } finally {
+      // The dialog is gone: a later check may legitimately show it again.
+      _dialogOpen = false;
+    }
   }
 
   Future<void> _open(String url) async {

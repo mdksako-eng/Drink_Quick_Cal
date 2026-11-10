@@ -281,6 +281,49 @@ void main() {
     expectNoLayoutError();
   });
 
+  // A JANK GUARD, not a layout one. The report used to spread every card into a plain
+  // ListView(children: [...]), which CONSTRUCTS every card widget on every build — a shop
+  // with hundreds of drinks paid for all of them up front, and again on every period change.
+  // Note that both forms create their ELEMENTS lazily, so counting rendered rows proves
+  // nothing; the delegate is what actually distinguishes them.
+  testWidgets('PourCostReportScreen constructs its cards lazily', (tester) async {
+    final rows = List.generate(
+      300,
+      (i) => RecipeCostRow(
+        drinkId: '$i',
+        drinkName: 'Drink $i',
+        costing: const RecipeCosting(
+          cost: 1000,
+          complete: true,
+          uncosted: [],
+          sellingPrice: 2500,
+          hasRecipe: true,
+        ),
+        hasRecipe: true,
+        unitsSold: 300 - i,
+        profitInWindow: 45000,
+      ),
+    );
+
+    await pumpScreen(
+      tester,
+      const PourCostReportScreen(),
+      plan: PlanProvider()..setIsAdmin(true),
+      recipes: RecipeProvider()..seedReport(rows),
+    );
+
+    // The rows are laid out, so this is not a vacuous pass...
+    expect(find.text('Drink 0'), findsOneWidget);
+    // ...and the list builds them on demand rather than up front.
+    expect(
+      tester.widget<ListView>(find.byType(ListView)).childrenDelegate,
+      isA<SliverChildBuilderDelegate>(),
+      reason: 'ListView(children: [...]) constructs every card widget on each rebuild — '
+          'exactly the jank this screen was fixed for',
+    );
+    expectNoLayoutError();
+  });
+
   testWidgets('InventoryScreen lays out on phone and tablet', (tester) async {
     await pumpScreen(tester, const InventoryScreen(), size: phone);
     expectNoLayoutError();
