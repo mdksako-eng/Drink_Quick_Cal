@@ -1674,6 +1674,13 @@ const Map<String, String> _en = {
   'pourCostTargetDefault': 'Use the default',
   'pourCostTargetInvalid': 'Enter a percentage above 0 and up to 100',
   'pourCostTargetFailed': 'Could not save the target pour cost',
+  // 📢 A newer build exists. This app is handed out as an APK download, so nothing else
+  // ever mentions one.
+  'updateAvailableTitle': 'Update available',
+  'updateBody': 'Version @version is ready. This device runs @current.',
+  'updateDownload': 'Download',
+  'updateLater': 'Later',
+  'updateMandatory': 'Please install this update soon. You can keep selling now.',
   // 🔎 Picking from a long list: a search box, not a scroll.
   'pickSearchHint': 'Search by name or number',
   'pickNoMatch': 'Nothing matches',
@@ -3324,6 +3331,11 @@ const Map<String, String> _fr = {
   'pourCostTargetDefault': 'Utiliser la valeur par défaut',
   'pourCostTargetInvalid': "Saisissez un pourcentage supérieur à 0 et jusqu'à 100",
   'pourCostTargetFailed': "Impossible d'enregistrer le coût matière visé",
+  'updateAvailableTitle': 'Mise à jour disponible',
+  'updateBody': "La version @version est disponible. Cet appareil utilise la @current.",
+  'updateDownload': 'Télécharger',
+  'updateLater': 'Plus tard',
+  'updateMandatory': "Installez cette mise à jour bientôt. Vous pouvez continuer à vendre maintenant.",
   // 🔎 Choisir dans une longue liste : une recherche, pas un défilement.
   'pickSearchHint': 'Rechercher par nom ou numéro',
   'pickNoMatch': 'Aucun résultat',

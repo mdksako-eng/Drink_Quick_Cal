@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 import '../utils/json_num.dart';
+import '../utils/app_update_helper.dart';
 import 'secure_storage_service.dart';
 
 // ✅ Import for Realtime
@@ -1066,6 +1067,29 @@ class SupabaseService {
       return Map<String, dynamic>.from(jsonDecode(response.body));
     } catch (e) {
       print('❌ Supabase getRecipeCosting error: $e');
+      return null;
+    }
+  }
+
+  /// The latest published build of the app, as the backend knows it.
+  ///
+  /// PUBLIC on purpose — no session headers: a phone that has not signed in yet must
+  /// still be able to learn that an update exists. Answers null on any failure, and the
+  /// notice then says nothing at all (a wrong "update available" is worse than quiet).
+  static Future<AppRelease?> getAppRelease() async {
+    try {
+      final response = await http
+          .get(Uri.parse(ApiConfig.appRelease))
+          .timeout(const Duration(seconds: 10));
+      if (response.statusCode != 200) {
+        print('❌ Failed to read the latest release: ${response.statusCode}');
+        return null;
+      }
+      return AppRelease.fromJson(
+        Map<String, dynamic>.from(jsonDecode(response.body)),
+      );
+    } catch (e) {
+      print('❌ Supabase getAppRelease error: $e');
       return null;
     }
   }

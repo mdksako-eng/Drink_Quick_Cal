@@ -84,6 +84,7 @@ const SERVER_STARTED_AT = new Date();
 // Used by the startup banner below. CamerPay is the only payment rail now — the
 // Notch Pay one was removed (see memory-bank/activeContext.md).
 const campayStatus = require('./utils/campay');
+const { readRelease } = require('./utils/appRelease');
 const publicUrlStatus = require('./utils/publicUrl');
 const credentialVaultStatus = require('./utils/credentialVault');
 // Which companies can collect through their own CamerPay account, and the one
@@ -2635,6 +2636,22 @@ app.get('/api/test', (req, res) => {
 
 app.get('/api/ping', (req, res) => {
   res.json({ success: true, message: 'pong' });
+});
+
+// 📢 The latest published build of the APP (public, no session).
+//
+// The app is handed out as a direct APK download, so nothing else tells a shop that a
+// newer build exists — a store would. Every value comes from the environment and
+// nothing is guessed: with APP_LATEST_VERSION unset this answers `known: false` and
+// every device stays quiet (utils/appRelease.js).
+app.get('/api/app/release', (req, res) => {
+  try {
+    res.json(readRelease(process.env));
+  } catch (error) {
+    // A release notice is never worth an error page: staying quiet is the safe answer.
+    console.error('GET /api/app/release error:', error.message);
+    res.json({ known: false, latestVersion: null });
+  }
 });
 
 app.get('/', (req, res) => {

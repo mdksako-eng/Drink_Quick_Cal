@@ -143,6 +143,9 @@ class ApiConfig {
   // 🍸 Recipes / pour cost: what a MADE drink costs (a cocktail, a bottle by the
   // glass). The cost is computed from the ingredients by the backend on every read
   // and never stored, so one supplier price change moves every margin at once.
+  // 📢 The latest published build of the app (public). This app is handed out as an
+  // APK download, so no store tells a shop that a newer build exists.
+  static const String appRelease = '$apiBase/app/release';
   static const String dataRecipeCosting = '$apiBase/data/recipes/costing';
   // The pour cost this shop aims at: one row on the company, set by a manager.
   static const String dataRecipeTarget = '$apiBase/data/recipes/target';

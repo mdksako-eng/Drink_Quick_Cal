@@ -21,6 +21,18 @@ void main() {
     expect(versionFromPubspec('name: x\n'), isNull);
   });
 
+  test('AppConstants.appBuild equals the build number in pubspec.yaml', () {
+    // The build number is what lets a phone tell two builds of the SAME version apart —
+    // the update notice compares it as a tie-break, so it has to be the real one.
+    final pubspec = File('pubspec.yaml').readAsStringSync();
+    final match = RegExp(r'^version:\s*[^\s#]+\+(\d+)', multiLine: true)
+        .firstMatch(pubspec);
+    expect(match, isNotNull,
+        reason: 'pubspec.yaml has no "version: x.y.z+build" line');
+    expect(int.parse(match!.group(1)!), AppConstants.appBuild,
+        reason: 'bump AppConstants.appBuild together with pubspec.yaml');
+  });
+
   test('no other source file hardcodes a version', () {
     final offenders = <String>[];
     for (final entity in Directory('lib').listSync(recursive: true)) {

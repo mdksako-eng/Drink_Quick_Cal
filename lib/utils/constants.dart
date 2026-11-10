@@ -8,6 +8,12 @@ class AppConstants {
   /// `test/app_info_test.dart` fails if it drifts from pubspec.yaml.
   static const String appVersion = '1.1.0';
 
+  /// The **build number** — the `+build` part of `pubspec.yaml`'s `version:` field.
+  /// Unlike [appVersion] it must be bumped for a rebuild that ships no new version,
+  /// which is what lets a phone tell two builds of `1.1.0` apart (the update notice
+  /// compares it as a tie-break). `test/app_info_test.dart` checks it too.
+  static const int appBuild = 1;
+
   // Empty arrays - no built-in drinks
   static const List<Drink> beers = [];
   static const List<Drink> wines = [];

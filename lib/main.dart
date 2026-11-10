@@ -29,7 +29,9 @@ import 'package:drinks_calculator_fixed/providers/customer_provider.dart';
 import 'package:drinks_calculator_fixed/providers/shift_provider.dart';
 import 'package:drinks_calculator_fixed/providers/container_provider.dart';
 import 'package:drinks_calculator_fixed/providers/purchasing_provider.dart';
+import 'package:drinks_calculator_fixed/providers/app_update_provider.dart';
 import 'package:drinks_calculator_fixed/providers/recipe_provider.dart';
+import 'package:drinks_calculator_fixed/widgets/update_notice_host.dart';
 import 'package:drinks_calculator_fixed/screens/lock_screen.dart';
 import 'package:drinks_calculator_fixed/services/lock_service.dart';
 import 'package:drinks_calculator_fixed/services/voice_service.dart';
@@ -259,6 +261,9 @@ class MyAppState extends State<MyApp> {
         // 🍸 Recipes / pour cost: what a MADE drink costs (a cocktail, a bottle by
         // the glass). The cost is computed from the ingredients on every read.
         ChangeNotifierProvider(create: (_) => RecipeProvider()),
+        // 📢 Is this build out of date? The app is handed out as an APK download, so
+        // nothing else ever tells a shop that a newer one exists.
+        ChangeNotifierProvider(create: (_) => AppUpdateProvider()),
         // 🛒 Buying stock: suppliers and purchase orders (the forecast's
         // recommendations become an order here).
         ChangeNotifierProvider(create: (_) => PurchasingProvider()),
@@ -293,7 +298,9 @@ class MyAppState extends State<MyApp> {
               themeMode: themeMode,
               builder: (context, child) =>
                   LockScreenOverlay(child: child ?? const SizedBox.shrink()),
-              home: const AuthWrapper(),
+              // 📢 Inside the Navigator on purpose: the notice needs the root navigator
+              // to show its dialog, and the lock overlay above still covers it.
+              home: const UpdateNoticeHost(child: AuthWrapper()),
             ),
           );
         },
