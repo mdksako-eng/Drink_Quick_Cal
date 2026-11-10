@@ -165,7 +165,7 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
 - Notice dialog no longer stacks (double notify + mandatory re-arm); download page no longer
   leaves a dead disabled button and hides it correctly (`.btn[hidden]`); the pour-cost report
   builds cards lazily instead of constructing all of them every build.
-- Method note: the page defects were found by **running** its script in a harness (23 checks),
+- Method note: the page defects were found by **running** its script (now committed as `tests/app_release_page.test.js`),
   not by reading; the jank test was rewritten once after the first version proved vacuous.
 - `variance_screen.dart` has the same eager `ListView(children:)` pattern — named, not changed.
 
