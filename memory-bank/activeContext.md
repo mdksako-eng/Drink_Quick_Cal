@@ -2,6 +2,13 @@
 
 _Updated: 2026-11-10_
 
+## Audit of the day's own work: 3 defects fixed (2026-11-10, `d829e22`)
+- **Dialog stacking**: `AppUpdateProvider.check()` notifies twice and a mandatory notice re-arms on every notification, so a second dialog stacked over the first. Fixed with a `_dialogOpen` guard (try/finally) in `update_notice_host.dart`.
+- **Download page**: a failed/unknown fetch left a dead disabled button (`href="#"`) → now hidden and restored; CSS trap `.btn` beating `[hidden]` → `.btn[hidden]{display:none}`. Found by a **harness that runs the page script** (23 assertions, four states, EN+FR, lives outside the repo) — reading it and `node --check` had both missed these.
+- **Report jank**: `pour_cost_report_screen.dart` spread every card into `ListView(children: [...])` — all card widgets constructed on every build. Now `ListView.builder`; pixels unchanged. **Honest scope**: elements were already lazy, so the win is widget construction, not layout. The regression test asserts the delegate type, because counting rendered rows would pass for both forms.
+- **Known, not fixed**: `variance_screen.dart` has the same eager pattern (named, not restructured).
+- Gates: Flutter **540 tests**, analyze **0 errors**, backend **668 tests**, page harness **23/23**.
+
 ## Signed APK, download page, and the closed debug fallback (2026-11-10)
 - **`android/app/build.gradle.kts`** now signs a release build from `android/key.properties`
   (template `android/key.properties.example`) and **refuses** to build without it unless

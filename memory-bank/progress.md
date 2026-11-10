@@ -161,6 +161,14 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
   first signed release will install; only on-phone state is lost.
 - Gates: backend **50 suites / 668 tests**, Flutter **539**, analyze **0 errors**, APK 82.3 MB.
 
+## Audit round — 3 defects fixed — 2026-11-10 (`d829e22`)
+- Notice dialog no longer stacks (double notify + mandatory re-arm); download page no longer
+  leaves a dead disabled button and hides it correctly (`.btn[hidden]`); the pour-cost report
+  builds cards lazily instead of constructing all of them every build.
+- Method note: the page defects were found by **running** its script in a harness (23 checks),
+  not by reading; the jank test was rewritten once after the first version proved vacuous.
+- `variance_screen.dart` has the same eager `ListView(children:)` pattern — named, not changed.
+
 ## Not started
 - **Phase 4 — Real-time IoT sensor integration (automated replenishment)** ⬜ needs
   ESP32/load-cell firmware, a device-authenticated `POST /api/sensors/reading`, and

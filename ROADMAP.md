@@ -1230,3 +1230,28 @@ the installed app. So the notice could only ever have produced an "app not insta
 - The debug-signed builds already in the field cannot be upgraded **to** anything; the first signed
   release is a reinstall, which is why its notes should say so.
 
+
+## 2026-11-10 — Three defects in the same day's work, and what "lazy" actually meant ✅
+
+Auditing what the day shipped, rather than trusting it. Each defect was reproduced before it was fixed.
+
+### 1. A mandatory notice stacked dialogs on top of itself
+- `AppUpdateProvider.check()` notifies **twice** — once when the request starts, once when it answers — and the host re-arms a mandatory notice on every notification. So the second notification pushed a **second** dialog over the one on screen: tapping *Later* still left a dialog behind.
+- A `_dialogOpen` guard (set before `showDialog`, cleared in `finally`) closes it. The first attempt at that edit left the `try` unclosed, and `flutter analyze` said so before the tests did.
+
+### 2. The download page, run instead of read
+- A **failed or unknown fetch left a disabled button pointing at `#`** — a dead control on the one page a shop uses to get the file. It is hidden now, and comes back when a release is known.
+- **CSS trap:** `.btn` sets `display`, which beats the user agent's `[hidden]` rule, so the button the script hid would still have been laid out. `.btn[hidden]{display:none}`.
+- The page's script now has a **harness** (23 assertions across the four states, EN and FR, kept out of the repo): `node --check` only ever proved syntax, and reading it missed all of this.
+
+### 3. The report constructed every drink card, every build
+- `pour_cost_report_screen.dart` spread `report.map(_drinkCard)` into a plain `ListView(children: [...])`, so **every** card widget (a Card + InkWell + a dozen Texts + its formatted strings) was allocated on each build — a shop with 200 drinks paid for all 200 before seeing the first, and again on every period change and provider notification. Now a `ListView.builder`: preamble as item 0, pixels unchanged.
+- **The scope, stated honestly:** both forms lay their **elements** out lazily, so the win is the per-build widget construction, not layout. The first version of the regression test counted rendered rows and would have passed for *both* implementations — it was rewritten to assert the delegate is a `SliverChildBuilderDelegate`, the property that actually distinguishes them, with a throwaway probe proving the assertion discriminates the two forms.
+
+### Validation
+- Flutter **540 tests**, `flutter analyze lib` **0 errors**, backend **50 suites / 668 tests**, `node --check` clean, page harness **23/23**.
+
+### Recorded, not fixed
+- `variance_screen.dart` carries the same eager pattern (`ListView(children:)` over per-drink rankings). It is an unfamiliar multi-section screen, so it is named as the next candidate rather than restructured unasked.
+- A release put away with *Later* stays away for the session even if a **newer** version is announced later in that session (`_dismissed` is per-session by design). Left as designed; flagged because it is a decision, not an accident.
+
