@@ -134,6 +134,21 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
 - **Owner action**: the `target_pour_cost` column is added by the boot `ALTER`, so it exists after the next
   **manual** Render deploy; until then the read falls back to 20 % and a save is best-effort.
 
+## New-version notice — 2026-11-10 (`d9e6796`)
+- **Landed**: public `GET /api/app/release` (env-driven; unconfigured ⇒ `known:false` ⇒ silent), pure
+  `utils/appRelease.js` (**12 Jest tests**), and the app side: `utils/app_update_helper.dart`,
+  `providers/app_update_provider.dart`, `widgets/update_notice_host.dart` (`home:` inside the Navigator,
+  dialog, "Later" always available).
+- **Decision of record**: the installed version is `AppConstants.appVersion` (+ new `appBuild`) — the app's
+  single declared source of truth. `test/app_info_test.dart` rejects a version literal anywhere else in
+  `lib/`, and it failed this feature's first draft, which had its own copy.
+- Gates: backend **50 suites / 666 tests**, Flutter **539 tests**, `flutter analyze lib` **0 errors**,
+  i18n **EN=1529 FR=1529**.
+- **Owner action**: `/api/app/release` plus `companies.target_pour_cost` appear only with the next
+  **manual** Render deploy; a push does not deploy, `GET /health`'s `RELEASE` marker proves it.
+- **Queued**: release-APK signing (`key.properties` + `build.gradle.kts`), a download page in
+  `drinks-calculator-backend/public/`, Windows readiness, a repo `SECURITY.md`.
+
 ## Not started
 - **Phase 4 — Real-time IoT sensor integration (automated replenishment)** ⬜ needs
   ESP32/load-cell firmware, a device-authenticated `POST /api/sensors/reading`, and

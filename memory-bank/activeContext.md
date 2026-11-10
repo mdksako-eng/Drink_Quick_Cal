@@ -1,6 +1,25 @@
 # Active context
 
-_Updated: 2026-11-01_
+_Updated: 2026-11-10_
+
+## "There is a newer build" — the app tells the shop (2026-11-10, `d9e6796`)
+- **`GET /api/app/release`** (public, env-driven: `APP_LATEST_VERSION` / `APP_LATEST_BUILD` / `APP_APK_URL` /
+  `APP_RELEASE_NOTES` / `APP_UPDATE_MANDATORY`). **Nothing configured ⇒ `known:false` ⇒ silence** — an
+  unconfigured deploy must never nag a shop. Pure rule in `utils/appRelease.js` + 12 Jest tests.
+- App side: `utils/app_update_helper.dart` (pure compare — dotted version **numerically**, not as a string,
+  so `1.10.0` > `1.9.0`; build number as tie-break), `providers/app_update_provider.dart` (fetch + cache,
+  silent on failure), `widgets/update_notice_host.dart` mounted as `home:` **inside** the Navigator (so the
+  lock overlay still covers it). A dialog, not a banner; **"Later" always works**, mandatory only re-shows.
+- **The version comes from `AppConstants.appVersion`/`appBuild` — never a second copy.** The first draft
+  invented its own `installedVersion`, and `test/app_info_test.dart` ('no other source file hardcodes a
+  version') failed the suite: that guard is the reason `appBuild` now lives in `constants.dart` and is
+  checked against pubspec there too.
+- Also fixed: the host's startup delay must be a **cancellable `Timer`** (cancelled in `dispose`), not
+  `Future.delayed` — a pending timer fails `widget_test.dart`'s splash test.
+- Gates: backend **50 suites / 666 tests**, Flutter **539**, `flutter analyze lib` **0 errors**, i18n
+  **EN=1529 FR=1529**.
+- **Owner action**: the route and `companies.target_pour_cost` exist only after the next **manual** Render
+  deploy — a push does not deploy; `GET /health`'s `RELEASE` marker is the proof.
 
 ## Recipe follow-ons: report screen, Phase B stock, per-shop target (2026-11-01)
 - **`e90619b`** — the pour cost report screen (`lib/screens/pour_cost_report_screen.dart`, drawer Reports

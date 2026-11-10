@@ -1157,3 +1157,30 @@ Three follow-ons from Phase 18 — all manager-only and Pro, the same two gates 
 - A shop stocking BOTH a bundle and its parts will see both move (the recipe adds to the sale's own deduction). That is a catalogue setup question, flagged rather than guessed.
 - The `companies.target_pour_cost` column is added by the boot `ALTER`, so it exists after the next **manual** deploy; until then the read falls back to the built-in 20 % and saving is best-effort.
 
+
+## 2026-11-10 — "There is a newer build": the app tells the shop, not the other way round ✅
+
+The app is handed out as an APK, so no app store announces a release. Until now a shop only learned about a
+newer build if a human remembered to say so.
+
+### 1. `GET /api/app/release` — one public question, driven by the environment
+- Answers what the newest build is, from `APP_LATEST_VERSION`, `APP_LATEST_BUILD`, `APP_APK_URL`, `APP_RELEASE_NOTES` and `APP_UPDATE_MANDATORY` — so the file can move (a release page, a CDN, Drive) without touching the app.
+- **Nothing configured ⇒ `known: false` ⇒ the app stays silent.** An announcement channel that cries wolf is one a shop learns to dismiss — including the day it matters.
+- Public on purpose: it is the app's own "am I old?" question and it carries nothing about any company. The rule is pure (`utils/appRelease.js`, **12 Jest tests**).
+
+### 2. The notice itself
+- Checked a few seconds after startup, once per app run, and it never competes with the first frame.
+- The comparison is pure and testable without a widget (`utils/app_update_helper.dart`): a dotted version compared **numerically** — string-compared, `1.10.0` would look older than `1.9.0` — with the **build number as the tie-break**, which is what makes a rebuild of the same version news.
+- A **dialog**, not a banner: no AppBar, no layout shift on a screen sized for a till.
+- **"Later" always works.** A mandatory release only re-shows; it never traps a shop mid-service behind a dead button, and it cannot brick a till that has no connection to download with.
+- Mounted as `home:` **inside** the Navigator, so the global lock overlay still covers it — a locked till must not show a dialog over the lock screen.
+- Both languages. A failed check is silent: a shop with no signal sees no error, and the next run asks again.
+- **The version it compares against is `AppConstants.appVersion` / `appBuild`** — the app's single declared source of truth, pinned to `pubspec.yaml` by `test/app_info_test.dart`, which now guards the build number too. This feature's first draft carried its own copy of the version, and that guard failed the suite — which is exactly what it is for.
+
+### Validation
+- Backend **50 suites / 666 tests**, Flutter **539 tests**, `flutter analyze lib` **0 errors**, i18n **EN=1529 FR=1529**.
+
+### Still open (named, not pretended)
+- The route exists in production only after the next **manual** Render deploy, and a push alone does not deploy — `GET /health`'s `RELEASE` marker is the proof (a 17-minute poll once produced a wrong answer here: one deploy took 21m46s).
+- The APK is not signed with a release key yet (`key.properties` + `build.gradle.kts`) and there is no download page (APK + SHA-256 + install steps) under `drinks-calculator-backend/public/`. Both should land before `APP_APK_URL` points anywhere honestly.
+
