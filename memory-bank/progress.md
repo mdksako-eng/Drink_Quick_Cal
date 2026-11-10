@@ -136,7 +136,7 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
 
 ## New-version notice — 2026-11-10 (`d9e6796`)
 - **Landed**: public `GET /api/app/release` (env-driven; unconfigured ⇒ `known:false` ⇒ silent), pure
-  `utils/appRelease.js` (**12 Jest tests**), and the app side: `utils/app_update_helper.dart`,
+  `utils/appRelease.js` (**13 Jest tests**), and the app side: `utils/app_update_helper.dart`,
   `providers/app_update_provider.dart`, `widgets/update_notice_host.dart` (`home:` inside the Navigator,
   dialog, "Later" always available).
 - **Decision of record**: the installed version is `AppConstants.appVersion` (+ new `appBuild`) — the app's
@@ -148,6 +148,18 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
   **manual** Render deploy; a push does not deploy, `GET /health`'s `RELEASE` marker proves it.
 - **Queued**: release-APK signing (`key.properties` + `build.gradle.kts`), a download page in
   `drinks-calculator-backend/public/`, Windows readiness, a repo `SECURITY.md`.
+
+## Signed APK + download page — 2026-11-10
+- **Landed**: `android/app/build.gradle.kts` signs from `android/key.properties`
+  (`key.properties.example` template) and **refuses** a release build without it unless
+  `-PallowDebugSigning=true` — measured reason: `flutter build apk` swallows Gradle `logger.warn`,
+  so only an `error()` is visible. Both branches built and checked with `apksigner verify`.
+- `drinks-calculator-backend/public/download.html` (public, bilingual, reads `/api/app/release`);
+  `APP_APK_SHA256` added to the announcement (64 hex chars, validated).
+- New runbook **`RELEASE.md`** (the APK counterpart to `DEPLOY.md`).
+- **Migration of record**: the debug-signed builds already shipped must be UNINSTALLED before the
+  first signed release will install; only on-phone state is lost.
+- Gates: backend **50 suites / 668 tests**, Flutter **539**, analyze **0 errors**, APK 82.3 MB.
 
 ## Not started
 - **Phase 4 — Real-time IoT sensor integration (automated replenishment)** ⬜ needs

@@ -10,6 +10,7 @@ const {
   normaliseVersion,
   normaliseBuild,
   normaliseUrl,
+  normaliseSha256,
 } = require('../utils/appRelease');
 
 describe('what counts as a version', () => {
@@ -47,12 +48,33 @@ describe('the download link', () => {
   });
 });
 
+describe('the published file hash', () => {
+  const hash = '0123456789abcdef'.repeat(4);
+
+  test('a 64-character hex digest is kept, trimmed and lower-cased', () => {
+    expect(normaliseSha256(hash)).toBe(hash);
+    expect(normaliseSha256(`  ${hash.toUpperCase()}  `)).toBe(hash);
+  });
+
+  test('anything that is not exactly that is refused', () => {
+    // A hash that LOOKS authoritative but is wrong teaches a shop to stop checking,
+    // which is worse than publishing none at all.
+    expect(normaliseSha256(hash.slice(0, 63))).toBeNull(); // truncated
+    expect(normaliseSha256(`${hash}0`)).toBeNull(); // one character too long
+    expect(normaliseSha256('zz'.repeat(32))).toBeNull(); // not hex
+    expect(normaliseSha256('')).toBeNull();
+    expect(normaliseSha256(null)).toBeNull();
+    expect(normaliseSha256(undefined)).toBeNull();
+  });
+});
+
 describe('reading the release from the environment', () => {
   test('nothing configured means we do not know, so nothing is announced', () => {
     const release = readRelease({});
     expect(release.known).toBe(false);
     expect(release.latestVersion).toBeNull();
     expect(release.downloadUrl).toBeNull();
+    expect(release.sha256).toBeNull();
     expect(release.mandatory).toBe(false);
   });
 
@@ -61,6 +83,7 @@ describe('reading the release from the environment', () => {
       APP_LATEST_VERSION: '1.2.0',
       APP_LATEST_BUILD: '2',
       APP_APK_URL: 'https://example.com/app-release.apk',
+      APP_APK_SHA256: '0123456789ABCDEF'.repeat(4),
       APP_RELEASE_NOTES: 'Fixed the till total on a tab',
       APP_UPDATE_MANDATORY: 'true',
     });
@@ -69,6 +92,7 @@ describe('reading the release from the environment', () => {
       latestVersion: '1.2.0',
       latestBuild: 2,
       downloadUrl: 'https://example.com/app-release.apk',
+      sha256: '0123456789abcdef'.repeat(4),
       notes: 'Fixed the till total on a tab',
       mandatory: true,
     });

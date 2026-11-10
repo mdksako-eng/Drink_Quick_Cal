@@ -1,0 +1,22 @@
+# Release signing — copy this file to `key.properties` (same folder) and fill it in.
+#
+# NEITHER this file's result nor the key may ever be committed: `android/.gitignore` and
+# the root `.gitignore` both exclude `key.properties`, `*.jks` and `*.keystore`.
+#
+# Create the key ONCE (JDK 17+), then keep the .jks and these passwords in a password
+# manager and an offline backup:
+#
+#   keytool -genkey -v -keystore drinkquick-release.jks -keyalg RSA -keysize 2048 \
+#           -validity 10000 -alias drinkquick
+#
+# WHY THE BACKUP MATTERS MORE THAN THE PASSWORDS: Android only accepts an update signed
+# with the SAME key as the installed app. Lose the .jks and no shop can ever upgrade again
+# — every one of them has to uninstall (losing its local data) and reinstall.
+
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=drinkquick
+# Forward slashes are the least surprising: a Java properties file treats `\` as an escape
+# character, so a Windows path needs either  C:/keys/drinkquick-release.jks  (simplest) or
+# double backslashes. A relative path resolves from `android/app/`.
+storeFile=C:/keys/drinkquick-release.jks

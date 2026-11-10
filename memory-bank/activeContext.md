@@ -2,10 +2,30 @@
 
 _Updated: 2026-11-10_
 
+## Signed APK, download page, and the closed debug fallback (2026-11-10)
+- **`android/app/build.gradle.kts`** now signs a release build from `android/key.properties`
+  (template `android/key.properties.example`) and **refuses** to build without it unless
+  `-PallowDebugSigning=true`. Reason, measured: `flutter build apk` swallows Gradle's
+  `logger.warn` (only Gradle `error()` reaches the user), so a warning would be invisible exactly
+  when it matters. Both branches were built and checked with `apksigner verify --print-certs`.
+- The key cannot be committed — `android/.gitignore` + the root `.gitignore`; `git check-ignore -v`
+  names the rule. **Never paste keystore passwords into this repo.**
+- **`public/download.html`** (public, bilingual by EN/FR swap, not a `.fr` twin — it is dynamic and
+  reads `GET /api/app/release`): version, notes, the `APP_APK_SHA256` digest, install steps and the
+  uninstall-first note. `APP_APK_SHA256` is validated as 64 hex chars in `utils/appRelease.js`.
+- **The migration of record**: shops on the debug-signed builds already in the field must
+  **uninstall** before the first signed release installs (Android keys are per-app forever); only
+  on-phone state is lost (session + unsynced sales).
+- Docs: **`RELEASE.md`** (new, the app release runbook — the APK counterpart to `DEPLOY.md`).
+- Gates: backend **50 suites / 668 tests**, `node --check` clean, Flutter **539**, analyze **0
+  errors** (no Dart touched). APK 82.3 MB.
+- **Owner action**: create the real key (keytool, back it up), publish the first signed APK, set the
+  six `APP_*` vars on Render, deploy. The key and passwords stay out of git forever.
+
 ## "There is a newer build" — the app tells the shop (2026-11-10, `d9e6796`)
 - **`GET /api/app/release`** (public, env-driven: `APP_LATEST_VERSION` / `APP_LATEST_BUILD` / `APP_APK_URL` /
   `APP_RELEASE_NOTES` / `APP_UPDATE_MANDATORY`). **Nothing configured ⇒ `known:false` ⇒ silence** — an
-  unconfigured deploy must never nag a shop. Pure rule in `utils/appRelease.js` + 12 Jest tests.
+  unconfigured deploy must never nag a shop. Pure rule in `utils/appRelease.js` + 13 Jest tests.
 - App side: `utils/app_update_helper.dart` (pure compare — dotted version **numerically**, not as a string,
   so `1.10.0` > `1.9.0`; build number as tie-break), `providers/app_update_provider.dart` (fetch + cache,
   silent on failure), `widgets/update_notice_host.dart` mounted as `home:` **inside** the Navigator (so the

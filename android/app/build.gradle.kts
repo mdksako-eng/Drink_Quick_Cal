@@ -1,9 +1,42 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+// ── Release signing ────────────────────────────────────────────────────────────────────
+// The key and its passwords live in `android/key.properties` + a `.jks`, and NEITHER is in
+// git (`android/.gitignore` and the root `.gitignore` both exclude them).
+//
+// Without that file a release build is REFUSED rather than silently signed with the debug
+// key. The debug key is how every build up to now went out, and an APK signed with it can
+// never be upgraded by a properly signed one — so a shop would have to uninstall. A Gradle
+// warning is not enough of a guard: `flutter build apk` prints its own two lines and
+// swallows Gradle's, which is exactly when a warning would have been needed.
+val keystorePropertiesFile = rootProject.file("key.properties")
+val keystoreProperties = Properties()
+val hasReleaseKeystore = keystorePropertiesFile.exists()
+if (hasReleaseKeystore) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+} else if (!project.hasProperty("allowDebugSigning")) {
+    error(
+        "android/key.properties not found: refusing to build a release APK signed with the " +
+            "debug key (it could never be upgraded by a properly signed one). See " +
+            "android/key.properties.example and RELEASE.md. For a throwaway test build use " +
+            "`flutter build apk --debug`, or ask for it explicitly with " +
+            "`cd android; .\\gradlew assembleRelease -PallowDebugSigning=true`."
+    )
+}
+
+// A missing or blank entry is a mistake worth naming plainly.
+fun requiredSigningProperty(name: String): String =
+    keystoreProperties.getProperty(name)
+        ?.takeIf { it.isNotBlank() }
+        ?: error("android/key.properties has no $name — see android/key.properties.example")
 
 android {
     namespace = "com.example.drinks_calculator_fixed"
@@ -35,11 +68,26 @@ android {
         multiDexEnabled = true
     }
 
+    signingConfigs {
+        if (hasReleaseKeystore) {
+            create("release") {
+                keyAlias = requiredSigningProperty("keyAlias")
+                keyPassword = requiredSigningProperty("keyPassword")
+                storeFile = file(requiredSigningProperty("storeFile"))
+                storePassword = requiredSigningProperty("storePassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // The real key whenever key.properties is present. The debug key is reachable
+            // only through the explicit -PallowDebugSigning=true escape hatch above.
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }

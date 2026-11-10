@@ -9,7 +9,7 @@
 // it is actually running.
 //
 // NOTHING IS GUESSED. Every value comes from the environment
-// (APP_LATEST_VERSION, APP_LATEST_BUILD, APP_APK_URL, APP_RELEASE_NOTES,
+// (APP_LATEST_VERSION, APP_LATEST_BUILD, APP_APK_URL, APP_APK_SHA256, APP_RELEASE_NOTES,
 // APP_UPDATE_MANDATORY). Unset means "we do not know", which the caller reports as null
 // and the app renders as nothing at all. A wrong version number here would send a shop
 // chasing an update that does not exist — worse than saying nothing.
@@ -41,6 +41,18 @@ function normaliseUrl(value) {
   return /^https?:\/\/\S+$/i.test(text) ? text : null;
 }
 
+/// A SHA-256 digest in hex, lower-case — 64 characters, nothing else.
+///
+/// This is what lets a shop prove the file it installed is the file we built, so a value
+/// that is *nearly* right (truncated, upper-case, a different algorithm) must be refused
+/// rather than shown: a hash that looks authoritative but is wrong teaches people to
+/// ignore the check, which is worse than publishing none at all.
+function normaliseSha256(value) {
+  if (value === null || value === undefined) return null;
+  const text = String(value).trim().toLowerCase();
+  return /^[0-9a-f]{64}$/.test(text) ? text : null;
+}
+
 function normaliseNotes(value) {
   if (value === null || value === undefined) return null;
   const text = String(value).trim();
@@ -62,6 +74,7 @@ function readRelease(env = {}) {
     latestVersion: known ? latestVersion : null,
     latestBuild: known ? normaliseBuild(env.APP_LATEST_BUILD) : null,
     downloadUrl: known ? normaliseUrl(env.APP_APK_URL) : null,
+    sha256: known ? normaliseSha256(env.APP_APK_SHA256) : null,
     notes: known ? normaliseNotes(env.APP_RELEASE_NOTES) : null,
     mandatory:
       known &&
@@ -74,4 +87,5 @@ module.exports = {
   normaliseVersion,
   normaliseBuild,
   normaliseUrl,
+  normaliseSha256,
 };

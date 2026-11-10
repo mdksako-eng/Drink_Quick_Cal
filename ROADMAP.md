@@ -1184,3 +1184,49 @@ newer build if a human remembered to say so.
 - The route exists in production only after the next **manual** Render deploy, and a push alone does not deploy — `GET /health`'s `RELEASE` marker is the proof (a 17-minute poll once produced a wrong answer here: one deploy took 21m46s).
 - The APK is not signed with a release key yet (`key.properties` + `build.gradle.kts`) and there is no download page (APK + SHA-256 + install steps) under `drinks-calculator-backend/public/`. Both should land before `APP_APK_URL` points anywhere honestly.
 
+
+## 2026-11-10 — A signed APK and a download page: the update notice now points somewhere honest ✅
+
+The app tells a shop a newer build exists and opens a link for it. Until now that link could not
+have worked as an *update*, because every published build was signed with the **debug** key
+(`build.gradle.kts` fell back to it), and Android only accepts an update signed by the same key as
+the installed app. So the notice could only ever have produced an "app not installed" error.
+
+### 1. Signing, with the debug fallback closed
+- `android/app/build.gradle.kts` reads a real `signingConfigs.release` from `android/key.properties`
+  (template: `android/key.properties.example`), and **refuses** to build a release APK without it
+  unless `-PallowDebugSigning=true` is passed on purpose.
+- **A warning was not enough — measured, not assumed.** `flutter build apk` prints its own two lines
+  and swallows Gradle's `logger.warn`, so the one place a warning mattered was the one place it was
+  invisible. A Gradle `error()` does reach the user. Both branches were built here: with a throwaway
+  key, `apksigner verify --print-certs` reported that key's DN on the produced APK; without one, the
+  build failed with the message and exit code 1.
+- The key and its passwords cannot be committed: `android/.gitignore` **and** the root `.gitignore`
+  both exclude `key.properties`, `*.jks`, `*.keystore` (`git check-ignore -v` names the matching rule).
+- **The migration, named rather than buried**: every shop on a debug-signed build must **uninstall**
+  before the first signed release installs. What is lost is only what lives on that phone (the saved
+  session and any unsynchronised sale) — the account and its data stay on the server. That note is the
+  first thing `download.html` says.
+
+### 2. A download page that cannot guess
+- `public/download.html` (public, served by the existing `express.static`): reads
+  `GET /api/app/release` for the version, the notes and the hash, then shows the install steps and the
+  verification command. Bilingual **by an EN/FR swap rather than a `.fr` twin** (privacy/terms have
+  twins): the page is dynamic, and duplicating the fetch would be two places to drift.
+- `APP_APK_SHA256` joins the announcement (`utils/appRelease.js`): validated as exactly 64 hex
+  characters and lower-cased. A hash that is *nearly* right is refused rather than shown — a number
+  that looks authoritative and is wrong teaches a shop to stop checking.
+- Nothing configured still means `known: false` and a page that says so instead of inventing a version.
+
+### Validation
+- Backend **50 suites / 668 tests** (app-release suite 13), `node --check` clean; Flutter **539 tests**,
+  `flutter analyze lib` **0 errors** (no Dart changed: the APK build compiled it). APK 82.3 MB,
+  ~8 min cold, ~24 s warm.
+
+### Still open (named, not pretended)
+- **Owner action**: create the real key once (`keytool`, then back it up — losing it means every shop
+  uninstalls), publish the first signed APK, set the six `APP_*` variables on Render and deploy. A push
+  does not deploy; `GET /health`'s `RELEASE` marker is the proof.
+- The debug-signed builds already in the field cannot be upgraded **to** anything; the first signed
+  release is a reinstall, which is why its notes should say so.
+

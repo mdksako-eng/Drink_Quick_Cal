@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download — Drink Quick Cal</title>
+<meta name="description" content="Download the latest Drink Quick Cal APK, check its SHA-256, and install it.">
+<style>
+  :root{--brand:#4361EE;--ink:#12203a;--muted:#5b6b85;--bg:#f6f8fc;--card:#fff;--line:#e3e9f2;--warn:#fff7e6;--warnline:#f0c36d;--ok:#0f7b4f;--code:#f1f4fa}
+  @media (prefers-color-scheme:dark){:root{--ink:#eaf0fb;--muted:#a8b6cd;--bg:#0e1420;--card:#151d2c;--line:#26324a;--warn:#241d0d;--warnline:#8a6a2a;--ok:#4ade80;--code:#0b111b}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:26px 20px 60px}
+  .brand{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 0 2px}
+  .wordmark{font-size:23px;font-weight:800;letter-spacing:-.4px}
+  .logo{display:inline-flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:5px;box-shadow:0 2px 6px rgba(18,32,58,.10)}
+  .logo img{display:block;height:38px;width:auto}
+  .wordmark span{color:var(--brand)}
+  .tagline{margin:2px 0 0;color:var(--muted);font-size:13px}
+  .langs{margin-left:auto;display:flex;gap:6px}
+  .langs button{background:var(--card);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer}
+  .langs button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:700}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 24px;margin-top:20px}
+  h1{font-size:29px;margin:12px 0 4px;letter-spacing:-.5px}
+  h2{font-size:18px;margin:26px 0 6px}
+  .meta{color:var(--muted);font-size:13px}
+  ul,ol{padding-left:22px}li{margin:5px 0}
+  .note{background:var(--warn);border:1px solid var(--warnline);border-radius:12px;padding:14px 16px;margin:18px 0}
+  .note strong{display:block;margin-bottom:4px}
+  .btn{display:inline-block;background:var(--brand);color:#fff;text-decoration:none;font-weight:800;border-radius:12px;padding:14px 22px;margin:6px 0}
+  .btn[aria-disabled="true"]{background:var(--line);color:var(--muted);pointer-events:none}
+  .hash{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;background:var(--code);border:1px solid var(--line);border-radius:10px;padding:10px 12px;word-break:break-all}
+  code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;background:var(--code);border-radius:6px;padding:2px 5px}
+  .copy{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;margin-top:8px}
+  .state{color:var(--muted);font-style:italic}
+  .ok{color:var(--ok);font-weight:700}
+  footer{margin-top:30px;color:var(--muted);font-size:13px;text-align:center}
+  a{color:var(--brand)}
+  @media(max-width:560px){h1{font-size:25px}.card{padding:20px 16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <span class="logo"><img src="logo.png" alt="Drink Quick Cal"></span>
+    <div>
+      <div class="wordmark">Drink&nbsp;Quick&nbsp;<span>Cal</span></div>
+      <p class="tagline" data-en="Drinks &amp; stock management for Cameroon — built to work offline" data-fr="Gestion des boissons et du stock pour le Cameroun — conçue pour fonctionner hors ligne"></p>
+    </div>
+    <div class="langs">
+      <button type="button" id="lang-en" onclick="setLang('en')">English</button>
+      <button type="button" id="lang-fr" onclick="setLang('fr')">Français</button>
+    </div>
+  </div>
+  <div class="card">
+    <h1 data-en="Download Drink Quick Cal" data-fr="Télécharger Drink Quick Cal"></h1>
+    <p class="meta" id="versionLine" data-en="Checking which build is published&hellip;" data-fr="Vérification de la version publiée&hellip;"></p>
+    <p id="notes" class="meta" hidden></p>
+
+    <p>
+      <a id="downloadBtn" class="btn" href="#" aria-disabled="true"
+         data-en="Download the APK" data-fr="Télécharger l'APK"></a>
+    </p>
+    <p class="meta" data-en="Android will ask you to confirm installing an app from this page. Keep the file: it is what you install on each till." data-fr="Android vous demandera de confirmer l'installation d'une application depuis cette page. Gardez le fichier : c'est celui que vous installez sur chaque caisse."></p>
+
+    <div class="note">
+      <strong data-en="If the app is already installed, read this first." data-fr="Si l'application est déjà installée, lisez ceci d'abord."></strong>
+      <span data-en="Builds published before 10 November 2026 were signed with a development key, not a release key. Android refuses to replace an app with one signed by a different key, so the old app has to be removed before this one installs. Your shop account and its data stay on the server — what is removed with the app is what exists only on that phone: the saved session (you simply sign in again) and any sale that had not yet synchronised. Check the app shows nothing pending before you uninstall, and contact us if you are unsure." data-fr="Les versions publiées avant le 10 novembre 2026 étaient signées avec une clé de développement, pas avec une clé de publication. Android refuse de remplacer une application par une autre signée avec une clé différente : l'ancienne application doit donc être désinstallée avant d'installer celle-ci. Votre compte et ses données restent sur le serveur — ce qui disparaît avec l'application est ce qui n'existe que sur ce téléphone : la session enregistrée (vous vous reconnectez simplement) et toute vente non encore synchronisée. Vérifiez que l'application n'affiche rien en attente avant de désinstaller, et contactez-nous en cas de doute."></span>
+    </div>
+
+    <h2 data-en="How to install" data-fr="Comment installer"></h2>
+    <ol>
+      <li data-en="On the till, open this page in the phone's browser and tap Download." data-fr="Sur la caisse, ouvrez cette page dans le navigateur du téléphone et appuyez sur Télécharger."></li>
+      <li data-en="If the browser warns about the file type, keep it. An APK is the app's installation file." data-fr="Si le navigateur vous avertit à propos du type de fichier, conservez-le. Un APK est le fichier d'installation de l'application."></li>
+      <li data-en="If asked, allow this browser to install unknown apps (Settings &rarr; Apps &rarr; Special access &rarr; Install unknown apps)." data-fr="Si on vous le demande, autorisez ce navigateur à installer des applications inconnues (Paramètres &rarr; Applications &rarr; Accès spéciaux &rarr; Installer des applications inconnues)."></li>
+      <li data-en="If an older Drink Quick Cal is installed, uninstall it now (see the note above), then open the downloaded file and confirm Install." data-fr="Si une ancienne version de Drink Quick Cal est installée, désinstallez-la maintenant (voir la note ci-dessus), puis ouvrez le fichier téléchargé et confirmez Installer."></li>
+      <li data-en="Open the app and sign in with the same email and password as before." data-fr="Ouvrez l'application et connectez-vous avec le même e-mail et mot de passe qu'avant."></li>
+    </ol>
+
+    <h2 data-en="Check the file (recommended)" data-fr="Vérifier le fichier (recommandé)"></h2>
+    <p class="meta" data-en="The SHA-256 below is the fingerprint of the file published here. If it does not match the file you downloaded, do not install it and tell us." data-fr="Le SHA-256 ci-dessous est l'empreinte du fichier publié ici. S'il ne correspond pas au fichier que vous avez téléchargé, ne l'installez pas et prévenez-nous."></p>
+    <div class="hash" id="hash" data-en="No build is published yet." data-fr="Aucune version n'est encore publiée."></div>
+    <button type="button" class="copy" id="copyBtn" onclick="copyHash()" data-en="Copy" data-fr="Copier" hidden></button>
+    <p class="meta"><span data-en="Windows (PowerShell):" data-fr="Windows (PowerShell) :"></span> <code>Get-FileHash .\app-release.apk -Algorithm SHA256</code></p>
+  </div>
+
+  <footer>
+    <a href="privacy.html" data-en="Privacy" data-fr="Confidentialité"></a> &middot;
+    <a href="terms.html" data-en="Terms" data-fr="Conditions"></a> &middot;
+    <span data-en="Support: use the Support screen inside the app." data-fr="Assistance : utilisez l'écran Assistance dans l'application."></span>
+  </footer>
+<script>
+// Bilingual by a data-en / data-fr swap rather than two files (privacy.html has a .fr
+// twin). The page is DYNAMIC — it reads /api/app/release for the version, the notes and
+// the hash — and duplicating that logic in a second file is how the two drift apart.
+// The choice is remembered; the browser's language decides the first visit.
+(function () {
+  var API = '/api/app/release';
+  var copyLabel = { en: 'Copy', fr: 'Copier' };
+  var copiedLabel = { en: 'Copied', fr: 'Copié' };
+  var published = { en: 'Latest published build: ', fr: 'Dernière version publiée : ' };
+  var none = { en: 'No build is published yet.', fr: 'Aucune version n\'est encore publiée.' };
+  var askSupplier = {
+    en: 'A newer build exists. Ask your supplier for the installation file.',
+    fr: 'Une version plus récente existe. Demandez le fichier d\'installation à votre fournisseur.'
+  };
+  var sha256 = null;
+  var release = null; // kept so switching language can redraw the computed lines
+
+  function lang() { return document.documentElement.lang === 'fr' ? 'fr' : 'en'; }
+
+  function setLang(next) {
+    var l = next === 'fr' ? 'fr' : 'en';
+    document.documentElement.lang = l;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-en]'), function (el) {
+      el.innerHTML = el.getAttribute('data-' + l) || el.getAttribute('data-en');
+    });
+    ['en', 'fr'].forEach(function (code) {
+      var button = document.getElementById('lang-' + code);
+      if (button) button.setAttribute('aria-pressed', String(code === l));
+    });
+    var copy = document.getElementById('copyBtn');
+    if (copy) copy.textContent = copyLabel[l];
+    if (release) render(release);
+    try { localStorage.setItem('dqc-lang', l); } catch (e) { /* private mode */ }
+  }
+
+  function render(r) {
+    release = r;
+    var line = document.getElementById('versionLine');
+    var notes = document.getElementById('notes');
+    var button = document.getElementById('downloadBtn');
+    var hash = document.getElementById('hash');
+    var copy = document.getElementById('copyBtn');
+    if (!line) return;
+
+    if (!r || !r.known) {
+      // Nothing configured on the server: this page must not invent a version.
+      line.removeAttribute('data-en');
+      line.removeAttribute('data-fr');
+      line.textContent = none[lang()];
+      if (notes) notes.hidden = true;
+      if (hash) hash.textContent = none[lang()];
+      if (copy) copy.hidden = true;
+      return;
+    }
+
+    line.removeAttribute('data-en'); // computed, not translated
+    line.removeAttribute('data-fr');
+    line.textContent = published[lang()] + r.latestVersion +
+      (r.latestBuild ? ' (build ' + r.latestBuild + ')' : '');
+
+    if (notes) {
+      notes.hidden = !r.notes;
+      if (r.notes) notes.textContent = r.notes;
+    }
+
+    if (button) {
+      if (r.downloadUrl) {
+        button.href = r.downloadUrl;
+        button.removeAttribute('aria-disabled');
+      } else {
+        // Announced without a link: say so instead of offering a dead button.
+        button.removeAttribute('data-en');
+        button.removeAttribute('data-fr');
+        button.textContent = askSupplier[lang()];
+        button.setAttribute('aria-disabled', 'true');
+      }
+    }
+
+    sha256 = r.sha256 || null;
+    if (hash) hash.textContent = sha256 || none[lang()];
+    if (copy) copy.hidden = !sha256;
+  }
+
+  window.setLang = setLang;
+  window.copyHash = function () {
+    if (!sha256) return;
+    var button = document.getElementById('copyBtn');
+    navigator.clipboard.writeText(sha256).then(function () {
+      if (!button) return;
+      button.textContent = copiedLabel[lang()];
+      setTimeout(function () { button.textContent = copyLabel[lang()]; }, 1500);
+    });
+  };
+
+  var saved = null;
+  try { saved = localStorage.getItem('dqc-lang'); } catch (e) { /* private mode */ }
+  setLang(saved || ((navigator.language || 'en').toLowerCase().indexOf('fr') === 0 ? 'fr' : 'en'));
+
+  // A cached answer would show a stale hash, which is the one number here that must be
+  // exact, so the request is explicitly not cacheable.
+  fetch(API + '?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (response) { return response.ok ? response.json() : null; })
+    .then(function (r) { if (r) render(r); else render(null); })
+    .catch(function () { render(null); });
+})();
+</script>
+</div>
+</body>
+</html>
