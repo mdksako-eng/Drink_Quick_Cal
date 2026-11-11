@@ -101,22 +101,42 @@ class _OfflineIndicatorState extends State<OfflineIndicator>
   // ============================================================
 
   Future<void> _checkConnectivity() async {
-    final result = await Connectivity().checkConnectivity();
-    setState(() {
-      _isOffline = result == ConnectivityResult.none;
-      _isChecking = false;
-    });
-
-    if (!_isOffline) {
-      await _checkConnectionQuality();
+    var offline = false;
+    try {
+      final result = await Connectivity().checkConnectivity();
+      offline = result == ConnectivityResult.none;
+    } catch (e) {
+      // No plugin on this platform (desktop/web) or a refused call. That is UNKNOWN, not
+      // "online": the health probe below still decides. What must not happen is leaving
+      // `_isChecking` true — the banner renders only once that flag is false, so a throw
+      // here hid it for the whole session.
+      debugPrint('⚠️ Connectivity check failed: $e');
     }
 
-    if (_isOffline) {
+    if (!mounted) return;
+    setState(() {
+      _isOffline = offline;
+      _isChecking = false; // on EVERY path, so the banner can never be stuck "checking"
+    });
+
+    if (offline) {
       _slideController.forward();
+    } else {
+      await _checkConnectionQuality();
     }
   }
 
+  /// Is the backend actually reachable, and how fast?
+  ///
+  /// The everyday failure at a till is a phone that is "connected" to a Wi-Fi network that
+  /// has no internet. This method used to lose that case twice over: a non-200 answer
+  /// returned early leaving `_isChecking` true for good, and a timeout or socket error was
+  /// swallowed by the catch — so the banner never appeared exactly when it was needed. A
+  /// failed probe IS the offline signal now, and every exit clears the checking flag.
   Future<void> _checkConnectionQuality() async {
+    var offline = false;
+    double? quality;
+
     try {
       // Measure real internet latency by pinging the backend.
       final stopwatch = Stopwatch()..start();
@@ -125,34 +145,44 @@ class _OfflineIndicatorState extends State<OfflineIndicator>
           .timeout(const Duration(seconds: 6));
       stopwatch.stop();
 
-      if (resp.statusCode != 200) {
-        _hideBannerAfterDelay();
-        return;
-      }
-
-      final quality = _calculateQuality(stopwatch.elapsedMilliseconds);
-      final slow = quality < 0.5;
-
-      // Only rebuild when something actually changed. This runs every 10 s; an
-      // unconditional setState() rebuilt the overlay while the user was simply
-      // moving the mouse, which is exactly the kind of rebuild that trips
-      // Flutter's mouse-tracker re-entrancy assertion on web/desktop.
-      if (slow != _isSlowConnection || _isOffline || _isChecking) {
-        setState(() {
-          _isSlowConnection = slow;
-          _isOffline = false;
-          _isChecking = false;
-        });
-      }
-
-      if (slow) {
-        _showSlowConnectionToast();
-        _slideController.forward();
+      if (resp.statusCode == 200) {
+        quality = _calculateQuality(stopwatch.elapsedMilliseconds);
       } else {
-        _hideBannerAfterDelay();
+        offline = true; // it answered, but not with health
       }
     } catch (e) {
-      // Ignore — offline is handled by the connectivity listener.
+      offline = true; // no answer at all
+    }
+
+    if (!mounted) return;
+
+    final becameOffline = offline && !_isOffline;
+    final slow = quality != null && quality < 0.5;
+    final becameSlow = slow && !_isSlowConnection;
+
+    // Only rebuild when something actually changed. This runs every 10 s; an
+    // unconditional setState() rebuilt the overlay while the user was simply
+    // moving the mouse, which is exactly the kind of rebuild that trips
+    // Flutter's mouse-tracker re-entrancy assertion on web/desktop.
+    if (slow != _isSlowConnection || offline != _isOffline || _isChecking) {
+      setState(() {
+        _isSlowConnection = slow;
+        _isOffline = offline;
+        _isChecking = false;
+      });
+    }
+
+    if (offline || slow) {
+      // On the transition only: this probe runs every ten seconds, and a toast every ten
+      // seconds is noise a shop learns to ignore.
+      if (becameOffline) {
+        _showOfflineToast();
+      } else if (becameSlow) {
+        _showSlowConnectionToast();
+      }
+      _slideController.forward();
+    } else {
+      _hideBannerAfterDelay();
     }
   }
 

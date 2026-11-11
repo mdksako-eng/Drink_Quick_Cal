@@ -15,6 +15,8 @@ const { sendResetCodeEmail, sendWelcomeEmail, sendVerificationEmail, sendJoinReq
 
 // ========== SESSION AUTH (DB-backed) ==========
 const { generateSessionToken, getSessionUser, requireSession, invalidateSession, invalidateUserSessions } = require('./middleware/sessionAuth');
+// Security-question answers: normalised comparison, and the empty-answer refusal.
+const securityAnswers = require('./utils/securityAnswers');
 const { requirePlan } = require('./middleware/planAuth');
 const legalAcceptance = require('./utils/legalAcceptance');
 const twoFactor = require('./utils/twoFactor');
@@ -1231,10 +1233,112 @@ app.post('/api/auth/reset-password-code', async (req, res) => {
     
     await pool.query('UPDATE users SET password = $1 WHERE id = $2', [await authQueue.run(() => bcrypt.hash(newPassword, 10)), stored.userId]);
     delete resetCodes[email];
+
+    // A reset that leaves the old sessions alive is not a reset: whoever already had the
+    // device — or the token — keeps their access. Same soft revoke a new-device login does.
+    await pool.query(
+      'UPDATE user_sessions SET is_active = false, terminated_at = NOW() WHERE user_id = $1 AND is_active = true',
+      [stored.userId]
+    );
+    invalidateUserSessions(stored.userId);
     
     res.json({ status: 'success', message: 'Password reset successfully!' });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+// RESET PASSWORD WITH SECURITY QUESTIONS
+//
+// The companion to the emailed code above, for a shop whose mailbox is not working. Until
+// now it could not work at all: the app's own method was a stub that returned false without
+// asking anyone (providers/auth_provider.dart), and the only implementation of the rule was
+// an unmounted Mongoose controller, so the answers stored at registration were never
+// compared with anything. tests/security_answers.test.js pins the comparison.
+app.post('/api/auth/reset-password-with-security', async (req, res) => {
+  try {
+    const body = req.body || {};
+    const username = String(body.username || '').trim();
+    const email = String(body.email || '').trim();
+    const newPassword = String(body.newPassword || '');
+    const answers = body.securityAnswers || {};
+    const answer1 = answers.question1 !== undefined ? answers.question1 : body.answer1;
+    const answer2 = answers.question2 !== undefined ? answers.question2 : body.answer2;
+
+    if (!username || !email || !newPassword ||
+        answer1 === undefined || answer2 === undefined) {
+      return res.status(400).json({ status: 'error', message: 'All fields required' });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        status: 'error',
+        code: 'password_too_short',
+        message: 'Password must be at least 6 characters',
+      });
+    }
+
+    // Answers are weaker than an emailed code — they can be guessed — so they get the same
+    // lock the code flow uses: five wrong tries inside fifteen minutes, then a pause.
+    if (!checkRateLimit(`security-reset:${email.toLowerCase()}`)) {
+      return res.status(429).json({
+        status: 'error',
+        message: 'Too many reset attempts. Try again in 15 minutes.',
+      });
+    }
+    const attempt = passwordReset.evaluateCodeAttempt({
+      timestamps: await resetEvents(email, 'security_failed', passwordReset.CODE_ATTEMPT_WINDOW_MS),
+      now: Date.now(),
+    });
+    if (!attempt.allowed) {
+      return res.status(429).json({
+        status: 'error',
+        code: 'security_attempts_exceeded',
+        message: passwordReset.codeAttemptMessage(attempt),
+        retryAfterMinutes: attempt.retryAfterMinutes,
+      });
+    }
+
+    // BOTH identifiers are required: either one alone is a half someone else may guess.
+    const found = await pool.query(
+      `SELECT id, username, email, security_question1, security_question2
+         FROM users
+        WHERE lower(username) = lower($1) AND lower(email) = lower($2)`,
+      [username, email]
+    );
+    const user = found.rows[0];
+
+    // One answer for every failure: whether the account exists, whether it has usable
+    // answers, and whether the answers were right must not be distinguishable from outside.
+    const matched = Boolean(user) &&
+      securityAnswers.hasUsableAnswers(user.security_question1, user.security_question2) &&
+      securityAnswers.answersMatch(user.security_question1, answer1) &&
+      securityAnswers.answersMatch(user.security_question2, answer2);
+    if (!matched) {
+      await recordResetEvent(email, 'security_failed', req);
+      return res.status(401).json({
+        status: 'error',
+        code: 'security_answers_rejected',
+        message: 'Those details do not match an account',
+      });
+    }
+
+    await pool.query('UPDATE users SET password = $1 WHERE id = $2', [
+      await authQueue.run(() => bcrypt.hash(newPassword, 10)),
+      user.id,
+    ]);
+
+    // Whoever forced this must not keep the sessions they already had.
+    await pool.query(
+      'UPDATE user_sessions SET is_active = false, terminated_at = NOW() WHERE user_id = $1 AND is_active = true',
+      [user.id]
+    );
+    invalidateUserSessions(user.id);
+    console.log(`🔐 Password reset with security answers for ${user.username}`);
+
+    res.json({ status: 'success', message: 'Password reset successfully!' });
+  } catch (error) {
+    console.error('Security reset error:', error.message);
+    res.status(500).json({ status: 'error', message: 'Failed to reset the password' });
   }
 });
 

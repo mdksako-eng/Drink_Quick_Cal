@@ -2,6 +2,24 @@
 
 _Updated: 2026-11-10_
 
+## Fixed: offline banner never showed, and "reset by security" was a stub (2026-11-10)
+- **Offline banner** (`lib/widgets/offline_indicator.dart`): `_isChecking` (which gates the whole
+  banner) could stay `true` for ever — `_checkConnectivity()` had no try/catch, and
+  `_checkConnectionQuality()` returned early on a non-200 `/health` and swallowed timeouts. So
+  "Wi-Fi connected, no internet" showed nothing. A failed probe is now the offline signal, every
+  exit clears the flag, toasts fire on the transition only.
+- **Placement fact of record**: it wraps the Scaffold **body** in `containers_screen` /
+  `purchasing_screen` (below the AppBar ✅), but wraps the whole `CalculatorScreen` in `main.dart`,
+  where it draws **over the AppBar and covers the drawer button**. It must NOT be mounted in
+  `MaterialApp.builder` (it would cover every AppBar — `Positioned(top: 0)` + `SafeArea` only
+  handles the status bar). To extend it, wrap that screen's body.
+- **Reset by security questions** was impossible end to end: `AuthProvider.resetPassword` was a stub
+  returning `false` without any request, and no backend route existed (the only implementation was
+  an unmounted Mongoose controller). Now `POST /api/auth/reset-password-with-security` + pure
+  `utils/securityAnswers.js` (empty stored answer refuses; 5 wrong tries → 15-minute lock) +
+  `BackendAuthService.resetPasswordWithSecurity`. **Both** reset routes now revoke sessions.
+- Gates: backend **52 suites / 686 tests**, `node --check` clean, Flutter **540**, analyze **0 errors**.
+
 ## Audit of the day's own work: 3 defects fixed (2026-11-10, `d829e22`)
 - **Dialog stacking**: `AppUpdateProvider.check()` notifies twice and a mandatory notice re-arms on every notification, so a second dialog stacked over the first. Fixed with a `_dialogOpen` guard (try/finally) in `update_notice_host.dart`.
 - **Download page**: a failed/unknown fetch left a dead disabled button (`href="#"`) → now hidden and restored; CSS trap `.btn` beating `[hidden]` → `.btn[hidden]{display:none}`. Found by **running the page's script**, which is now a committed Jest suite (`tests/app_release_page.test.js`, 10 tests) — reading it and `node --check` had both missed these.

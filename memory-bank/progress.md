@@ -169,6 +169,16 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
   not by reading; the jank test was rewritten once after the first version proved vacuous.
 - `variance_screen.dart` has the same eager `ListView(children:)` pattern — named, not changed.
 
+## Offline banner + security-question reset — 2026-11-10
+- Offline banner could not appear: `_isChecking` stuck true (no try/catch around the connectivity
+  call; early `return` on a non-200 `/health`; swallowed timeout). Fixed — a failed `/health` IS
+  offline now. Mounted in the Scaffold body of containers/purchasing (right), wraps the whole
+  calculator in main.dart (draws over its AppBar) — see activeContext for the decision of record.
+- "Reset by security" was a **stub** in `AuthProvider.resetPassword` (returned false, no request) and
+  had **no backend route**. Now implemented end to end with a pure `utils/securityAnswers.js`
+  (empty stored answer refuses; wrong-answer lock reuses `password_reset_requests`), and both reset
+  routes revoke sessions. Backend **52 suites / 686 tests**; Flutter **540**; analyze **0 errors**.
+
 ## Not started
 - **Phase 4 — Real-time IoT sensor integration (automated replenishment)** ⬜ needs
   ESP32/load-cell firmware, a device-authenticated `POST /api/sensors/reading`, and

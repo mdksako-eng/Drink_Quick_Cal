@@ -1255,3 +1255,24 @@ Auditing what the day shipped, rather than trusting it. Each defect was reproduc
 - `variance_screen.dart` carries the same eager pattern (`ListView(children:)` over per-drink rankings). It is an unfamiliar multi-section screen, so it is named as the next candidate rather than restructured unasked.
 - A release put away with *Later* stays away for the session even if a **newer** version is announced later in that session (`_dismissed` is per-session by design). Left as designed; flagged because it is a decision, not an accident.
 
+
+## 2026-11-10 — Two things that never worked: the offline banner, and "reset by security" ✅
+
+### 1. The offline banner was mounted and could not appear
+- `build()` returns the bare child while `_isChecking` is true, and that flag started true. Only two paths ever cleared it, and both could be skipped: `_checkConnectivity()` had **no try/catch** (on a platform where the connectivity plugin throws, the flag stayed true for the whole session), and `_checkConnectionQuality()` **returned early on a non-200 `/health`** and swallowed timeouts and socket errors in its catch.
+- So the everyday case at a till — *"Wi-Fi connected, no internet"* — produced no banner and no explanation. A failed probe is now the offline signal, every exit clears the flag, and the toasts fire on the transition only (the 10-second probe could repeat them).
+- **Placement, measured:** `containers_screen` and `purchasing_screen` wrap their Scaffold **body**, so the banner sits under the AppBar as intended. In `main.dart` it wraps the whole `CalculatorScreen`, so there it draws at `top: 0` — **over the calculator's AppBar, covering the drawer button while it is visible**. Not changed, because the global alternative is worse: mounted in `MaterialApp.builder` it would cover *every* screen's AppBar (it is `Positioned(top: 0)` and its `SafeArea` only accounts for the status bar). **Decision of record: to show it on another screen it must wrap that Scaffold's body**, as those two do.
+
+### 2. "Reset with my security questions" could never work, anywhere
+- **The app**: `AuthProvider.resetPassword` was a stub — `// ... existing reset password code ...` followed by `return false;`. It ignored every argument, made no request, so the screen answered *"those answers are wrong"* no matter what the shop typed.
+- **The backend**: no such route existed; the only implementation lived in `controllers/auth.controller.js` (Mongoose), which nothing requires — dead since the Postgres rewrite. The answers *were* stored at registration all along (`users.security_question1/2`).
+- Now: **`POST /api/auth/reset-password-with-security`** (username **and** email both required — either alone is a guessable half), comparing through a new pure `utils/securityAnswers.js`: trimmed, case-folded, inner whitespace collapsed, and **an empty stored answer refuses the reset** rather than matching an empty attempt. Wrong answers land in the same `password_reset_requests` store as the emailed code and lock after five tries for fifteen minutes.
+- **Both** reset routes now revoke the account's sessions (`is_active = false` + cache). A reset that leaves the old sessions alive is not a reset.
+- App side: `BackendAuthService.resetPasswordWithSecurity` posts the answers and returns the server's message and status; the provider delegates to it.
+- Verified: `tests/security_answers.test.js` (**8 Jest tests**), backend **52 suites / 686 tests**, `node --check` clean, `flutter analyze lib` **0 errors**, `flutter test` **540**.
+
+### Still open (named, not pretended)
+- A 429 ("too many attempts") still reaches the screen as the generic *"those answers are wrong"* text; showing the server's own words in French needs two new i18n keys, deliberately not guessed at here.
+- The app-side wiring has no test: `BackendAuthService` calls the global `http.post`, so it cannot be handed a `MockClient` without injecting a client. The rule itself is tested on the backend, where the decision is made.
+- The emailed-code path is implemented with daily caps and a wrong-code lock, but it needs `SENDGRID_API_KEY` on Render: unset, no code is ever delivered, and nothing in the app can tell that from a wrong address.
+

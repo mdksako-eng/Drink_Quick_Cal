@@ -13,6 +13,8 @@ class BackendAuthService {
   // ✅ CORRECT ENDPOINTS - Using public baseUrl
   static const String _loginEndpoint = '$baseUrl/api/auth/login';
   static const String _registerEndpoint = '$baseUrl/api/auth/register';
+  static const String _resetPasswordWithSecurityEndpoint =
+      '$baseUrl/api/auth/reset-password-with-security';
 
   /// Has the signed-in user accepted the CURRENT terms / privacy text?
   ///
@@ -811,6 +813,64 @@ class BackendAuthService {
     } catch (e) {
       debugPrint('❌ Approve join error: $e');
       return {'status': 'error', 'message': e.toString()};
+    }
+  }
+
+  /// Resets a password from the two answers given when the account was created.
+  ///
+  /// Returns the server's own message, so the screen can tell "those details do not match"
+  /// (401) from "too many attempts" (429) from an unreachable backend (0). It never signs
+  /// anyone in: the caller sends the shop back to the login form.
+  Future<Map<String, dynamic>> resetPasswordWithSecurity({
+    required String username,
+    required String email,
+    required String answer1,
+    required String answer2,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await http
+          .post(
+            Uri.parse(_resetPasswordWithSecurityEndpoint),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode({
+              'username': username,
+              'email': email,
+              'securityAnswers': {
+                'question1': answer1,
+                'question2': answer2,
+              },
+              'newPassword': newPassword,
+            }),
+          )
+          .timeout(const Duration(seconds: 30));
+
+      // A non-JSON answer (a proxy error page, an old backend) must not hide the status.
+      Map<String, dynamic> data = const {};
+      try {
+        data = Map<String, dynamic>.from(jsonDecode(response.body) as Map);
+      } catch (_) {
+        // keep the empty map
+      }
+
+      return {
+        'success': response.statusCode == 200,
+        'statusCode': response.statusCode,
+        'code': data['code'],
+        'message': data['message'] ??
+            'Password reset failed (HTTP ${response.statusCode})',
+      };
+    } catch (e) {
+      debugPrint('🚨 resetPasswordWithSecurity error: $e');
+      return {
+        'success': false,
+        'statusCode': 0,
+        'message':
+            'Could not reach the server. Check your connection and try again.',
+      };
     }
   }
 

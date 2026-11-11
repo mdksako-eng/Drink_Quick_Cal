@@ -1712,14 +1712,38 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  /// Resets a password from the two security answers given at registration.
+  ///
+  /// This replaced a stub that ignored every argument and returned `false` without asking
+  /// anyone, so the screen said "those answers are wrong" whatever the shop typed and no
+  /// request was ever made.
   Future<bool> resetPassword(
       String username,
       String email,
       String securityAnswer1,
       String securityAnswer2,
       String newPassword) async {
-    // ... existing reset password code ...
-    return false;
+    try {
+      final result = await _backendAuth.resetPasswordWithSecurity(
+        username: username.trim(),
+        email: email.trim(),
+        answer1: securityAnswer1,
+        answer2: securityAnswer2,
+        newPassword: newPassword,
+      );
+
+      final ok = result['success'] == true;
+      // Keep the server's own words (wrong answers, too many attempts, server down): the
+      // screen shows them, because "wrong answers" is misleading for a 429.
+      _error = ok ? null : (result['message'] as String?);
+      _safeNotifyListeners();
+      return ok;
+    } catch (e) {
+      debugPrint('🚨 resetPassword error: $e');
+      _error = 'Something went wrong. Please try again.';
+      _safeNotifyListeners();
+      return false;
+    }
   }
 
   bool verifyPassword(String inputPassword) {
