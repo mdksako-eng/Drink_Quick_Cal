@@ -55,6 +55,10 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
   bool _voiceFeedbackEnabled = false;
   double _speechRate = 0.5;
   String _speechLanguage = 'en-US';
+
+  /// True while the voice language follows the APP language because the user has never
+  /// picked one (see `VoiceService.resolveTtsLanguage`).
+  bool _voiceLanguageFollowsApp = true;
   String _voiceGender = 'female';
   List<Map<String, String>> _conversationHistory = [];
   List<Map<String, dynamic>> _pendingOrder = [];
@@ -65,6 +69,10 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
     super.initState();
     _restoreState();
     _loadVoicePreferences();
+    // 🌍 Switching the app language must move the voice with it while the user has not
+    // chosen one — otherwise the app turns French and keeps speaking English until the
+    // next restart.
+    LanguageService.instance.language.addListener(_onAppLanguageChanged);
   }
 
   /// 🧠 Restores conversation memory + voice settings from previous sessions.
@@ -122,6 +130,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
   void dispose() {
     // Never leave the mic open behind a closed screen.
     _voiceContinuous = false;
+    LanguageService.instance.language.removeListener(_onAppLanguageChanged);
     _messageController.dispose();
     _scrollController.dispose();
     _voiceService.dispose();
@@ -861,11 +870,16 @@ ORDER_JSON: [{"name":"<exact drink name as written above>","qty":<number>}]
   Future<void> _loadVoicePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
-    final storedTtsLocale = prefs.getString('speech_language') ?? 'en-US';
+    // 🗣️ A stored voice language always wins; without one the APP language decides, so a
+    // French shop speaks French from its very first reply.
+    final storedTtsLocale = prefs.getString('speech_language');
+    _voiceLanguageFollowsApp = (storedTtsLocale ?? '').trim().isEmpty;
     setState(() {
       _speechRate = prefs.getDouble('speech_rate') ?? 0.5;
-      _speechLanguage =
-          storedTtsLocale.toLowerCase().startsWith('fr') ? 'fr-FR' : 'en-US';
+      _speechLanguage = VoiceService.resolveTtsLanguage(
+        stored: storedTtsLocale,
+        appLanguage: LanguageService.instance.language.value,
+      );
       _voiceGender = prefs.getString('voice_gender') ?? 'female';
     });
     // Apply immediately so the very first spoken reply uses the right voice.
@@ -877,7 +891,27 @@ ORDER_JSON: [{"name":"<exact drink name as written above>","qty":<number>}]
     );
   }
 
+  /// Follows an app-language switch while the user has still not chosen a voice language.
+  Future<void> _onAppLanguageChanged() async {
+    if (!mounted || !_voiceLanguageFollowsApp) return;
+    final resolved = VoiceService.resolveTtsLanguage(
+      stored: null,
+      appLanguage: LanguageService.instance.language.value,
+    );
+    if (resolved == _speechLanguage) return;
+    setState(() => _speechLanguage = resolved);
+    // Apply immediately so the very next spoken reply uses the new voice.
+    await _voiceService.applyVoiceSettings(
+      language: resolved,
+      gender: _voiceGender,
+      rate: _speechRate,
+      persist: false,
+    );
+  }
+
   Future<void> _saveVoiceSettings() async {
+    // The user has now made an explicit choice: stop following the app language.
+    _voiceLanguageFollowsApp = false;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('voice_feedback', _voiceFeedbackEnabled);
     await VoiceService.setVoiceEnabled(_voiceFeedbackEnabled); //  global key

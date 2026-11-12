@@ -57,6 +57,21 @@ class VoiceService {
     return ('en-US', 'en_US');
   }
 
+  /// The TTS language to start with when the user has never chosen one.
+  ///
+  /// A stored choice always wins. Without one the fallback used to be a hardcoded
+  /// `'en-US'`, so a French shop that never opened the voice settings heard its French
+  /// replies read aloud in an English voice. [localesFor] is the only mapping from app
+  /// language to voice language, so an app in French now speaks French by default.
+  static String resolveTtsLanguage({
+    String? stored,
+    required String appLanguage,
+  }) {
+    final chosen = (stored ?? '').trim();
+    if (chosen.isEmpty) return localesFor(appLanguage).$1;
+    return chosen.toLowerCase().startsWith('fr') ? 'fr-FR' : 'en-US';
+  }
+
   static Future<void> loadVoiceEnabled() async {
     try {
       final prefs = await SharedPreferences.getInstance();
