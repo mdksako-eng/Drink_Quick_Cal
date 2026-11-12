@@ -683,16 +683,18 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
         lowerMessage == 'yes' || lowerMessage == 'ok' || lowerMessage == 'y') {
       if (_pendingOrder.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) => _goToCalculator());
-        return 'Taking you to checkout with ${_pendingOrder.length} item(s), total ${CurrencyHelper.format(_getOrderTotal())}.';
+        return t('ai_takingToCheckout')
+            .replaceAll('@count', '${_pendingOrder.length}')
+            .replaceAll('@total', CurrencyHelper.format(_getOrderTotal()));
       } else {
-        return 'No orders to checkout. Place an order first like "order 2 beer".';
+        return t('ai_noOrdersToCheckout');
       }
     }
     
     // Clear command
     if (lowerMessage.contains('clear') || lowerMessage.contains('reset')) {
       setState(() { _pendingOrder.clear(); });
-      return 'Order cleared. Ready for new orders!';
+      return t('ai_orderCleared');
     }
     
     // Check stock command
@@ -701,11 +703,15 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
       if (drinkName.isNotEmpty) {
         final drink = drinks.where((d) => d.name.toLowerCase().contains(drinkName)).firstOrNull;
         if (drink != null) {
-          return '${drink.name}: ${drink.currentStock} ${drink.unit}(s) available. Minimum stock: ${drink.minimumLevel}.';
+          return t('ai_stockInfo')
+              .replaceAll('@name', drink.name)
+              .replaceAll('@count', '${drink.currentStock}')
+              .replaceAll('@unit', drink.unit)
+              .replaceAll('@min', '${drink.minimumLevel}');
         }
       }
       final stockList = drinks.map((d) => '• ${d.name}: ${d.currentStock} ${d.unit}(s)').join('\n');
-      return 'Current Stock:\n$stockList';
+      return '${t('ai_currentStock')}\n$stockList';
     }
     
     // Price check
@@ -715,27 +721,27 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
         final drink = drinks.where((d) => d.name.toLowerCase().contains(drinkName)).firstOrNull;
         if (drink != null) {
           final profit = drink.price - drink.purchasePrice;
-          return '${drink.name}: ${CurrencyHelper.format(drink.price)} each\n'
-                 'Cost: ${CurrencyHelper.format(drink.purchasePrice)}\n'
-                 'Profit: ${CurrencyHelper.format(profit)} per unit';
+          return '${t('ai_priceInfo').replaceAll('@name', drink.name).replaceAll('@price', CurrencyHelper.format(drink.price))}\n'
+                 '${t('ai_costLabel')} ${CurrencyHelper.format(drink.purchasePrice)}\n'
+                 '${t('ai_profitPerUnit').replaceAll('@profit', CurrencyHelper.format(profit))}';
         }
       }
       final priceList = drinks.map((d) => '• ${d.name}: ${CurrencyHelper.format(d.price)}').join('\n');
-      return 'Price List:\n$priceList';
+      return '${t('ai_priceList')}\n$priceList';
     }
     
     // Recommendations
     if (lowerMessage.contains('recommend') || lowerMessage.contains('suggest')) {
       final topDrinks = drinks.where((d) => d.currentStock > 5).take(3);
       if (topDrinks.isNotEmpty) {
-        return 'Recommendations:\n${topDrinks.map((d) => '• ${d.name} - ${CurrencyHelper.format(d.price)} (${d.currentStock} in stock)').join('\n')}';
+        return '${t('ai_recommendationsHeader')}\n${topDrinks.map((d) => '• ${d.name} - ${CurrencyHelper.format(d.price)} (${d.currentStock} ${t('calcLeftInStock')})').join('\n')}';
       }
-      return 'Check out our available drinks above.';
+      return t('ai_checkAvailable');
     }
     
     // Smart AI response for other queries
     if (drinks.isEmpty) {
-      return "No drinks in inventory. Please add drinks in Drink Management first!";
+      return t('ai_noDrinksInInventory');
     }
 
     final drinkDetails = drinks.map((d) {
@@ -794,6 +800,8 @@ $conversationContext
 USER: $message
 
 Rules:
+- Answer in the language the user wrote in (the app is English/French). The reply is both
+  shown and read aloud, so a French answer spoken by an English voice is unusable.
 - Recommend drinks from the inventory above and quote real prices/stock.
 - If the inventory block above lists EXPIRING SOON items, mention which ones
   should be sold first and suggest a promotion or bundle for them.
@@ -811,6 +819,10 @@ ORDER_JSON: [{"name":"<exact drink name as written above>","qty":<number>}]
       // 🛒 The reply may carry an ORDER_JSON block — apply it directly to the
       // pending order so it is one tap away from the calculator.
       final lines = AIOrderParser.extractOrderLines(response);
+      // Same honesty as the photo path: a drink the AI read that is not in the catalogue is
+      // reported rather than dropped, so "the assistant ignored me" stays distinguishable
+      // from "we do not sell that".
+      final unmatched = AIOrderParser.unmatchedLines(lines, drinks);
       if (lines.isNotEmpty) {
         final matched = AIOrderParser.matchLines(lines, drinks);
         if (matched.isNotEmpty) {
@@ -828,9 +840,14 @@ ORDER_JSON: [{"name":"<exact drink name as written above>","qty":<number>}]
       if (_conversationHistory.length > 20) {
         _conversationHistory = _conversationHistory.sublist(_conversationHistory.length - 20);
       }
-      return historyText;
+      if (unmatched.isEmpty) return historyText;
+      // Only the message the user sees carries the warning; the history fed back to the
+      // model stays the assistant's own words.
+      final unknown =
+          unmatched.map((u) => '${u.quantity}x ${u.name}').join(', ');
+      return '$historyText\n\n⚠️ ${t('ai_unknownItems').replaceAll('@items', unknown)}';
     } catch (e) {
-      return "Sorry, I'm having trouble connecting. Please try again.";
+      return t('ai_troubleConnecting');
     }
   }
 
