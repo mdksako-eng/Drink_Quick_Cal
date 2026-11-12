@@ -78,6 +78,20 @@ class _ContainersScreenState extends State<ContainersScreen> {
                   padding: const EdgeInsets.all(16),
                   children: [
                     _totalCard(provider),
+                    // 📋 The shop's OWN list, always visible. The "Out by container"
+                    // section below is filtered to types with something outstanding, so
+                    // with nothing on loan the registered containers appeared NOWHERE in
+                    // the app — a manager could not see or fix what they had set up.
+                    const SizedBox(height: 20),
+                    Text(t('contTypes'),
+                        style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    if (provider.types.isEmpty)
+                      Text(t('contNoTypesHint'),
+                          style: Theme.of(context).textTheme.bodySmall)
+                    else
+                      ...provider.types
+                          .map((type) => _typeCard(provider, type, manager)),
                     if (provider.byType.isNotEmpty) ...[
                       const SizedBox(height: 20),
                       Text(t('contByType'),
@@ -144,6 +158,27 @@ class _ContainersScreenState extends State<ContainersScreen> {
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// One registered container: its name and what it is worth as a deposit.
+  ///
+  /// A manager taps it to re-price. The NAME is locked while editing on purpose: the
+  /// server finds the row BY NAME (POST /containers/types), so a rename here would create
+  /// a second container instead of renaming this one. Renaming needs the endpoint to take
+  /// an id — deliberately not faked.
+  Widget _typeCard(
+      ContainerProvider provider, ContainerType type, bool manager) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: const Icon(Icons.inventory_2_outlined),
+        title: Text(type.name),
+        subtitle: Text(
+            '${t('contDepositValue')}: ${type.depositValue.toStringAsFixed(0)}'),
+        trailing: manager ? const Icon(Icons.edit_outlined, size: 18) : null,
+        onTap: manager ? () => _addTypeDialog(provider, existing: type) : null,
       ),
     );
   }
@@ -344,20 +379,27 @@ class _ContainersScreenState extends State<ContainersScreen> {
 
   /// Managers add (or re-price) a container. The deposit is optional: it is only
   /// ever used to show what the outstanding pile is worth.
-  Future<void> _addTypeDialog(ContainerProvider provider) async {
-    final nameController = TextEditingController();
-    final depositController = TextEditingController(text: '0');
+  ///
+  /// [existing] turns the same dialog into an edit: the name is shown but read-only
+  /// (the server matches the row by name, so a rename would create a second container).
+  Future<void> _addTypeDialog(ContainerProvider provider,
+      {ContainerType? existing}) async {
+    final nameController = TextEditingController(text: existing?.name ?? '');
+    final depositController = TextEditingController(
+        text: (existing?.depositValue ?? 0).toStringAsFixed(0));
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(t('contAddType')),
+        title: Text(existing == null ? t('contAddType') : t('edit')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nameController,
-              autofocus: true,
+              autofocus: existing == null,
+              // Locked while editing: the row is identified by its name server-side.
+              readOnly: existing != null,
               decoration: InputDecoration(labelText: t('contTypeName')),
             ),
             const SizedBox(height: 8),

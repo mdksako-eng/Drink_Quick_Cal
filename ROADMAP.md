@@ -1628,4 +1628,46 @@ tests passed** · `flutter analyze lib` **0 errors** · manifest parsed with `[x
   orphan Manager (`id=26`) and the unverified account are untouched — deactivating a user
   account is the owner's decision, not a cleanup I should make on their behalf.
 
+### 2026-11-12 — the 99-unit ceiling, and container types that could not be seen
+
+**1. A wholesale shop could not type, dictate or scan more than 99 units.**
+The cap was in **six** places with **two different answers**: the calculator capped at 99 four
+times (the typed field, its `1 - 99` helper text, and both `+` steppers) and the dictates capped
+at 99 twice (`voice_service.dart`, `ai_order_parser.dart`) — while the scanner's
+send-to-calculator already allowed **999**. A crate sale is 24 and a wholesale drop is hundreds,
+so `120` silently became `99`.
+- Now **one rule**: `lib/utils/order_limits.dart` — `maxQuantity = 999` and `clampQuantity()`,
+  used by the till, both dictates **and** the scanner (whose private `999` now reads from it).
+  `test/order_limits_test.dart` (6 tests) pins the ceiling, the floor, and that unreadable text
+  becomes 1 rather than 0.
+- **A pinned test changed on purpose:** `ai_order_parser_test.dart` asserted `'9000 beer' → 99`;
+  it now asserts **999**. Recorded here because changing an assertion is a behaviour change, not
+  a test fix.
+- **Why 999 and not unlimited:** the cart stores **one entry per unit** (`Order.items` holds the
+  drink once per unit — that is what the invoice, the stock ledger and the history read), so the
+  request body grows with the quantity. 999 keeps one line near 200 KB, inside the 1 MB JSON
+  limit set earlier today. Selling more than that in ONE line needs the payload to carry a
+  quantity instead of one entry per unit — a real change, deliberately not faked with a bigger
+  clamp.
+
+**2. The registered container types appeared nowhere in the app.**
+`GET /containers/outstanding` filters `byType` to types with a **non-zero** outstanding, and the
+screen only rendered its "Out by container" section when that list was non-empty. With no
+movements recorded (the live table had 0), the section never appeared — and the empty state hid
+the “Add a container” button because the shop *did* have types. So `harp` and `doppel` were
+reachable only from inside a movement dialog.
+- The screen now **always** shows a **Container types** section: every registered container with
+  its deposit, which is the shop's own catalogue rather than a balance. A manager taps a row to
+  re-price it.
+- The **name is read-only while editing**, on purpose: `POST /containers/types` finds the row
+  **by name**, so editing the name there would create a *second* container instead of renaming
+  the first. A real rename needs the endpoint to take an id — named as the next step, not faked.
+- 1 new EN/FR key (`contTypes`); the existing `edit` label titles the edit dialog.
+
+**Validation:** Flutter **579 tests** (+6) · `flutter analyze lib` **0 errors**, 493 issues (492
+before; every issue in the changed files is pre-existing — a `use_super_parameters` and three
+deprecated `speech_to_text` params — and I could not attribute the +1 to a line, so it is not
+claimed away) · i18n **EN=1567 FR=1567** · backend untouched.
+
+
 

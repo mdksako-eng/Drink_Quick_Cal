@@ -273,6 +273,9 @@ const Map<String, String> _en = {
   'contMenu': 'Containers',
   'contAddType': 'Add a container',
   'contByType': 'Out by container',
+  // 📋 The shop's own list of registered containers — always shown, unlike "out by
+  // container" which only lists types with something currently on loan.
+  'contTypes': 'Container types',
   'contWhoHolds': 'Who is holding them',
   'contOutstanding': 'Containers out',
   'contDepositValue': 'Deposit value',
@@ -1869,6 +1872,9 @@ const Map<String, String> _fr = {
   'contMenu': 'Casiers',
   'contAddType': 'Ajouter un casier',
   'contByType': 'Sortis par type',
+  // 📋 La liste des contenants enregistrés par la boutique — toujours visible, contrairement
+  // à « sortis par type » qui ne liste que les types actuellement en circulation.
+  'contTypes': 'Types de contenants',
   'contWhoHolds': 'Qui les détient',
   'contOutstanding': 'Casiers dehors',
   'contDepositValue': 'Valeur de consigne',

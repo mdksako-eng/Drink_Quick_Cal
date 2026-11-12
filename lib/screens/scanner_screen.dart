@@ -18,6 +18,9 @@ import '../widgets/drink_avatar.dart';
 import '../utils/i18n.dart';
 import '../utils/qr_label_helper.dart';
 import '../utils/scan_sell_helper.dart';
+// 🔢 One quantity ceiling for the whole app (this screen already used 999 while the till
+// used 99 — see utils/order_limits.dart).
+import '../utils/order_limits.dart';
 import 'inventory_screen.dart';
 import '../theme/app_theme.dart';
 
@@ -99,7 +102,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   /// stock at all — was locked to ONE unit, and a batch sale was impossible from the
   /// scanner. A crate of 24 is the ordinary way this business sells a crate. The shelf can
   /// be short; refusing that is the till's and the server's business, not a hidden cap.
-  static const int _maxSendQuantity = 999;
+  static const int _maxSendQuantity = OrderLimits.maxQuantity;
 
   /// Quantity + "send to calculator" block (Pro feature).
   ///

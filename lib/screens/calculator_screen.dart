@@ -28,6 +28,9 @@ import 'admin_panel.dart';
 import 'side_slider.dart';
 import '../widgets/custom_drawer.dart';
 import '../utils/drawer_navigation.dart';
+// 🔢 ONE quantity ceiling for the whole app (it used to be 99 here, 99 in the dictates
+// and 999 in the scanner — see utils/order_limits.dart).
+import '../utils/order_limits.dart';
 import 'package:drinks_calculator_fixed/utils/payment_helper.dart';
 import 'package:drinks_calculator_fixed/providers/inventory_provider.dart';
 import 'package:drinks_calculator_fixed/services/notification_service.dart';
@@ -715,7 +718,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               setDialogState(() => error = t('scanInvalidQuantity'));
               return;
             }
-            Navigator.pop(ctx, parsed > 99 ? 99 : parsed);
+            Navigator.pop(ctx, OrderLimits.clampQuantity(parsed));
           }
 
           return AlertDialog(
@@ -740,7 +743,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               decoration: InputDecoration(
                 labelText: t('quantity'),
                 errorText: error,
-                helperText: '1 - 99',
+                helperText: '1 - ${OrderLimits.maxQuantity}',
                 border: const OutlineInputBorder(),
               ),
             ),
@@ -2918,7 +2921,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       icon: const Icon(Icons.add, size: 18),
                       onPressed: () {
                         setState(() {
-                          if (_selectedQuantity < 99) _selectedQuantity++;
+                          if (_selectedQuantity < OrderLimits.maxQuantity)
+                            _selectedQuantity++;
                         });
                       },
                       color: theme.hintColor),
@@ -3233,7 +3237,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                                       Icon(Icons.add, size: isTablet ? 20 : 24),
                                   onPressed: () {
                                     setState(() {
-                                      if (_selectedQuantity < 99)
+                                      if (_selectedQuantity <
+                                          OrderLimits.maxQuantity)
                                         _selectedQuantity++;
                                     });
                                   },

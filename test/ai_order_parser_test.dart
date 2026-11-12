@@ -60,7 +60,7 @@ void main() {
     });
 
     test('clamps absurd quantities', () {
-      expect(AIOrderParser.parseOrderLines('9000 beer').single.quantity, 99);
+      expect(AIOrderParser.parseOrderLines('9000 beer').single.quantity, 999);
       expect(AIOrderParser.parseOrderLines('0 beer').single.quantity, 1);
     });
 

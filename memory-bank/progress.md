@@ -201,6 +201,20 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
   **53 suites / 704 tests**. Not touched: `doppel` deposit, orphan Manager id=26, the
   unverified account.
 
+## Quantity ceiling + visible container types — 2026-11-12
+- The 99-unit cap (six places, two answers: calculator 99 x4, dictates 99 x2, scanner 999) is
+  replaced by ONE rule: `lib/utils/order_limits.dart` (`maxQuantity = 999`), used by the till,
+  both dictates and the scanner; `test/order_limits_test.dart` (6 tests).
+  `ai_order_parser_test.dart` now asserts 999 instead of 99 — an intentional change.
+  999 rather than unlimited because the cart stores one entry per unit and the body must stay
+  inside the 1 MB JSON limit.
+- The registered container types now have their own always-visible **Container types** section
+  (name + deposit, manager can re-price). They were invisible before: the "out by container"
+  list is filtered to non-zero outstanding and the table had 0 movements. Renaming needs the
+  endpoint to take an id — named, not faked (the name is read-only while editing).
+- 1 new EN/FR key (`contTypes`). Flutter **579 tests**, analyze **0 errors**,
+  i18n **EN=1567 FR=1567**.
+
 ## Faster cold start (no security change) — 2026-11-11
 - `lib/main.dart`: the startup fan-out is now parallel (`Future.wait` over settings + drinks +
   orders + inventory) instead of 6 sequential round trips; the duplicate session check is

@@ -2,6 +2,8 @@
 // Turns natural language (typed or spoken) and AI replies into concrete order
 // lines that can be pushed to the calculator. Pure Dart — unit-testable.
 import '../models/drink_model.dart';
+// 🔢 The same quantity ceiling as the till and the scanner (utils/order_limits.dart).
+import 'order_limits.dart';
 
 /// One requested line of an order, before it is matched to a real drink.
 class OrderRequestLine {
@@ -134,7 +136,9 @@ class AIOrderParser {
     return (1, part, false);
   }
 
-  static int _clampQty(int value) => value < 1 ? 1 : (value > 99 ? 99 : value);
+  /// Brings a dictated quantity into range. Delegates to the ONE rule the till and the
+  /// scanner use, so "order 120 crates" is no longer recorded as 99.
+  static int _clampQty(int value) => OrderLimits.clampQuantity(value);
 
   /// Strips filler words so "add two cold beers please" → "beers".
   static String _cleanName(String part) {

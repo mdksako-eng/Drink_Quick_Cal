@@ -2,6 +2,27 @@
 
 _Updated: 2026-11-12_
 
+## The 99-unit ceiling, and container types you could not see (2026-11-12) ✅
+- **Quantity ceiling, one rule now.** The cap was in six places with two answers: the
+  calculator capped at **99** four times (typed field, `1 - 99` helper, both `+` steppers) and
+  the dictates twice (`voice_service.dart`, `ai_order_parser.dart`), while the scanner already
+  allowed **999**. A wholesale drop is hundreds, so `120` silently became `99`.
+  `lib/utils/order_limits.dart` (new, `maxQuantity = 999`, `clampQuantity()`) is now used by the
+  till, both dictates and the scanner, with `test/order_limits_test.dart` (6 tests).
+  **`ai_order_parser_test.dart` changed on purpose** (`9000 beer` → 999, was 99).
+  **Why 999, not unlimited:** the cart holds one entry per UNIT, so the body grows with the
+  quantity — 999 keeps a line near 200 KB, inside the 1 MB limit set earlier. More needs the
+  payload to carry a quantity per line, not a bigger clamp.
+- **Container types were invisible.** `GET /containers/outstanding` filters `byType` to non-zero
+  outstanding, so with 0 movements the "Out by container" section never rendered and the empty
+  state hid the add button — `harp` and `doppel` showed nowhere. The screen now always lists
+  **Container types** (name + deposit), manager-tappable to re-price. The name is **read-only
+  while editing** because the endpoint matches by name — a rename there would create a second
+  row; a real rename needs an id on `POST /containers/types` (next step, not faked).
+- 1 new EN/FR key (`contTypes`); `edit` reused for the dialog title.
+- Gates: Flutter **579 tests**, analyze **0 errors** (493 issues; changed files show only
+  pre-existing lints), i18n **EN=1567 FR=1567**. Backend untouched.
+
 ## Security hardening from the full audit (2026-11-12) ✅ part 1
 - **🔴 Tracked credential script in a PUBLIC repo** (`scripts/live_smoke.js`; repo is
   `github.com/mdksako-eng/Drink_Quick_Cal`, HTTP 200, Public). `.gitignore` listed it but a

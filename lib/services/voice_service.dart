@@ -4,6 +4,8 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/voice_access.dart';
+// 🔢 The dictated quantity obeys the same ceiling the till does.
+import '../utils/order_limits.dart';
 
 class VoiceService {
   final stt.SpeechToText _speech = stt.SpeechToText();
@@ -362,7 +364,7 @@ class VoiceService {
         return VoiceCommand(
           type: VoiceCommandType.add,
           drinkName: drinkName,
-          quantity: quantity.clamp(1, 99),
+          quantity: OrderLimits.clampQuantity(quantity),
         );
       }
     }
