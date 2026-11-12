@@ -7,7 +7,8 @@ _Updated: 2026-11-12_
   that sleeps after ~15 min idle** — measured here as a **503 first, then ~100 s to wake**. The page
   a shop opens to get the app could time out before it showed anything.
 - **Now:** a self-contained static site in **`download-page/`** (`index.html`, `logo.png`,
-  `_headers`, its own README) for Cloudflare Pages. **No backend change needed** — the release API
+  `_headers`, `_redirects`, plus `wrangler.jsonc` at the root and the runbook `DOWNLOAD_PAGE.md`)
+  served by **Cloudflare Workers static assets**. **No backend change needed** — the release API
   already answers `Access-Control-Allow-Origin: *`, **verified against production with an `Origin`
   header** (not inferred from `app.use(cors())`).
 - **The page is static, the metadata is not:** version / notes / SHA-256 still come from

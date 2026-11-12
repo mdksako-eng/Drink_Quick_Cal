@@ -301,8 +301,9 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
 
 ## Download page moved to Cloudflare Pages — 2026-11-12
 - The front door was served by the **free Render instance that sleeps** (503 first, ~100 s to wake);
-  it is now a self-contained static site in **`download-page/`** for Cloudflare Pages, needing **no
-  backend change** because the release API answers `Access-Control-Allow-Origin: *` (verified live
+  it is now a self-contained static site in **`download-page/`** served by **Cloudflare Workers static
+  assets** (`wrangler.jsonc` at the root, runbook `DOWNLOAD_PAGE.md`), needing **no backend change**
+  because the release API answers `Access-Control-Allow-Origin: *` (verified live
   with an `Origin` header).
 - The page is static, the metadata is not: version / notes / SHA-256 still come from
   `GET /api/app/release`, so `API_BASE` is the one line tying the two hosts together.

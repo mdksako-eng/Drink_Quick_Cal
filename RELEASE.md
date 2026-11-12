@@ -90,8 +90,8 @@ git ls-files "*.jks" "*.keystore"              # must print nothing
 The shop sees the notice a few seconds after the next app launch (or when the app is brought
 back to the foreground).
 
-**The front door is the Cloudflare Pages site**, not the Render instance: `download-page/` in this
-repo (its own README has the deploy steps). A free Render instance sleeps after ~15 minutes idle,
+**The front door is the Cloudflare Worker** (`download-page/` + `wrangler.jsonc` — see
+`DOWNLOAD_PAGE.md`), not the Render instance: a free Render instance sleeps after ~15 minutes idle,
 and a shop must not meet a cold start before it meets the app. The page is static; the version,
 notes and hash above are not — they come from `GET /api/app/release`, so **the values in the table
 reach the page through the Render deploy**, not through the page's own deployment. Until they do,

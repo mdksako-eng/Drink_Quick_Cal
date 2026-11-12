@@ -1739,8 +1739,9 @@ for the vision prompt).
   instance that sleeps after ~15 min idle** — measured on this project as a **503 on the first
   request**, then ~100 s to warm up. A front door that can time out before it shows anything is the
   wrong front door. It is now a self-contained static site in **`download-page/`** (`index.html`,
-  `logo.png`, `_headers`, its own README) for Cloudflare Pages: always on, and it needs **no backend
-  change**, because the release API already answers `Access-Control-Allow-Origin: *` — **verified
+  `logo.png`, `_headers`, `_redirects`, plus **`wrangler.jsonc`** at the repo root and the runbook
+  **`DOWNLOAD_PAGE.md`**) served by **Cloudflare Workers static assets**: always on, and it needs
+  **no backend change**, because the release API already answers `Access-Control-Allow-Origin: *` — **verified
   against production with an `Origin` header**, not inferred from `app.use(cors())`.
 - **The page is static; the metadata is not.** The version, the notes and the SHA-256 come from
   `GET /api/app/release` (the backend's environment stays the only source of truth — the page still

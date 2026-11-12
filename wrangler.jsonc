@@ -1,0 +1,23 @@
+{
+  // The download page as a Worker whose only job is serving static files.
+  //
+  // Deployed by Cloudflare's Git integration: the dashboard's deploy command is
+  // `npx wrangler deploy`, and this file is what that command reads.
+  //
+  // `name` must match the Worker name in the dashboard, or wrangler would create a second
+  // Worker instead of updating this one.
+  "name": "drink-quick-cal",
+
+  // Cloudflare's own example sets this to today's date; it is the date from which runtime
+  // behaviour is fixed. With no Worker script there is no runtime behaviour to pin, but
+  // wrangler expects the field.
+  "compatibility_date": "2026-11-12",
+
+  // There is deliberately no "main": an assets-only Worker has no script to run, so every
+  // request is answered straight from the asset cache. `download-page/` is the whole site —
+  // index.html, logo.png, and Cloudflare's two config files (_headers, _redirects) which it
+  // reads rather than serves.
+  "assets": {
+    "directory": "./download-page"
+  }
+}

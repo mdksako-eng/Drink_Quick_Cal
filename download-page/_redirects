@@ -1,0 +1,6 @@
+# The old address for this page was /download.html (it was served by the backend), and /download
+# is what people type. Both land on the page instead of a 404.
+#
+# Cloudflare applies _redirects before _headers, so these win over the header rules below.
+/download       /  301
+/download.html  /  301
