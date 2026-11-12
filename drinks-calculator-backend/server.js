@@ -28,6 +28,9 @@ const otpChallenges = twoFactor.createChallengeStore();
 const { safeEqual } = require('./utils/safeCompare');
 const auditLog = require('./utils/auditLog');
 const { createQueue } = require('./utils/authQueue');
+// 🛡️ Security headers in one testable place (tests/security_headers.test.js) — the
+// configuration is the part that silently rots, so it is not written inline.
+const { securityHeaders } = require('./utils/securityHeaders');
 
 // ========== PASSWORD HELPERS ===========
 // Passwords are stored as bcrypt hashes ($2a$ / $2b$ / $2y$).
@@ -81,7 +84,7 @@ console.log('🔌 Connecting to PostgreSQL (Supabase)...');
 // 🏷️ Build identity, reported by GET /health. Bump RELEASE when you want to
 // confirm from the outside that a deploy actually went through; SERVER_STARTED_AT
 // resets on every restart (uptimeSeconds in the health payload).
-const RELEASE = '2026-11-01-recipes';
+const RELEASE = '2026-11-12-hardening';
 const SERVER_STARTED_AT = new Date();
 // Used by the startup banner below. CamerPay is the only payment rail now — the
 // Notch Pay one was removed (see memory-bank/activeContext.md).
@@ -124,7 +127,7 @@ pool.on('error', (err) => {
 // TCP connections alive (`keepAlive` + `idleTimeoutMillis`). Removed.
 
 // Test connection and setup tables
-(async () => {
+const bootstrapReady = (async () => {
   let retries = 3;
   
   while (retries > 0) {
@@ -605,6 +608,17 @@ pool.on('error', (err) => {
         await pool.query(
           `ALTER TABLE orders ADD COLUMN IF NOT EXISTS tab_amount NUMERIC(12,2) DEFAULT 0`
         );
+        // 💸 HOW THE SALE WAS PAID — the fact a refund needs. A refund must follow
+        // the money's ORIGINAL path: a CamerPay sale is refunded at CamerPay (with
+        // its provider reference), a cash sale comes back out of the drawer.
+        // Without this column the backend could not tell them apart (the only
+        // trace of a collection, payment_transactions, is not reliably linked to
+        // the order), so every recorded refund fell back to the provider rail.
+        // Legacy rows default to 'cash' — the conservative reading for the cash-up.
+        await pool.query(
+          `ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT 'cash'`
+        );
+
         console.log('✅ orders void columns ensured');
       } catch (orderVoidErr) {
         console.log('⚠️ orders void columns warning:', orderVoidErr.message);
@@ -1028,6 +1042,9 @@ pool.on('error', (err) => {
 
 // ========== MIDDLEWARE ==========
 app.use(cors());
+// 🛡️ Hardening headers (see utils/securityHeaders.js for what is deliberately NOT set:
+// the CSP and COEP would break the public legal/download pages).
+app.use(securityHeaders());
 //  Large JSON bodies are REQUIRED by the AI image endpoints: a photo arrives as
 // a base64 data URL (typically 150 KB – 2 MB). Express's default limit is 100 KB,
 // which used to reject the request with a 413 HTML page — the app could not parse
@@ -1037,16 +1054,32 @@ app.use(cors());
 // exact bytes that were sent, and re-serialising the parsed object changes them
 // (whitespace, escaping, number formatting) — which would reject every genuine
 // webhook. `verify` is the only place Express hands over those bytes.
+// Capture the RAW bytes of every JSON body: webhook signatures are HMACs over the
+// exact bytes that were sent, and re-serialising the parsed object changes them
+// (whitespace, escaping, number formatting) — which would reject every genuine
+// webhook. `verify` is the only place Express hands over those bytes.
+const captureRawBody = (req, _res, buf) => {
+  req.rawBody = buf && buf.length ? buf.toString('utf8') : '';
+};
+
+// 🔒 12 MB only where a photo is expected; 1 MB everywhere else.
+//
+// The big limit stays for the AI image endpoints (see above), and they are the ONLY
+// place the app sends base64 — `base64Encode` appears in exactly one Dart file
+// (ai_assistant_screen.dart). Mounting 12 MB globally also meant the UNAUTHENTICATED
+// routes (login, password reset, webhooks) parsed up to 12 MB of attacker-chosen bytes
+// before any check ran, which is precisely where body-parser's DoS advisory lands.
+// /api/ai is mounted first, and express.json() skips a body that is already parsed, so
+// nothing outside /api/ai keeps the larger limit.
+app.use('/api/ai', express.json({ limit: '12mb', verify: captureRawBody }));
 app.use(express.json({
-  limit: '12mb',
-  verify: (req, _res, buf) => {
-    req.rawBody = buf && buf.length ? buf.toString('utf8') : '';
-  },
+  limit: '1mb',
+  verify: captureRawBody,
 }));
 app.use(
   express.urlencoded({
     extended: true,
-    limit: '12mb',
+    limit: '1mb',
     // CamerPay signs its webhook over the RAW form-encoded bytes, exactly like the
     // JSON providers sign over the raw JSON body, so capture them the same way —
     // without this, utils/requestBody.js falls back to a re-serialisation and every
@@ -2781,7 +2814,9 @@ app.get('/health', async (req, res) => {
       features: {
         aiChat: Boolean(process.env.GROQ_API_KEY),
         aiVision: Boolean(process.env.GROQ_API_KEY),
-        jsonBodyLimit: '12mb',
+        // The AI image routes keep the large parser (see the middleware section);
+        // every other route is capped at 1 MB.
+        jsonBodyLimit: '1mb (12mb on /api/ai)',
         ownerSelfHeal: true,
       },
     });
@@ -3727,7 +3762,25 @@ app.use((req, res) => {
 
 // ========== START ==========
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
+
+// 🛡️ Open the port only AFTER the startup block above has finished.
+//
+// `bootstrapReady` (connection test + every schema/index/RLS/migration statement) used
+// to run in the background while this line started accepting traffic, so there was a
+// window in which a request could reach a column or table the migrations had not created
+// yet — exactly what the pending `orders.payment_method` deploy would hit on a first
+// order. Waiting costs a few hundred milliseconds ONCE at boot and removes the race.
+//
+// A failure still opens the port (degraded) rather than leaving the instance dead: a bad
+// migration must not take a whole shop offline, and GET /health reports the truth.
+bootstrapReady
+  .catch((err) => {
+    console.error('⚠️ Boot setup did not finish cleanly:', (err && err.message) || err);
+  })
+  .then(() => openPort());
+
+function openPort() {
+  app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 DRINKQUICK SERVER v3.0 🚀`);
   console.log(`📍 Port: ${PORT}`);
   console.log('🗄️  Database: Supabase PostgreSQL');
@@ -3769,3 +3822,4 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`🔗 Public base URL: ${publicUrlStatus.publicBaseUrl()}\n`);
   }
 });
+}

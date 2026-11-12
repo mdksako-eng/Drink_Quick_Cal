@@ -36,7 +36,19 @@
     <application
         android:label="Drink Quick Cal"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false">
+        <!--
+          🔒 android:allowBackup="false" on purpose. It defaults to TRUE, which lets
+          Android cloud/adb backup lift the app's private data off the device —
+          including the SharedPreferences caches (company name, orders, customers)
+          this till writes for offline use. A point-of-sale device holding a shop's
+          trading data must not be copied out by a backup agent. The trade-off is
+          accepted: on a new phone the local cache is empty and the app re-syncs it
+          from the backend on the next login, while the device PIN lives in the
+          Keystore-backed store (never backed up either way).
+        -->
+
         
         <activity
             android:name=".MainActivity"
