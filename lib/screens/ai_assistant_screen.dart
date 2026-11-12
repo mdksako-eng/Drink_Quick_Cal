@@ -350,8 +350,16 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
       if (source == ImageSource.camera && !kIsWeb) {
         try {
           final status = await Permission.camera.request();
+          if (!mounted) return;
+          if (status.isPermanentlyDenied) {
+            // "Don't ask again" is the one camera failure that cannot be retried from here:
+            // every later request returns denied and the picker never opens, so the button
+            // just looks broken. The system settings screen is the only way back.
+            await _showCameraSettingsDialog();
+            return;
+          }
           if (!status.isGranted) {
-            if (mounted) _showToast(t('ai_cameraDenied'), isError: true);
+            _showToast(t('ai_cameraDenied'), isError: true);
             return;
           }
         } catch (_) {
@@ -359,14 +367,20 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
         }
       }
 
-      // 📉 Keep the photo small: the AI only needs the drink names, and a smaller
-      // image is faster and never hits a server body limit. 1024px / q60 lands
-      // around 80-200 KB.
+      // 📉 Big enough to READ, small enough to stay quick.
+      //
+      // This used to be 1024px / q60 with the comment "the AI only needs the drink names"
+      // — fine for a printed menu, marginal for what the feature is actually for:
+      // handwriting and receipts. JPEG at quality 60 blurs thin pen strokes, and 1024px
+      // shrinks a full A4 note until the small writing is unreadable, which is exactly the
+      // failure people report as "the AI didn't understand my photo". 1600 / q80 lands
+      // around 250-450 KB: still negligible next to the 12 MB the vision route allows, and
+      // it is the single biggest lever on whether the model reads the order correctly.
       final picked = await ImagePicker().pickImage(
         source: source,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 60,
+        maxWidth: 1600,
+        maxHeight: 1600,
+        imageQuality: 80,
       );
       if (picked == null) return;
 
@@ -399,21 +413,28 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
             : 'The order already contains ${_pendingOrder.map((i) => '${i['quantity']}x ${(i['drink'] as Drink).name}').join(', ')}.',
       );
 
-      // Any drinks the vision model recognised are added to the pending order.
-      final matched = AIOrderParser.matchLines(
-        AIOrderParser.extractOrderLines(response),
-        drinks,
-      );
+      // Any drinks the vision model recognised are added to the pending order…
+      final read = AIOrderParser.extractOrderLines(response);
+      final matched = AIOrderParser.matchLines(read, drinks);
+      // …and the ones it read that are NOT in the catalogue are said out loud. They used to
+      // be dropped without a word, so a garbled name and a drink the shop does not stock
+      // looked exactly like a photo the AI had failed to read at all — the shop had no way
+      // to tell "bad photo" from "missing catalogue entry".
+      final unmatched = AIOrderParser.unmatchedLines(read, drinks);
       setState(() {
         _isReadingImage = false;
         for (final line in matched) {
           _addToOrderSilently(line.drink, line.quantity);
         }
         final visible = AIOrderParser.stripOrderBlock(response);
+        final notes = <String>[
+          if (matched.isNotEmpty)
+            '✅ ${t('ai_addedItems').replaceAll('@items', matched.map((m) => '${m.quantity}x ${m.drink.name}').join(', '))}',
+          if (unmatched.isNotEmpty)
+            '⚠️ ${t('ai_unknownItems').replaceAll('@items', unmatched.map((u) => '${u.quantity}x ${u.name}').join(', '))}',
+        ];
         _messages.add({
-          'text': matched.isEmpty
-              ? visible
-              : '$visible\n\n✅ ${t('ai_addedItems').replaceAll('@items', matched.map((m) => '${m.quantity}x ${m.drink.name}').join(', '))}',
+          'text': [visible, ...notes].where((s) => s.trim().isNotEmpty).join('\n\n'),
           'isUser': false,
         });
       });
@@ -455,6 +476,32 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
         ]),
       ),
     );
+  }
+
+  /// The camera refusal that a retry cannot fix, so it is explained instead of toasted.
+  ///
+  /// A plain "camera permission is required" toast is misleading here: the permission was
+  /// already refused permanently, so tapping the button again can never work. Offering the
+  /// settings screen is the only actionable answer.
+  Future<void> _showCameraSettingsDialog() async {
+    final open = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t('ai_cameraDenied')),
+        content: Text(t('ai_cameraSettingsHint')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(t('cancel')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(t('ai_openSettings')),
+          ),
+        ],
+      ),
+    );
+    if (open == true) await openAppSettings();
   }
 
   void _processVoiceCommand(String text) {

@@ -255,6 +255,19 @@ class AIOrderParser {
     return matched;
   }
 
+  /// The lines the AI read that match NO drink in the catalogue.
+  ///
+  /// These used to disappear without a word: the reply said "✅ Added: 2 x Beer" and the
+  /// shop never learned that the photo also read "3 x Guinness" — which may be a drink
+  /// they genuinely do not sell, or a name the model garbled past the 0.5 match
+  /// threshold. Reporting them is the whole difference between "the AI read nothing" and
+  /// "the AI read something we don't stock", and it is the only way a shop can tell a bad
+  /// photo from a bad catalogue.
+  static List<OrderRequestLine> unmatchedLines(
+      List<OrderRequestLine> lines, List<Drink> drinks) {
+    return lines.where((line) => matchDrink(line.name, drinks) == null).toList();
+  }
+
   /// Reads the machine-readable order block an AI reply may contain:
   ///
   ///   ORDER_JSON: [{"name":"Beer","qty":2},{"name":"Soda","qty":1}]

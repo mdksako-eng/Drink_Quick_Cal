@@ -27,6 +27,9 @@ const twoFactor = require('./utils/twoFactor');
 const otpChallenges = twoFactor.createChallengeStore();
 const { safeEqual } = require('./utils/safeCompare');
 const auditLog = require('./utils/auditLog');
+// 🖼️ The vision prompt lives in utils/ so the rules that decide whether a photo is
+// understood are unit-tested (tests/ai_vision_prompt.test.js).
+const { buildVisionPrompt } = require('./utils/aiVisionPrompt');
 const { createQueue } = require('./utils/authQueue');
 // 🛡️ Security headers in one testable place (tests/security_headers.test.js) — the
 // configuration is the part that silently rots, so it is not written inline.
@@ -3681,20 +3684,9 @@ app.post('/api/ai/vision', requireSession(pool), requirePlan(['pro']), async (re
       ? image
       : `data:image/jpeg;base64,${image}`;
 
-    const menu = Array.isArray(drinks)
-      ? drinks.filter(Boolean).slice(0, 60).join(', ')
-      : '';
-
-    const instructions = [
-      'You read photos of drink orders (handwritten notes, receipts, screenshots, menus).',
-      menu ? `This shop only sells: ${menu}.` : '',
-      'Extract every ordered drink and its quantity.',
-      'Start with one short friendly sentence describing what you found, then a line exactly like:',
-      'ORDER_JSON: [{"name":"<drink>","qty":<number>}]',
-      'Use the drink names exactly as written above when they match.',
-      'If the image contains no order, say so and do NOT include an ORDER_JSON line.',
-      prompt ? `Extra context from the user: ${prompt}` : '',
-    ].filter(Boolean).join(' ');
+    // The wording lives in utils/aiVisionPrompt.js: those lines decide whether the AI
+    // understands the photo, so they are unit-tested rather than inline here.
+    const instructions = buildVisionPrompt({ menu: drinks, context: prompt });
 
     // Vision-capable Groq models, best first.
     const VISION_MODELS = [

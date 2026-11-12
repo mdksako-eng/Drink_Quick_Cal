@@ -122,6 +122,45 @@ void main() {
     });
   });
 
+  group('unmatchedLines (drinks the AI read but the shop does not sell)', () {
+    test('reports a name that matches nothing in the catalogue', () {
+      final read = [
+        const OrderRequestLine(name: 'Beer', quantity: 2),
+        const OrderRequestLine(name: 'Fanta', quantity: 3),
+      ];
+      final unmatched = AIOrderParser.unmatchedLines(read, _inventory);
+      expect(unmatched.length, 1);
+      expect(unmatched.single.name, 'Fanta');
+      expect(unmatched.single.quantity, 3);
+    });
+
+    test('a garbled name that still matches is NOT reported', () {
+      // "mutzi" resolves to Mutzig above the match threshold, so it WAS understood —
+      // telling the shop it is "not in your catalogue" would be wrong.
+      final read = [const OrderRequestLine(name: 'mutzi', quantity: 4)];
+      expect(AIOrderParser.unmatchedLines(read, _inventory), isEmpty);
+    });
+
+    test('every unknown line is listed, in the order it was read', () {
+      final read = [
+        const OrderRequestLine(name: 'Fanta', quantity: 3),
+        const OrderRequestLine(name: 'Sprite', quantity: 1),
+      ];
+      final unmatched = AIOrderParser.unmatchedLines(read, _inventory);
+      expect(unmatched.map((l) => l.name).toList(), ['Fanta', 'Sprite']);
+    });
+
+    test('an empty reading reports nothing rather than crashing', () {
+      expect(AIOrderParser.unmatchedLines(const [], _inventory), isEmpty);
+    });
+
+    test('an empty catalogue makes every read line unknown, not an exception', () {
+      final read = [const OrderRequestLine(name: 'Beer', quantity: 1)];
+      expect(AIOrderParser.unmatchedLines(read, const []).length, 1);
+    });
+  });
+
+
   group('extractOrderLines (AI replies)', () {
     test('reads an ORDER_JSON block', () {
       const reply = 'Sure! I added those for you.\n'
