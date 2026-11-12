@@ -13,6 +13,17 @@
   // wrangler expects the field.
   "compatibility_date": "2026-11-12",
 
+  // The workers.dev address stays on. It is a working URL even if the custom domain (or its
+  // DNS) has a bad day, and it is what the first deploy reported. Set false to serve only
+  // through the custom domain.
+  "workers_dev": true,
+
+  // Preview URLs are OFF on purpose. Left implicit, every deployed version becomes reachable at
+  // its own permanent URL — and for a page whose entire job is telling a shop WHICH build to
+  // install, a stale copy staying online is the one thing it must not have. Set true when
+  // per-branch previews are genuinely wanted.
+  "preview_urls": false,
+
   // There is deliberately no "main": an assets-only Worker has no script to run, so every
   // request is answered straight from the asset cache. `download-page/` is the whole site —
   // index.html, logo.png, and Cloudflare's two config files (_headers, _redirects) which it

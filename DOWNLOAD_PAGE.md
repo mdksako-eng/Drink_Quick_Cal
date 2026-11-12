@@ -9,6 +9,19 @@ It used to be served by the backend (`drinks-calculator-backend/public/download.
 door: measured on this project, the first request after a sleep answered **503**, then took ~100
 seconds to warm up. A shop could meet a timeout before it met the app. A static host is always on.
 
+## Deployed
+
+| URL | What |
+|---|---|
+| `https://drink-quick-cal.mbundaderick.workers.dev` | **Live now** (what the first deploy reported) |
+| a custom domain | **still to add** — Worker → Settings → Domains & Routes |
+
+Checked against the live deployment, not just locally: `/` → **200** (`CF-Cache-Status: HIT`),
+`/download` and `/download.html` → **301** to `/`, `/_headers` and `/_redirects` → **404** (they are
+read, never served), `/logo.png` → 200 with `Cache-Control: public, max-age=604800`, and the CSP /
+`X-Frame-Options` / nosniff / referrer-policy / permissions-policy headers all present. The French
+text was verified on the live bytes (`Vérifier à nouveau`, `Confidentialité` — intact, no mojibake).
+
 ## The files
 
 | File | Served publicly? | Why |
@@ -38,11 +51,37 @@ nothing to run per request — the assets are served straight from Cloudflare's 
 `_redirects` are **honoured** for Workers static assets (Cloudflare reads those two filenames and
 does not serve them), so this site needs no Worker code at all.
 
-The same deploy from a machine — no local install, no root `package.json`:
+The same deploy from a machine (`npx` fetches wrangler for that one command):
 
 ```powershell
 npx wrangler deploy
 ```
+
+## The build installs 177 backend packages for nothing (and how to stop it)
+
+The first deploy's log showed Cloudflare running `npm clean-install` at the repo root, which fired
+the root `package.json`'s `postinstall`:
+
+```
+> drinks-calculator-backend-root@1.0.0 postinstall
+> npm --prefix drinks-calculator-backend install --omit=dev
+added 177 packages in 4s
+```
+
+That root `package.json` is not ours to delete — it is the **Render shim** (`npm start` →
+`node server.js`) — but the consequence is worth naming: **the download page's deploy depends on the
+backend's dependency tree installing.** If a backend dependency ever fails to install, the front door
+stops deploying, and nothing about that is visible from the outside. It is also ~10 s and a
+dependency cache per build to upload four static files.
+
+**The fix, documented by Cloudflare:** set the build variable **`SKIP_DEPENDENCY_INSTALL`** to `1`
+(Worker → Settings → Environment variables). Automatic dependency installation is then skipped and
+`npx wrangler deploy` runs on its own, fetching wrangler itself — which is all this site ever needed.
+That is the difference between a front door that breaks when a payment library breaks and one that
+does not.
+
+(The other way to bake in the same decoupling: a Pages project whose **root directory** is
+`download-page`, which contains no `package.json` at all.)
 
 Then set a **custom domain** (Worker → Settings → Domains & Routes) before sharing the URL with
 shops: a `*.workers.dev` address is easy to mistype, and this is the address shops keep.

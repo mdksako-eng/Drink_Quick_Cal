@@ -1767,7 +1767,21 @@ for the vision prompt).
   (21 original + 2 new), one `<script>` pair, the document closes cleanly, **`node --check` on the
   extracted inline script exits 0**, the CSP `connect-src` host matches `API_BASE`, and CORS was
   confirmed live. Folder: 20.6 KB page · 114.8 KB logo · runbook · headers.
-- **Still owner's:** create the Pages project (root directory `download-page`, no build step) and
-  the custom domain, then publish a real release — `/api/app/release` currently answers
-  `known:false`, so every front door (this one and the in-app notice) rightly says nothing yet.
+- **Deployed and verified (2026-11-12):** live at
+  **`https://drink-quick-cal.mbundaderick.workers.dev`** as an assets-only Worker (`wrangler.jsonc`,
+  no `main`). Checked against the live site rather than locally: `/` **200** (`CF-Cache-Status: HIT`),
+  `/download` and `/download.html` **301** → `/`, `/_headers` and `/_redirects` **404** (read, never
+  served), `/logo.png` **200** with the intended `Cache-Control`, and CSP / `X-Frame-Options:
+  SAMEORIGIN` / nosniff / referrer / permissions headers all present. The French text was verified on
+  the live bytes. `workers_dev: true` and **`preview_urls: false`** are now explicit: left implicit,
+  every deployed version would stay reachable at its own URL, and for a page that tells a shop *which
+  build to install*, a stale copy staying online is the one thing it must not have.
+- **Caught by the first build log:** Cloudflare ran `npm clean-install` at the repo root, firing the
+  **Render shim's `postinstall`** and installing **177 backend packages** to upload four static files.
+  That silently made the front door's deploy depend on the backend's dependency tree. Cloudflare
+  documents the fix — build variable **`SKIP_DEPENDENCY_INSTALL=1`** — so the build stops touching the
+  backend's packages entirely.
+- **Still owner's:** add the custom domain (Worker → Settings → Domains & Routes), set
+  `SKIP_DEPENDENCY_INSTALL=1`, then publish a real release — `/api/app/release` still answers
+  `known:false`, so both front doors rightly say nothing yet.
 

@@ -122,3 +122,13 @@ replaced by a redirect.
 - **`logo.png` now exists three times** (`assets/icons/icon.png`,
   `drinks-calculator-backend/public/logo.png`, `download-page/logo.png`). A brand change updates all
   three, or the front door keeps the old art.
+- **The download page's build used to depend on the backend's dependencies.** The repo root carries a
+  `package.json` (the Render shim, whose `postinstall` installs the backend), so Cloudflare's build
+  ran `npm clean-install` and pulled **177 backend packages** in order to upload four static files —
+  meaning any backend dependency failure would have stopped the front door from deploying. Set the
+  build variable **`SKIP_DEPENDENCY_INSTALL=1`** on the Worker to cut that link; `npx wrangler deploy`
+  then fetches wrangler itself, which is all the site needs.
+- **Preview URLs are off on purpose** (`preview_urls: false` in `wrangler.jsonc`). Left implicit,
+  every deployed version stays reachable at its own permanent URL — and for a page whose whole job is
+  telling a shop *which* build to install, a stale copy staying online is the one thing it must not
+  have.

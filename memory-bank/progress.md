@@ -314,10 +314,21 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
 - `_headers` ports the helmet-class headers to the static host, with a CSP that pins `connect-src`
   to the API host.
 - Verified: same-SHA byte copy of the reviewed page → `data-en`/`data-fr` **23/23** → `node --check`
-  on the inline script **exit 0** → CSP host matches `API_BASE`. The Render copy stays for now (a
-  redirect is its cleanup once Pages is live); legal pages are linked, not copied.
-- **Owner:** create the Pages project (root `download-page`, no build step) + custom domain, then
-  publish a release — `/api/app/release` still answers `known:false`.
+  on the inline script **exit 0** → CSP host matches `API_BASE`. The Render copy stays for now — now
+  that the Worker is live, a redirect on the next backend deploy is its cleanup; legal pages are
+  linked, not copied.
+- **Deployed 2026-11-12:** assets-only Worker (`wrangler.jsonc`, no `main`) live at
+  **`https://drink-quick-cal.mbundaderick.workers.dev`**. Verified against the live site rather than
+  locally: `/` 200, `/download` + `/download.html` **301** → `/`, `/_headers` + `/_redirects` **404**
+  (read, never served), `/logo.png` 200 + its `Cache-Control`, every security header present, French
+  text intact.
+- `workers_dev: true` and **`preview_urls: false`** are now explicit — implicit preview URLs would
+  keep every old version permanently reachable.
+- The build installed **177 backend packages** to upload 4 static files: the repo root's `package.json`
+  (the Render shim) has a `postinstall` that installs the backend, which coupled the front door's
+  deploy to the backend's dependencies. Cloudflare's fix: build variable
+  **`SKIP_DEPENDENCY_INSTALL=1`**.
+- **Owner:** the custom domain, that build variable, then publish a release (`known:false` today).
 
 
 ## Not started

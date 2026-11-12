@@ -29,8 +29,22 @@ _Updated: 2026-11-12_
 - ⚠️ **Two places name the backend host:** `API_BASE` and the CSP `connect-src` in `_headers`. A
   missed `connect-src` does not 404 — it blocks the fetch, so the page reports a backend that is
   perfectly fine as unreachable.
-- **Owner:** create the Pages project (root directory `download-page`, no build step) and the custom
-  domain. `/api/app/release` still answers `known:false`, so no front door announces a build yet.
+- **✅ Live 2026-11-12** as an assets-only Worker (`wrangler.jsonc`, no `main`) at
+  **`https://drink-quick-cal.mbundaderick.workers.dev`** — verified against the deployment, not
+  locally: `/` **200**, `/download` + `/download.html` **301** → `/`, `/_headers` + `/_redirects`
+  **404** (read, never served), `/logo.png` 200 with its `Cache-Control`, and CSP /
+  `X-Frame-Options: SAMEORIGIN` / nosniff / referrer / permissions all present; the French text is
+  intact on the live bytes. `workers_dev: true` and **`preview_urls: false`** are now explicit —
+  implicit preview URLs would leave **every old version permanently reachable**, which for a page
+  whose job is saying *which build to install* is the one thing it must not have.
+- **Caught by the first build log:** the repo root's `package.json` (the **Render shim**, whose
+  `postinstall` installs the backend) made Cloudflare run `npm clean-install` and install **177
+  backend packages** in order to upload 4 static files — so the front door's deploy depended on the
+  backend's dependency tree. Cloudflare's documented fix: build variable
+  **`SKIP_DEPENDENCY_INSTALL=1`**.
+- **Owner left:** the custom domain (Worker → Settings → Domains & Routes),
+  `SKIP_DEPENDENCY_INSTALL=1`, and a real release — `/api/app/release` still answers `known:false`, so
+  both front doors rightly announce nothing yet.
 
 
 ## AI screen: photos read honestly, replies actually translated (2026-11-12) ✅ `85ceb4d`, `12decba`
