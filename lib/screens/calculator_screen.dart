@@ -1146,6 +1146,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       amount,
       customerName,
       staffName: staffName,
+      // The sale records HOW it was paid, so a later refund follows the same path:
+      // CamerPay back to CamerPay, cash back out of the drawer.
+      paymentMethod: _selectedPaymentMethod.name,
     );
     _setCompletionProgress(0.70);
 
@@ -1470,6 +1473,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       staffName: staffName,
       customerId: account?.id,
       tabAmount: tab,
+      // A cash sale, by definition of this path — and it is recorded so a refund
+      // comes back out of the drawer rather than being sent to CamerPay.
+      paymentMethod: _selectedPaymentMethod.name,
     );
     _setCompletionProgress(0.75);
 

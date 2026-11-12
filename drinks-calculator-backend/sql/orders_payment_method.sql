@@ -1,0 +1,27 @@
+-- sql/orders_payment_method.sql
+-- HOW A SALE WAS PAID — the fact a refund needs.
+--
+-- A refund must follow the money's ORIGINAL path: a sale collected through
+-- CamerPay (mtn / orange / card) is refunded at CamerPay and tied to its provider
+-- reference; a sale paid in cash is refunded out of the drawer. Before this
+-- column the backend had no way to tell the two apart — the only trace of a
+-- CamerPay collection was a `payment_transactions` row that is not reliably
+-- linked to the order — so every recorded refund fell back to the provider rail
+-- and a cash refund was recorded as if it had gone back to CamerPay.
+--
+-- The app writes the till's chosen method when it creates the order
+-- (`PaymentMethod.name`: cash | mtnMobileMoney | orangeMoney | card); the backend
+-- normalises it (utils/refundRecord.js) before it is read. Legacy rows default to
+-- 'cash', which is also the conservative reading for the cash-up: a return whose
+-- method is unknown keeps reducing the drawer exactly as it did before.
+--
+-- The backend also adds this column at boot (idempotent), so running this by hand
+-- is only needed to have the schema in place before a deploy.
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT 'cash';
+
+-- What did this shift refund, and out of which lane?
+--   SELECT o.payment_method, it.drink_name, it.quantity, it.selling_price_at_sale
+--     FROM inventory_transactions it
+--     JOIN orders o ON o.id::text = it.order_id
+--    WHERE it.company_id = 42 AND it.reason = 'return'
+--    ORDER BY it.date DESC;

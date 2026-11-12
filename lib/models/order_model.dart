@@ -39,6 +39,13 @@ class PurchaseHistory {
   /// sale (and only theirs) within the window — mirrors utils/order_correction_helper.
   String staffName;
 
+  /// How the sale was paid (cash | mtnMobileMoney | orangeMoney | card).
+  ///
+  /// The refund must follow the money's ORIGINAL path — a CamerPay refund goes back
+  /// at CamerPay, a cash refund out of the drawer — so the lane travels with the
+  /// invoice instead of being guessed when a manager opens the refund dialog.
+  String paymentMethod;
+
   /// Set when a manager corrected this order: the trace stays with the order so
   /// the shift report and this list can explain why a sale disappeared.
   DateTime? voidedAt;
@@ -54,6 +61,7 @@ class PurchaseHistory {
     this.isActive = true,
     this.customerName = '',
     this.staffName = '',
+    this.paymentMethod = '',
     this.voidedAt,
     this.voidReason = '',
     this.voidedByName = '',
@@ -71,6 +79,7 @@ class PurchaseHistory {
         'isActive': isActive,
         'customerName': customerName,
         'staffName': staffName,
+        'paymentMethod': paymentMethod,
         'voidedAt': voidedAt?.toIso8601String(),
         'voidReason': voidReason,
         'voidedByName': voidedByName,
@@ -87,6 +96,8 @@ class PurchaseHistory {
         isActive: json['isActive'] ?? true,
         customerName: json['customerName'] ?? '',
         staffName: (json['staffName'] ?? '').toString(),
+        paymentMethod:
+            (json['paymentMethod'] ?? json['payment_method'] ?? '').toString(),
         voidedAt: DateTime.tryParse('${json['voidedAt'] ?? ''}'),
         voidReason: (json['voidReason'] ?? '').toString(),
         voidedByName: (json['voidedByName'] ?? '').toString(),

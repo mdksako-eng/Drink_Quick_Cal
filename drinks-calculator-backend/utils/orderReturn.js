@@ -17,6 +17,9 @@
 // lives in `inventory_transactions` (reason 'return', order_id set), which is also
 // the audit row that puts the stock back.
 const { parseItems, isVoided, isInactive } = require('./orderVoid');
+// One vocabulary for "how was this paid". A return only leaves the DRAWER when the
+// sale was cash, so the cash-up and the refund record must agree on the word.
+const { isCashMethod } = require('./refundRecord');
 
 /** Money helper: Postgres NUMERIC arrives as a string ("1000.00"). */
 function num(value) {
@@ -244,24 +247,32 @@ function validateReturn({ order, lines, reason, alreadyReturned: returned } = {}
 
 /**
  * The Returns line of a Z-report: how many returns, how many units, and how much
- * money went back out of the drawer.
+ * money went back out — split by the lane it went back through.
  *
  * `returnCount` counts return EVENTS (distinct orders), not movements, so three
  * lines of one return read as one return — `returnUnits` carries the detail.
+ *
+ * 💸 The split matters: a refund for a CASH sale comes out of the drawer, but a
+ * refund for a CamerPay sale is issued at CamerPay and never touches the till.
+ * Without it every return looked like cash, so a mobile-money return produced a
+ * shortage a cashier could not explain (ROADMAP's known gap).
  */
 function summariseReturns(rows) {
   const events = new Set();
   let movements = 0;
   let units = 0;
   let value = 0;
+  let cashValue = 0;
 
   for (const row of rows || []) {
     if (!row || String(row.reason || '') !== 'return') continue;
     const quantity = num(row.quantity);
     if (!(quantity > 0)) continue;
+    const amount = quantity * num(row.selling_price_at_sale);
     movements += 1;
     units += quantity;
-    value += quantity * num(row.selling_price_at_sale);
+    value += amount;
+    if (returnCameFromDrawer(row)) cashValue += amount;
     if (row.order_id != null && String(row.order_id) !== '') {
       events.add(String(row.order_id));
     }
@@ -271,7 +282,24 @@ function summariseReturns(rows) {
     returnCount: events.size > 0 ? events.size : movements,
     returnUnits: units,
     returnValue: money(value),
+    // Only this part may be taken off the cash at the end of the shift.
+    cashReturnValue: money(cashValue),
+    providerReturnValue: money(value - cashValue),
   };
+}
+
+/**
+ * Did this return come out of the drawer?
+ *
+ * Only a cash sale's refund does. The order's payment method is joined onto the
+ * ledger row by the shift queries (`order_payment_method`). A row with none — an
+ * older ledger, or a query that did not join the order — keeps the historical
+ * CASH reading, so a report never changes meaning just because the column is new.
+ */
+function returnCameFromDrawer(row) {
+  const raw = row && row.order_payment_method;
+  if (raw == null || String(raw).trim() === '') return true;
+  return isCashMethod(raw);
 }
 
 module.exports = {
@@ -283,4 +311,5 @@ module.exports = {
   returnableLines,
   validateReturn,
   summariseReturns,
+  returnCameFromDrawer,
 };

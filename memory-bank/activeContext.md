@@ -1,6 +1,132 @@
 # Active context
 
-_Updated: 2026-11-10_
+_Updated: 2026-11-12_
+
+## Security hardening from the full audit (2026-11-12) ✅ part 1
+- **🔴 Tracked credential script in a PUBLIC repo** (`scripts/live_smoke.js`; repo is
+  `github.com/mdksako-eng/Drink_Quick_Cal`, HTTP 200, Public). `.gitignore` listed it but a
+  later rule does not untrack an already-committed file. **Untracked here**
+  (`git rm --cached`, local file untouched, still ignored). **Still owed: rotate what it
+  authenticates with + decide on `git filter-repo`.** The file was never opened (forbidden),
+  and no literal secret matched it — treat as exposed.
+- **🟠 Dependencies:** prod audit **8 → 4** (all 3 HIGH gone) via `npm audit fix`; **`mongoose`
+  deleted** (−18 packages) — provably dead: nothing live requires controllers/models/
+  `database.js`/`utils/validators.js`, and no test touches them.
+- **🟠 Body limit:** `12mb` is no longer global. `app.use('/api/ai', json 12mb)` first, then
+  `1mb` globally (JSON **and** urlencoded); `captureRawBody` shared so webhook HMACs keep
+  their raw bytes. `/health` now reports `'1mb (12mb on /api/ai)'`.
+- **🟠 Boot race:** `const bootstrapReady = (async () => {` + `bootstrapReady.catch().then(() => openPort())`
+  — migrations now finish **before** the port opens (the pending `orders.payment_method`
+  deploy would otherwise have failed a first order). `RELEASE` → **`2026-11-12-hardening`**.
+- **🟡 Android:** `android:allowBackup="false"` (default was true → cloud/adb backup could lift
+  the SharedPreferences caches).
+- Gates: backend **52 suites / 697 tests** · Flutter **573 tests** · analyze **0 errors** ·
+  manifest XML parses with `allowBackup='false'`.
+- **Open:** rotate+purge, `deepmerge`/SendGrid `--force` decision, `orders.payment_method`
+  still missing in prod, Render free spin-down, `helmet` installed-but-unused (needs CSP off
+  + an HTML-page smoke test), data hygiene (orphan Manager id=26, `doppel` deposit 1.00,
+  101 inactive legacy session tokens).
+- **Verified healthy:** 29/29 RLS-locked tables, 0 plaintext passwords, CamerPay credentials
+  ciphertext-only, no `.env` in 1,456 commits, no SQL interpolation, all payment routes
+  guarded or signature-verified.
+- **Later the same day:** **helmet wired** via `utils/securityHeaders.js` +
+  `tests/security_headers.test.js` (7 DB-free tests) — CSP and COEP deliberately OFF (public
+  pages use inline styles; COEP buys nothing for a JSON API), CORP `cross-origin`, framing
+  is **SAMEORIGIN** (helmet v8's default, not DENY — the test caught that assumption).
+  **101 legacy guessable session tokens deleted**, guarded to legacy+inactive+expired and
+  verified in a separate statement: sessions **354 → 253**, 0 legacy left, **active still 1**.
+  *A data-modifying CTE cannot see its own writes in the same statement — verify separately.*
+- **Not touched (owner's call):** the `doppel` deposit value, the orphan Manager `id=26`, the
+  unverified account.
+
+## Faster cold start, security boundary unmoved (2026-11-11) ✅
+- **Was:** `_initializeApp` was fully serial (splash covers all of it): 7 calls one after the
+  other — `checkBackendConnection` → `_validateCurrentSession` → **`checkSessionValidity` (the
+  same method again)** → settings → drinks → orders → inventory, then the expiry alert awaited.
+- **Now (4 edits in `lib/main.dart`):** settings + drinks + orders + inventory go out in ONE
+  `Future.wait` (7 serial network calls → 2 phases); the duplicate session check is skipped when
+  `sessionValid` is already true from `autoLogin()` — **still exactly one validation per start,
+  before the first frame, never from a previous run**; the expiry alert is `unawaited`; the
+  money helpers stay local and offline-safe (re-read after settings land).
+- **Orderings preserved:** order cache read before its network refresh; `setDrinkProvider` after
+  drinks + inventory; `CurrencyHelper`/`PaymentHelper` after the settings they read.
+- **Not done on purpose:** rendering before the catalogue loads (empty drink menu reads as
+  broken — needs a real cache-first pass in the providers; `DrinkProvider`'s cache load runs in
+  its constructor, before a company context exists).
+- **The rest of "fast" is hosting:** Render `plan: free` spins down after ~15 min idle → 30–60 s
+  cold start (keep-alive on `/api/ping`, or a paid instance); `UV_THREADPOOL_SIZE=8` to match
+  the existing login queue.
+- Gates: Flutter **573 tests**, analyze **0 errors** (492 issues, unchanged), i18n
+  **EN=1566 FR=1566**.
+
+## Scan single AND batch sell + a plan that stops following the previous user (2026-11-11) ✅
+- **Scan to sell:** the sell sheet's chips were a **guessed ladder** (1/6/12/24/48), so a
+  12-bottle crate was offered "24". Now `lib/utils/scan_sell_helper.dart` (pure, tested) reads
+  the drink's OWN `unitsPerPack` → `[ 1 · Single unit ] [ 24 · Whole pack ]`, stepper for
+  anything else, and the shelf warning is words ("The shelf holds 6") not a bare icon.
+  3 new EN/FR keys. `test/scan_sell_test.dart` (8).
+- **Plan follows the session (reported bug):** Starter logs out, Pro signs in on the same till,
+  and the Pro user had to open the subscription screen before their plan appeared. **Two
+  causes:** (1) `setSession(key)` + `refresh()` lived only in `_loadCompanyDataWithCleanup`,
+  which runs on app launch only — a fresh interactive login never re-bound the plan; (2)
+  `refresh()` marked `hasLoaded = true` even when the fetch FAILED, so "could not find out"
+  became "you are Free" and the gate showed the paywall.
+- **Fix:** `PlanProvider` now separates `hasLoaded` from `resolved`/`fetchFailed`, coalesces
+  concurrent fetches and retries in the background (bounded, stops on session change);
+  `setSession(null)` **really** clears (the old guard fired for `null -> null`); `main.dart`
+  binds the plan per SESSION from an `AuthProvider` listener in `initState` (covers cold start
+  AND interactive login) and clears it on logout — deferred post-frame so it lands BEFORE
+  `PlanGate` decides; `planGateDecision(fetchFailed:)` → `proceed` (backend `requirePlan` is
+  still the enforcement point, so this is UX, not security).
+- Gates: Flutter **573 tests, all passing** (this fixed the previously-red
+  `plan_provider_session_test.dart`), analyze **0 errors** (492 issues, one fewer),
+  i18n **EN=1566 FR=1566**. Backend untouched.
+
+## "Is the printer connected?" — the Bluetooth printer card (2026-11-11) ✅
+- **Was:** feedback only as a toast AFTER a print, no status anywhere, "which printer?" asked
+  on every print (nothing remembered), and a **disconnect right after each write** — so the
+  app could not have reported a connection even if asked. A cashier found out by losing a
+  receipt.
+- **Now:** a status card on `receipt_print_screen.dart` (state in words + device name + what
+  to do next), the printer **remembered on the device** and reconnected on open, a
+  **Test slip** button, a held-open connection, explicit Connect/Disconnect/Change printer/
+  Check again, MAC as the label when a printer has no name, and a clear message when the
+  saved printer is no longer paired.
+- **Logic:** `lib/utils/printer_status_helper.dart` (pure, new — `derive()` with **Bluetooth
+  off outranking a refused permission**, `findRemembered`, `deviceLabel`, key maps) ↔
+  `lib/services/receipt_printer.dart` (pipeline split into permission/enabled/paired/
+  connected/connect/disconnect/writeBytes/`buildSlipBytes`). 27 new `printer*` EN+FR keys.
+- **Not company-scoped:** `receipt_printer_mac` / `_name` are DEVICE settings (the till keeps
+  its printer across sign-outs), deliberately not added to `session_data_cleaner`'s list.
+- Gates: Flutter **561 tests** (+10), analyze **0 errors** (493 issues, unchanged),
+  i18n **EN=1563 FR=1563**.
+- **Not device-verified:** the Bluetooth handshake needs real hardware; the plugin calls are
+  covered by their failure paths, the state logic is unit tested.
+
+## A refund follows the money: cash vs CamerPay (2026-11-11) ✅
+- **Gap closed** — it was named in ROADMAP on 2026-10-11 ("a refund is always assumed to be
+  cash out of the drawer"). Two defects pointing opposite ways: the refund route never
+  received a method, so `buildRefundRow` defaulted **every** refund to `'card'` (a cash
+  refund looked like a CamerPay one), and *every* return was taken off `expectedCash` (a
+  mobile-money return showed as a shortage).
+- **Root cause:** `orders` had no `payment_method`, and the only trace of a CamerPay
+  collection (`payment_transactions`) is not reliably linked to the order — the mobile-money
+  path sends a millisecond timestamp as `orderId` *before* the order row exists.
+- **Now:** `orders.payment_method` (boot migration + `sql/orders_payment_method.sql`) written
+  by the till at sale time · one lane rule mirrored backend ↔ app
+  (`utils/refundRecord.js` ↔ `lib/utils/refund_lane_helper.dart`) · lane-aware refund dialog
+  (reference asked **only** on the CamerPay lane) · Z-report subtracts **cash returns only**
+  (`cashReturnValue` / `providerReturnValue` in `orderReturn` + `shiftMath`).
+- **Not done on purpose:** no automatic CamerPay refund API call — CamerPay documents **full**
+  refunds only while this app's returns are partial, so auto-firing could over-refund. The
+  money still moves in the CamerPay dashboard; the app now records and proves *which* lane.
+- Gates: backend **52 suites / 697 tests**, Flutter **551**, analyze **0 errors**,
+  i18n **EN=1536 FR=1536**.
+- **Owner action:** `orders.payment_method` arrives with the next backend deploy (also created
+  at boot, idempotent). Legacy orders default to `'cash'` — the conservative cash-up reading.
+- **Pre-existing red (NOT this task):** `test/plan_provider_session_test.dart` fails on its
+  own; it belongs to the uncommitted `lib/providers/plan_provider.dart` work in the tree
+  (`setSession(null)` early-returns when `_sessionKey` is already `null`).
 
 ## Fixed: offline banner never showed, and "reset by security" was a stub (2026-11-10)
 - **Offline banner** (`lib/widgets/offline_indicator.dart`): `_isChecking` (which gates the whole

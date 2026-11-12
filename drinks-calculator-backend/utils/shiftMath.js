@@ -75,13 +75,25 @@ function summariseShift({ shift, orders, payments, voids, returns }) {
   const paymentTotals = summarisePayments(payments);
   const voidTotals = voids || { voidCount: 0, voidValue: 0 };
   const returnTotals = returns || { returnCount: 0, returnUnits: 0, returnValue: 0 };
+  // A caller that is not lane-aware (an older report, or a test) passes only the
+  // total; the whole of it is then treated as cash. That is exactly the reading the
+  // report had before the split, so it can never invent a shortfall.
+  const cashReturned = num(
+    returnTotals.cashReturnValue != null
+      ? returnTotals.cashReturnValue
+      : returnTotals.returnValue
+  );
 
   // What should be in the drawer: the float, plus what was collected in cash,
   // minus anything paid out of the till during the shift, minus the money handed
   // back over the counter for returned items. The sale itself stays as billed —
   // it happened — so the refund is what reconciles it, not a rewritten invoice.
+  //
+  // 💸 Only a CASH refund comes out of the drawer. A refund for a sale collected
+  // through CamerPay is issued at CamerPay and never touches the till, so taking it
+  // off here would invent a shortage the cashier could not explain.
   const expectedCash = money(
-    openingFloat + orderTotals.collected - payouts - returnTotals.returnValue
+    openingFloat + orderTotals.collected - payouts - cashReturned
   );
   const counted = shift && (shift.status === 'closed' || shift.cash_counted != null)
     ? money(shift.cash_counted)
@@ -107,6 +119,14 @@ function summariseShift({ shift, orders, payments, voids, returns }) {
     returnCount: num(returnTotals.returnCount),
     returnUnits: num(returnTotals.returnUnits),
     returnValue: money(returnTotals.returnValue),
+    // The split, so a manager can see why the drawer and the report differ: what
+    // came out of the till versus what went back at CamerPay.
+    cashReturnValue: money(cashReturned),
+    providerReturnValue: money(
+      returnTotals.providerReturnValue != null
+        ? returnTotals.providerReturnValue
+        : Math.max(0, num(returnTotals.returnValue) - cashReturned)
+    ),
     netSales: money(orderTotals.sales - returnTotals.returnValue),
   };
 }

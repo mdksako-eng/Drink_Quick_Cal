@@ -121,6 +121,36 @@ void main() {
         PlanGateDecision.proceed,
       );
     });
+
+    test('a plan we could NOT READ never shows the paywall', () {
+      // The shared-till bug's other half: the plan fetch failed right after login and its
+      // failure was recorded as an answer, so a paying shop arriving after another shop's
+      // logout was parked on the plans screen until they opened the subscription screen
+      // by hand. Asking a company to buy what it already owns is the worse mistake.
+      expect(
+        planGateDecision(
+          hasLoaded: true,
+          planActive: false,
+          signature: planSignature(_free),
+          ackSignature: null,
+          fetchFailed: true,
+        ),
+        PlanGateDecision.proceed,
+      );
+    });
+
+    test('a plan the server DID answer as Free still shows the plans', () {
+      expect(
+        planGateDecision(
+          hasLoaded: true,
+          planActive: false,
+          signature: planSignature(_free),
+          ackSignature: null,
+          fetchFailed: false,
+        ),
+        PlanGateDecision.showPlans,
+      );
+    });
   });
 
   group('planGateAckKey', () {

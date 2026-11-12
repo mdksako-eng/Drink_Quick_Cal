@@ -139,6 +139,47 @@ describe('the Z-report of a shift', () => {
   });
 });
 
+describe('returns and the drawer', () => {
+  test('only a CASH return is taken off the expected cash', () => {
+    const summary = summariseShift({
+      shift: openShift,
+      orders: [{ total_amount: '10000.00', amount_paid: '10000.00' }],
+      returns: {
+        returnCount: 2,
+        returnUnits: 2,
+        returnValue: 4000,
+        cashReturnValue: 1000,
+        providerReturnValue: 3000,
+      },
+    });
+    // 5000 float + 10000 collected = 15000; only the 1000 CASH refund leaves the till.
+    expect(summary.expectedCash).toBe(14000);
+    expect(summary.cashReturnValue).toBe(1000);
+    expect(summary.providerReturnValue).toBe(3000);
+    // Net sales still nets off BOTH lanes: the sale really did shrink.
+    expect(summary.netSales).toBe(6000);
+  });
+
+  test('a lane-unaware caller keeps the old cash reading', () => {
+    const summary = summariseShift({
+      shift: openShift,
+      orders: [{ total_amount: '1000.00', amount_paid: '1000.00' }],
+      returns: { returnCount: 1, returnUnits: 1, returnValue: 500 },
+    });
+    // 5000 float + 1000 − 500 = 5500, exactly as before the split.
+    expect(summary.expectedCash).toBe(5500);
+    expect(summary.cashReturnValue).toBe(500);
+    expect(summary.providerReturnValue).toBe(0);
+  });
+
+  test('a shift with no returns reports zero in both lanes', () => {
+    const summary = summariseShift({ shift: openShift, orders: [] });
+    expect(summary.returnValue).toBe(0);
+    expect(summary.cashReturnValue).toBe(0);
+    expect(summary.providerReturnValue).toBe(0);
+  });
+});
+
 describe('cash variance', () => {
   test('negative when the till is short, positive when it is over', () => {
     expect(cashVariance({ counted: 8000, expectedCash: 10000 })).toBe(-2000);

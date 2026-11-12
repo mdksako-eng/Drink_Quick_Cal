@@ -92,6 +92,11 @@ const WRITABLE = {
     'unit_kind', 'production_date', 'expiry_date', 'created_at', 'updated_at'],
   orders: ['id', 'company_id', 'items', 'total_amount', 'amount_paid', 'balance',
     'tab_amount', 'customer_id',
+    // 💸 How the sale was paid — read by the refund lane (cash out of the drawer
+    // vs a CamerPay refund) and by the Z-report, which only takes CASH refunds off
+    // the drawer. See utils/refundRecord.js.
+    'payment_method',
+
     'receipt_number', 'date', 'is_active', 'customer_name', 'staff_name', 'created_by', 'created_at',
     'voided_at', 'voided_by', 'voided_by_name', 'void_reason'],
   inventory: ['id', 'company_id', 'drink_id', 'drink_name', 'quantity', 'min_stock_level',
@@ -660,6 +665,11 @@ router.get('/orders/:id/returns', async (req, res) => {
       orderId: order.id,
       isActive: order.is_active !== false,
       isVoided: orderVoid.isVoided(order),
+      // 💸 How this sale was paid, so the return dialog can name the lane the money
+      // goes back through — a CamerPay refund or one out of the drawer. The SERVER
+      // is the source of truth for it, exactly like the line counts.
+      paymentMethod: order.payment_method || null,
+      refundLane: refundRecord.refundLane(order.payment_method).lane,
       lines: orderReturn.returnableLines(order.items, ledger.rows),
       returns: ledger.rows,
       summary: orderReturn.summariseReturns(ledger.rows),
@@ -2148,10 +2158,16 @@ router.get('/shifts/:id/summary', async (req, res) => {
     let returns = { rows: [] };
     try {
       returns = await req.db.query(
-        `SELECT order_id, drink_name, quantity, selling_price_at_sale
-          FROM inventory_transactions
-          WHERE company_id = $1 AND reason = 'return'
-            AND date >= $2 AND date <= COALESCE($3, CURRENT_TIMESTAMP)`,
+        // The order's own payment method tells the drawer whether this return came
+        // out of the till (cash) or was refunded at CamerPay. A LEFT JOIN keeps a
+        // return whose order row is gone; it falls back to the cash reading.
+        `SELECT it.order_id, it.drink_name, it.quantity, it.selling_price_at_sale,
+                o.payment_method AS order_payment_method
+           FROM inventory_transactions it
+           LEFT JOIN orders o
+             ON o.id::text = it.order_id AND o.company_id = it.company_id
+          WHERE it.company_id = $1 AND it.reason = 'return'
+            AND it.date >= $2 AND it.date <= COALESCE($3, CURRENT_TIMESTAMP)`,
         [companyId, shift.opened_at, shift.closed_at]
       );
     } catch (retErr) {
@@ -2215,10 +2231,15 @@ router.patch('/shifts/:id', async (req, res) => {
     let returns = { rows: [] };
     try {
       returns = await req.db.query(
-        `SELECT order_id, drink_name, quantity, selling_price_at_sale
-          FROM inventory_transactions
-          WHERE company_id = $1 AND reason = 'return'
-            AND date >= $2 AND date <= CURRENT_TIMESTAMP`,
+        // Same lane split as the shift summary: the drawer only pays for a CASH
+        // sale's refund. LEFT JOIN so a return whose order row is gone still counts.
+        `SELECT it.order_id, it.drink_name, it.quantity, it.selling_price_at_sale,
+                o.payment_method AS order_payment_method
+           FROM inventory_transactions it
+           LEFT JOIN orders o
+             ON o.id::text = it.order_id AND o.company_id = it.company_id
+          WHERE it.company_id = $1 AND it.reason = 'return'
+            AND it.date >= $2 AND it.date <= CURRENT_TIMESTAMP`,
         [companyId, shift.opened_at]
       );
     } catch (retErr) {
@@ -2707,13 +2728,21 @@ router.post('/inventory-transactions', async (req, res) => {
 });
 
 /**
- * 💸 Record a refund that was already issued in the provider's dashboard.
+ * 💸 Record a refund that was already issued.
  *
- * There is NO refund API wired here: the money moves at CamerPay. What this
- * endpoint stores is the company's proof — who refunded, why, how much, and the
- * provider reference that ties the row to the statement. That is also what closes
- * the "money collected but the sale rolled back" hole: the manager records it and it
- * stops being invisible.
+ * There is NO refund API wired here — the money itself moves where it came from.
+ * What this endpoint stores is the company's proof, and that proof differs by lane:
+ *
+ *   * a sale collected through CamerPay (mtn / orange / card) is refunded AT
+ *     CAMERPAY, and the row's provider reference is what ties it to the statement;
+ *   * a sale paid in cash is refunded OUT OF THE DRAWER — there is no provider
+ *     line to quote, so no reference is expected.
+ *
+ * The lane is not chosen by the client: it is read from the order
+ * (`orders.payment_method`, written when the till priced the sale), so a refund
+ * can never be filed in the wrong one. That is also what closes the "money
+ * collected but the sale rolled back" hole: the manager records it and it stops
+ * being invisible.
  *
  * Manager / owner only: a refund is money leaving the business.
  */
@@ -2730,7 +2759,7 @@ router.post('/orders/:id/refund', async (req, res) => {
     }
 
     const found = await req.db.query(
-      'SELECT id, total_amount FROM orders WHERE id = $1 AND company_id = $2',
+      'SELECT id, total_amount, payment_method FROM orders WHERE id = $1 AND company_id = $2',
       [req.params.id, companyId]
     );
     if (found.rows.length === 0) {
@@ -2744,10 +2773,17 @@ router.post('/orders/:id/refund', async (req, res) => {
     );
 
     const body = req.body || {};
+    // The lane comes from the SALE, never from the client: a cash sale's refund is
+    // the drawer's business, a CamerPay sale's belongs on the provider statement.
+    // A body method is only accepted as an explicit override for an order that
+    // carries none (a row written before the column existed), because otherwise a
+    // caller could file a CamerPay refund as cash and hide it from the drawer.
+    const method = body.method || found.rows[0].payment_method || null;
     const verdict = refundRecord.validateRefund({
       amount: body.amount,
       reason: body.reason,
       reference: body.reference,
+      method,
       orderTotal: found.rows[0].total_amount,
       alreadyRefunded: Number(previous.rows[0] && previous.rows[0].refunded),
     });
@@ -2759,7 +2795,9 @@ router.post('/orders/:id/refund', async (req, res) => {
       amount: verdict.amount,
       reason: body.reason,
       reference: body.reference,
-      method: body.method,
+      // The verdict already normalised it, defaulting a missing method to the
+      // provider rail rather than silently calling a CamerPay sale cash.
+      method: verdict.method,
       performedBy: req.user.id,
       performedByName: req.user.username || req.user.email || '',
     });
@@ -2779,11 +2817,20 @@ router.post('/orders/:id/refund', async (req, res) => {
       actorName: row.performed_by_name,
       action: 'refund.record',
       target: `order:${req.params.id}`,
-      detail: `${verdict.amount} — ${row.reason}` +
-        (row.reference ? ` (ref ${row.reference})` : ' (no reference)'),
+      // The lane is part of the trace: "500 back to CamerPay (ref X)" and "500 out
+      // of the drawer" are different events and must not read the same later.
+      detail: `${verdict.amount} ${verdict.lane === 'cash' ? 'from the drawer' : `via ${row.method}`}` +
+        ` — ${row.reason}` +
+        (verdict.lane === 'cash'
+          ? ''
+          : row.reference ? ` (ref ${row.reference})` : ' (no reference)'),
     });
 
-    res.status(201).json({ ...inserted.rows[0], note: verdict.note });
+    res.status(201).json({
+      ...inserted.rows[0],
+      note: verdict.note,
+      lane: verdict.lane,
+    });
   } catch (error) {
     console.error('POST /orders/:id/refund error:', error.message);
     res.status(500).json({ message: 'Failed to record the refund' });

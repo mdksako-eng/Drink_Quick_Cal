@@ -43,12 +43,25 @@ PlanGateDecision planGateDecision({
   required bool planActive,
   required String signature,
   required String? ackSignature,
+  bool fetchFailed = false,
 }) {
   if (planActive) return PlanGateDecision.proceed;
   if (ackSignature != null && ackSignature == signature) {
     return PlanGateDecision.proceed;
   }
   if (!hasLoaded) return PlanGateDecision.waiting;
+  // 🛡️ A plan we could not READ is not a plan that is Free.
+  //
+  // This is the shared-till bug's other half: the fetch used to be retried by the gate
+  // alone, and its failure was recorded as an answer, so a paying company arriving after
+  // another shop's logout was parked on the plans screen until they opened the
+  // subscription screen by hand. The fetch is now retried in the background, which makes
+  // this state temporary — and until it resolves, letting the shop work is the safer
+  // mistake.
+  //
+  // It is a UX default, not a security hole: every paid route is still refused by the
+  // backend's `requirePlan`, which reads the session and never trusts the app.
+  if (fetchFailed) return PlanGateDecision.proceed;
   return PlanGateDecision.showPlans;
 }
 

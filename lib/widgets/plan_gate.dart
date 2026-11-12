@@ -66,6 +66,7 @@ class _PlanGateState extends State<PlanGate> {
       planActive: plan.info.isActive,
       signature: planSignature(plan.info),
       ackSignature: ack,
+      fetchFailed: plan.fetchFailed,
     );
 
     if (decision == PlanGateDecision.waiting) {
@@ -76,6 +77,7 @@ class _PlanGateState extends State<PlanGate> {
         planActive: plan.info.isActive,
         signature: planSignature(plan.info),
         ackSignature: ack,
+        fetchFailed: plan.fetchFailed,
       );
       // Still unresolved (offline and nothing recorded): let the user in rather
       // than trapping them on a spinner they cannot dismiss.

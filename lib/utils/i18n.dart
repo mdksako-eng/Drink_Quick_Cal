@@ -1390,6 +1390,41 @@ const Map<String, String> _en = {
   'receiptPrinted': 'Receipt sent to printer',
   'receiptPrintFailed': 'Print failed',
   'receiptSaved': 'Receipt saved',
+  // 🖨️ The printer status card: the state in words, what to do about it, and a test
+  // slip — so "is the printer connected?" is answered BEFORE a receipt is at stake.
+  'printerWebTitle': 'Printing needs Android or Windows',
+  'printerWebHint': 'Open this receipt in the phone or desktop app to print it.',
+  'printerPermissionTitle': 'Bluetooth permission needed',
+  'printerPermissionHint':
+      'Allow Bluetooth for this app in Android Settings, then tap Check again.',
+  'printerBtOffTitle': 'Bluetooth is off',
+  'printerBtOffHint': 'Turn Bluetooth on, then tap Connect.',
+  'printerNonePairedTitle': 'No printer paired yet',
+  'printerNonePairedHint':
+      'Pair the printer once in Android Settings → Bluetooth, then tap Find printers.',
+  'printerNotConnectedTitle': 'Printer not connected',
+  'printerNotConnectedHint':
+      'Tap Connect to link the printer. It stays linked, so this is once per visit.',
+  'printerConnectingTitle': 'Connecting to the printer…',
+  'printerConnectingHint': 'Keep the printer switched on and nearby.',
+  'printerConnectedTitle': 'Printer connected',
+  'printerConnectedHint':
+      'Ready to print. Tap Test slip to check the paper first.',
+  'printerFailedTitle': 'Printer not responding',
+  'printerFailedHint':
+      'Check that the printer is switched on, charged and in range, then tap Connect again.',
+  'printerConnect': 'Connect',
+  'printerDisconnect': 'Disconnect',
+  'printerChoose': 'Change printer',
+  'printerFindPrinters': 'Find printers',
+  'printerTestPrint': 'Test slip',
+  'printerRefresh': 'Check again',
+  'printerTestHeadline': 'TEST PRINT',
+  'printerTestReady': 'Printer is connected',
+  'printerTestNoSale': 'No sale was made.',
+  'printerTestSent': 'Test slip sent',
+  'printerRememberedGone':
+      'Your saved printer is no longer available — please choose one',
 
   'scanTitle': 'Scan',
   'scanMenu': 'Scan item',
@@ -1399,6 +1434,11 @@ const Map<String, String> _en = {
   'scanLowStock': 'Low stock',
   'scanRestock': 'Restock +1',
   'scanSendToCalculator': 'Send to calculator',
+  // 🔢 One unit or the whole pack — the scanner's batch-sell choice, read from the
+  // drink's own `unitsPerPack` rather than a guessed ladder.
+  'scanSellSingle': 'Single unit',
+  'scanSellPack': 'Whole pack',
+  'scanShortOnShelf': 'The shelf holds',
   'orderLoadedFromScanner': 'Order loaded from the scanner',
   'orderLoadedFromAi': 'Order loaded from the AI assistant',
   'scanManage': 'Manage inventory',
@@ -1608,6 +1648,18 @@ const Map<String, String> _en = {
   'refundFailed': 'Could not record the refund',
   'refundInvalid': 'A positive amount and a reason are required',
   'refundNeedsManager': 'Only a manager can record a refund',
+  // 💸 A refund follows the money's ORIGINAL path: a sale collected through
+  // CamerPay is refunded at CamerPay (and tied to its provider reference), a sale
+  // paid in cash is refunded out of the drawer. Two lanes, two dialogs.
+  'refundLaneCashTitle': 'Cash refund — from the drawer',
+  'refundLaneProviderTitle': 'Refund at CamerPay',
+  'refundLaneCashHint':
+      'This sale was paid in cash, so the money goes back out of the drawer. No provider reference is needed.',
+  'refundLaneProviderHint':
+      'This sale was paid through CamerPay, so issue the refund in the CamerPay dashboard and record its reference here.',
+  'refundMethodLabel': 'Refund method',
+  'returnLaneCash': 'Refund from the drawer',
+  'returnLaneProvider': 'Refunded at CamerPay',
   'legalGateTitle': 'Terms and Privacy Policy',
   'legalGateBody':
       'Before continuing, please review and accept our Terms of Service and Privacy Policy.',
@@ -3053,6 +3105,43 @@ const Map<String, String> _fr = {
   'receiptPrinted': 'Reçu envoyé à l\'imprimante',
   'receiptPrintFailed': 'Échec de l\'impression',
   'receiptSaved': 'Reçu enregistré',
+  // 🖨️ La carte d'état de l'imprimante : l'état en mots, quoi faire, et un test
+  // d'impression — pour répondre à « l'imprimante est-elle connectée ? » AVANT
+  // d'engager un vrai reçu.
+  'printerWebTitle': 'Impression sur Android ou Windows',
+  'printerWebHint':
+      'Ouvrez ce reçu dans l\'application mobile ou de bureau pour l\'imprimer.',
+  'printerPermissionTitle': 'Autorisation Bluetooth requise',
+  'printerPermissionHint':
+      'Autorisez le Bluetooth pour cette application dans les réglages Android, puis touchez Actualiser.',
+  'printerBtOffTitle': 'Bluetooth désactivé',
+  'printerBtOffHint': 'Activez le Bluetooth, puis touchez Connecter.',
+  'printerNonePairedTitle': 'Aucune imprimante appairée',
+  'printerNonePairedHint':
+      'Appairez l\'imprimante une fois dans Réglages Android → Bluetooth, puis touchez Rechercher.',
+  'printerNotConnectedTitle': 'Imprimante non connectée',
+  'printerNotConnectedHint':
+      'Touchez Connecter pour lier l\'imprimante. Elle reste liée : une seule fois par visite.',
+  'printerConnectingTitle': 'Connexion à l\'imprimante…',
+  'printerConnectingHint': 'Laissez l\'imprimante allumée et à proximité.',
+  'printerConnectedTitle': 'Imprimante connectée',
+  'printerConnectedHint':
+      'Prêt à imprimer. Touchez Test pour vérifier le papier d\'abord.',
+  'printerFailedTitle': 'Imprimante ne répond pas',
+  'printerFailedHint':
+      'Vérifiez que l\'imprimante est allumée, chargée et à portée, puis touchez Connecter à nouveau.',
+  'printerConnect': 'Connecter',
+  'printerDisconnect': 'Déconnecter',
+  'printerChoose': 'Changer d\'imprimante',
+  'printerFindPrinters': 'Rechercher',
+  'printerTestPrint': 'Test d\'impression',
+  'printerRefresh': 'Actualiser',
+  'printerTestHeadline': 'TEST D\'IMPRESSION',
+  'printerTestReady': 'Imprimante connectée',
+  'printerTestNoSale': 'Aucune vente effectuée.',
+  'printerTestSent': 'Test envoyé',
+  'printerRememberedGone':
+      'Votre imprimante enregistrée n\'est plus disponible — choisissez-en une',
 
   'scanTitle': 'Scanner',
   'scanMenu': 'Scanner un article',
@@ -3062,6 +3151,11 @@ const Map<String, String> _fr = {
   'scanLowStock': 'Stock faible',
   'scanRestock': 'Réapprovisionner +1',
   'scanSendToCalculator': 'Envoyer à la calculatrice',
+  // 🔢 Une unité ou le pack entier — le choix de vente en lot du scanner, lu depuis le
+  // `unitsPerPack` de la boisson, et non depuis une échelle devinée.
+  'scanSellSingle': 'Unité',
+  'scanSellPack': 'Pack entier',
+  'scanShortOnShelf': 'Le stock est de',
   'orderLoadedFromScanner': 'Commande chargée depuis le scanner',
   'orderLoadedFromAi': "Commande chargée depuis l'assistant IA",
   'scanManage': 'Gérer l\'inventaire',
@@ -3262,6 +3356,18 @@ const Map<String, String> _fr = {
   'refundFailed': 'Impossible d\'enregistrer le remboursement',
   'refundInvalid': 'Un montant positif et un motif sont requis',
   'refundNeedsManager': 'Seul un gérant peut enregistrer un remboursement',
+  // 💸 Le remboursement suit l'argent : une vente encaissée via CamerPay est
+  // remboursée sur CamerPay (avec sa référence), une vente en espèces ressort de la
+  // caisse. Deux voies, deux dialogues.
+  'refundLaneCashTitle': 'Remboursement en espèces — caisse',
+  'refundLaneProviderTitle': 'Remboursement sur CamerPay',
+  'refundLaneCashHint':
+      'Cette vente a été payée en espèces : l\'argent ressort de la caisse. Aucune référence prestataire n\'est requise.',
+  'refundLaneProviderHint':
+      'Cette vente a été payée via CamerPay : faites le remboursement dans le tableau de bord CamerPay et enregistrez sa référence ici.',
+  'refundMethodLabel': 'Mode de remboursement',
+  'returnLaneCash': 'Remboursement depuis la caisse',
+  'returnLaneProvider': 'Remboursé sur CamerPay',
   'legalGateTitle': 'Conditions et politique de confidentialité',
   'legalGateBody':
       'Avant de continuer, veuillez consulter et accepter nos conditions d\'utilisation et notre politique de confidentialité.',

@@ -256,7 +256,39 @@ describe('summariseReturns', () => {
       { order_id: 'o1', quantity: 1, selling_price_at_sale: 1000, reason: 'return' },
       { order_id: 'o1', quantity: 2, selling_price_at_sale: 500, reason: 'return' },
     ]);
-    expect(summary).toEqual({ returnCount: 1, returnUnits: 3, returnValue: 2000 });
+    expect(summary).toEqual({
+      returnCount: 1,
+      returnUnits: 3,
+      returnValue: 2000,
+      // No order method on the row (an older ledger, or a query without the join)
+      // keeps the historical CASH reading: the whole refund came out of the drawer.
+      cashReturnValue: 2000,
+      providerReturnValue: 0,
+    });
+  });
+
+  test('a CamerPay return never counts as cash out of the drawer', () => {
+    const summary = orderReturn.summariseReturns([
+      // A cash sale's refund: the drawer pays for this one.
+      { order_id: 'o1', quantity: 1, selling_price_at_sale: 1000, reason: 'return', order_payment_method: 'cash' },
+      // A mobile-money sale's refund: issued at CamerPay, the till is untouched.
+      { order_id: 'o2', quantity: 1, selling_price_at_sale: 3000, reason: 'return', order_payment_method: 'mtn' },
+      { order_id: 'o3', quantity: 2, selling_price_at_sale: 1000, reason: 'return', order_payment_method: 'card' },
+    ]);
+    expect(summary.returnCount).toBe(3);
+    expect(summary.returnUnits).toBe(4);
+    expect(summary.returnValue).toBe(6000);
+    expect(summary.cashReturnValue).toBe(1000);
+    expect(summary.providerReturnValue).toBe(5000);
+  });
+
+  test('the lane is read the same however the method is spelled', () => {
+    expect(orderReturn.returnCameFromDrawer({ order_payment_method: 'CASH' })).toBe(true);
+    expect(orderReturn.returnCameFromDrawer({ order_payment_method: 'orange' })).toBe(false);
+    expect(orderReturn.returnCameFromDrawer({ order_payment_method: 'visa' })).toBe(false);
+    // Unknown (an older ledger row) stays on the drawer, as it always was.
+    expect(orderReturn.returnCameFromDrawer({})).toBe(true);
+    expect(orderReturn.returnCameFromDrawer(null)).toBe(true);
   });
 
   test('sales, restocks and voids are not returns', () => {

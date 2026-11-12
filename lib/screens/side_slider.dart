@@ -18,6 +18,7 @@ import '../utils/order_correction_helper.dart';
 import '../utils/order_action_helper.dart';
 import '../utils/invoice_import_helper.dart';
 import '../utils/order_return_helper.dart';
+import '../utils/refund_lane_helper.dart';
 import '../widgets/return_items_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:drinks_calculator_fixed/providers/customer_provider.dart';
@@ -205,6 +206,9 @@ class _SideSliderState extends State<SideSlider> {
       isActive: order.isActive,
       customerName: order.customerName ?? '',
       staffName: order.staffName ?? '',
+      // The lane the refund will travel is carried with the invoice, so the refund
+      // dialog knows whether the money goes back at CamerPay or out of the drawer.
+      paymentMethod: order.paymentMethod,
       voidedAt: order.voidedAt,
       voidReason: order.voidReason,
       voidedByName: order.voidedByName,
@@ -506,16 +510,25 @@ class _SideSliderState extends State<SideSlider> {
     }
   }
 
-  /// 💸 Record a refund that was already issued in the provider's dashboard.
+  /// 💸 Record a refund that was already issued.
   ///
-  /// Manager only: the money has left the business, so the row (who / why / how much
-  /// / provider reference) is the company's proof. No refund API is called — the
-  /// provider dashboard does the money move.
+  /// Manager only: the money has left the business, so the row (who / why / how
+  /// much / the CamerPay reference) is the company's proof. No refund API is called
+  /// — the money moves where it CAME from: a sale collected through CamerPay is
+  /// refunded at CamerPay and its reference ties our row to the statement, while a
+  /// sale paid in cash is refunded out of the drawer and has no provider line at
+  /// all.
   Future<void> _recordRefund(PurchaseHistory order) async {
     if (!_canManageOrders) {
       _showToast(t('refundNeedsManager'), isError: true);
       return;
     }
+
+    // The lane comes from the SALE, not from a guess: filing a CamerPay refund as
+    // cash would make it vanish from the provider statement, and calling a cash
+    // refund a CamerPay one would show a shortage the cashier cannot explain.
+    final method = RefundLaneHelper.normalize(order.paymentMethod);
+    final isCash = RefundLaneHelper.isCash(order.paymentMethod);
 
     final amountController =
         TextEditingController(text: order.totalAmount.toStringAsFixed(2));
@@ -525,10 +538,11 @@ class _SideSliderState extends State<SideSlider> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(t('refundTitle')),
+        title: Text(t(RefundLaneHelper.titleKey(order.paymentMethod))),
         content: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(t('refundHint'), style: const TextStyle(fontSize: 12)),
+            Text(t(RefundLaneHelper.hintKey(order.paymentMethod)),
+                style: const TextStyle(fontSize: 12)),
             const SizedBox(height: 12),
             TextField(
               controller: amountController,
@@ -539,9 +553,27 @@ class _SideSliderState extends State<SideSlider> {
               controller: reasonController,
               decoration: InputDecoration(labelText: t('refundReason')),
             ),
-            TextField(
-              controller: referenceController,
-              decoration: InputDecoration(labelText: t('refundReference')),
+            // A cash refund has no provider statement to quote, so asking for a
+            // reference would only invite an invented one. It is offered on the
+            // CamerPay lane alone.
+            if (!isCash)
+              TextField(
+                controller: referenceController,
+                decoration: InputDecoration(labelText: t('refundReference')),
+              ),
+            const SizedBox(height: 12),
+            // What is about to be stored, spelled out: the manager sees the lane
+            // before the row exists.
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                '${t('refundMethodLabel')}: '
+                '${RefundLaneHelper.methodLabel(method)}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ]),
         ),
@@ -571,6 +603,7 @@ class _SideSliderState extends State<SideSlider> {
       amount: amount,
       reason: reason,
       reference: referenceController.text.trim(),
+      method: method,
     );
     _showToast(ok ? t('refundRecorded') : t('refundFailed'), isError: !ok);
   }
@@ -709,9 +742,18 @@ class _SideSliderState extends State<SideSlider> {
     }
 
     final reference = order.id.length >= 8 ? order.id.substring(0, 8) : order.id;
+    // How the sale was paid travels with it, so the dialog can say where the money
+    // goes back — out of the drawer, or refunded at CamerPay. The SERVER's answer
+    // wins when it has one, exactly like the line counts.
+    final paymentMethod =
+        (payload['paymentMethod'] ?? order.paymentMethod).toString();
     final answer = await showDialog<Map<String, dynamic>>(
       context: widget.parentContext,
-      builder: (context) => ReturnItemsDialog(lines: lines, orderLabel: reference),
+      builder: (context) => ReturnItemsDialog(
+        lines: lines,
+        orderLabel: reference,
+        paymentMethod: paymentMethod,
+      ),
     );
     if (answer == null || !mounted) return;
 
@@ -736,7 +778,12 @@ class _SideSliderState extends State<SideSlider> {
               .loadInventory();
         }
         final refunded = (result['totalAmount'] as num?)?.toDouble() ?? 0;
-        _showToast('${t('returnRecorded')}: ${_formatCurrency(refunded)}');
+        // Name the lane: the same return means different things to the drawer and to
+        // the CamerPay statement.
+        final lane = t(RefundLaneHelper.returnLabelKey(paymentMethod));
+        _showToast(
+          '${t('returnRecorded')}: ${_formatCurrency(refunded)} — $lane',
+        );
       } else {
         final message = (result?['message'] ?? '').toString();
         _showToast(

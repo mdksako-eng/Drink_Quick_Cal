@@ -17,6 +17,7 @@ import '../utils/helpers.dart';
 import '../widgets/drink_avatar.dart';
 import '../utils/i18n.dart';
 import '../utils/qr_label_helper.dart';
+import '../utils/scan_sell_helper.dart';
 import 'inventory_screen.dart';
 import '../theme/app_theme.dart';
 
@@ -91,12 +92,26 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }
   }
 
+  /// How many units one Add may carry.
+  ///
+  /// Deliberately NOT capped by the stock on the shelf. It used to be
+  /// `stock > 0 ? stock : 1`, so an item with no stock row — or a shop that does not track
+  /// stock at all — was locked to ONE unit, and a batch sale was impossible from the
+  /// scanner. A crate of 24 is the ordinary way this business sells a crate. The shelf can
+  /// be short; refusing that is the till's and the server's business, not a hidden cap.
+  static const int _maxSendQuantity = 999;
+
   /// Quantity + "send to calculator" block (Pro feature).
+  ///
+  /// Single sell is the default and a batch sell is one tap: the chips come from the
+  /// drink's OWN pack size (`ScanSellHelper.options`), and the stepper covers any other
+  /// number the customer asks for.
   Widget _sendToCalculatorBlock(BuildContext ctx, Drink drink, int stock) {
-    final maxQty = stock > 0 ? stock : 1;
     return StatefulBuilder(
       builder: (builderCtx, setSheetState) {
-        final qty = _sendQuantity.clamp(1, maxQty);
+        final qty = _sendQuantity.clamp(1, _maxSendQuantity);
+        final shortOnShelf =
+            ScanSellHelper.exceedsShelf(quantity: qty, shelf: stock);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -116,11 +131,47 @@ class _ScannerScreenState extends State<ScannerScreen> {
                       fontSize: 18, fontWeight: FontWeight.bold)),
               IconButton(
                 icon: const Icon(Icons.add_circle_outline),
-                onPressed: qty >= maxQty
+                onPressed: qty >= _maxSendQuantity
                     ? null
                     : () => setSheetState(() => _sendQuantity = qty + 1),
               ),
             ]),
+            // 🔢 The two ways this business sells the same drink: one unit over the
+            // counter, or the whole pack. The pack size comes from the DRINK
+            // (`unitsPerPack`, set once in the catalogue) instead of a guessed ladder, so
+            // a case of 12 no longer offers "24" and a glass no longer offers "48".
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: ScanSellHelper.options(drink)
+                  .map((option) => ChoiceChip(
+                        label: Text(option.isPack
+                            ? '${option.quantity} · ${t('scanSellPack')}'
+                            : '1 · ${t('scanSellSingle')}'),
+                        selected: qty == option.quantity,
+                        onSelected: (_) => setSheetState(
+                            () => _sendQuantity = option.quantity),
+                      ))
+                  .toList(),
+            ),
+            if (shortOnShelf)
+              // ⚠️ Said in words, and only as a NOTE: the shelf can be short and the sale
+              // still stands — stock is the server's business, and a shop that does not
+              // track stock at all must not be locked to a single unit.
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Row(
+                  children: [
+                    const Icon(Icons.inventory_2_outlined,
+                        size: 14, color: Colors.orange),
+                    const SizedBox(width: 4),
+                    Text('${t('scanShortOnShelf')} $stock',
+                        style: const TextStyle(
+                            fontSize: 12, color: Colors.orange)),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(

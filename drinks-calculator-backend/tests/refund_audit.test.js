@@ -1,7 +1,13 @@
 // tests/refund_audit.test.js
 // Refunds are recorded, not executed here — so the record must be strict, and the
 // audit row must never be able to fail the action it documents.
-const { validateRefund, buildRefundRow } = require('../utils/refundRecord');
+const {
+  canonicalMethod,
+  isCashMethod,
+  refundLane,
+  validateRefund,
+  buildRefundRow,
+} = require('../utils/refundRecord');
 const { buildEntry, isValidEntry, record, MAX_DETAIL } = require('../utils/auditLog');
 
 describe('validateRefund', () => {
@@ -48,6 +54,68 @@ describe('validateRefund', () => {
 
   test('amounts are rounded to 2 decimals', () => {
     expect(validateRefund({ ...base, amount: 10.005 }).amount).toBe(10.01);
+  });
+});
+
+// A refund must follow the money's ORIGINAL path: a sale collected through
+// CamerPay is refunded at CamerPay and tied to its reference; a sale paid in cash
+// is refunded out of the drawer and has no provider line at all.
+describe('refund lanes', () => {
+  const base = { amount: 500, reason: 'Customer changed their mind', orderTotal: 5000 };
+
+  test('one lane per sale, however the method is spelled', () => {
+    expect(canonicalMethod('MTN MoMo')).toBe('mtn');
+    expect(canonicalMethod('mtn_momo')).toBe('mtn');
+    expect(canonicalMethod('mtnMobileMoney')).toBe('mtn');
+    expect(canonicalMethod('orangeMoney')).toBe('orange');
+    expect(canonicalMethod('visa')).toBe('card');
+    expect(canonicalMethod('CASH')).toBe('cash');
+
+    expect(refundLane('cash')).toEqual(
+      expect.objectContaining({ lane: 'cash', method: 'cash', provider: null })
+    );
+    expect(refundLane('orangeMoney')).toEqual(
+      expect.objectContaining({ lane: 'provider', method: 'orange', provider: 'campay' })
+    );
+  });
+
+  test('a method we cannot read keeps the provider assumption, never cash', () => {
+    // Filing an unreadable CamerPay collection as cash would hide money the drawer
+    // was never responsible for, so the assumption stays on the provider rail.
+    const lane = refundLane(null);
+    expect(lane.lane).toBe('provider');
+    expect(lane.method).toBe('card');
+    expect(lane.assumed).toBe(true);
+  });
+
+  test('only cash is cash', () => {
+    expect(isCashMethod('cash')).toBe(true);
+    expect(isCashMethod('card')).toBe(false);
+    expect(isCashMethod('mtn')).toBe(false);
+    expect(isCashMethod('')).toBe(false);
+    expect(isCashMethod(null)).toBe(false);
+  });
+
+  test('a cash refund expects no provider reference', () => {
+    const verdict = validateRefund({ ...base, method: 'cash' });
+    expect(verdict.ok).toBe(true);
+    expect(verdict.lane).toBe('cash');
+    expect(verdict.method).toBe('cash');
+    expect(verdict.note).toBeNull();
+  });
+
+  test('a CamerPay refund records the missing reference', () => {
+    const verdict = validateRefund({ ...base, method: 'mtn' });
+    expect(verdict.lane).toBe('provider');
+    expect(verdict.method).toBe('mtn');
+    expect(verdict.note).toMatch(/no provider reference/);
+  });
+
+  test('the stored row lands in the lane the money travelled', () => {
+    const cash = buildRefundRow({ companyId: 1, amount: 10, reason: 'x', method: 'cash' });
+    expect(cash.method).toBe('cash');
+    const momo = buildRefundRow({ companyId: 1, amount: 10, reason: 'x', method: 'orangeMoney' });
+    expect(momo.method).toBe('orange');
   });
 });
 

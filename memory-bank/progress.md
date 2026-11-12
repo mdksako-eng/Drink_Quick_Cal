@@ -179,6 +179,83 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
   (empty stored answer refuses; wrong-answer lock reuses `password_reset_requests`), and both reset
   routes revoke sessions. Backend **52 suites / 686 tests**; Flutter **540**; analyze **0 errors**.
 
+## Security hardening from the audit — 2026-11-12
+- Untracked `scripts/live_smoke.js` (`git rm --cached`; the repo is **public**, so an owner
+  must **rotate** its credentials and decide on history purge). `.gitignore` already listed
+  it — the rule just never got applied to an already-committed file.
+- Prod `npm audit`: **8 → 4** (all 3 HIGH gone); **`mongoose` removed** as a dead dependency
+  (−18 packages, nothing live or tested required it).
+- 12 MB JSON limit is now `/api/ai` only; 1 MB everywhere else, with `captureRawBody` shared
+  so webhook HMACs still see raw bytes.
+- Boot migrations no longer race `app.listen` (the pending `orders.payment_method` deploy
+  would have failed a first order); `RELEASE` → `2026-11-12-hardening`.
+- `android:allowBackup="false"`.
+- Gates: backend **52 / 697**, Flutter **573**, analyze **0 errors**.
+- Open: rotate+purge, deepmerge/SendGrid, payment_method deploy, Render spin-down,
+  `helmet` (unused), data hygiene (orphan Manager id=26, doppel deposit 1.00, 101 inactive
+  legacy tokens).
+- **Later 2026-11-12:** security headers wired (`utils/securityHeaders.js` +
+  `tests/security_headers.test.js`, 7 DB-free tests; CSP/COEP deliberately off, framing is
+  helmet's `SAMEORIGIN`) and **101 legacy guessable session tokens deleted** (guarded to
+  legacy+inactive+expired; verified separately: 354 → 253, active still 1). Backend
+  **53 suites / 704 tests**. Not touched: `doppel` deposit, orphan Manager id=26, the
+  unverified account.
+
+## Faster cold start (no security change) — 2026-11-11
+- `lib/main.dart`: the startup fan-out is now parallel (`Future.wait` over settings + drinks +
+  orders + inventory) instead of 6 sequential round trips; the duplicate session check is
+  skipped when `autoLogin()` already validated (`sessionValid`) — still exactly one validation
+  per start, before the first frame; the expiry alert is `unawaited`; money helpers stay local
+  and offline-safe.
+- 7 serial network calls → 2 phases. Splash still waits for the catalogue (no empty-menu
+  regression) — rendering before data lands needs a cache-first pass in the providers.
+- Remaining "fast" wins are hosting, not code: Render free tier spin-down (keep-alive on
+  `/api/ping`), `UV_THREADPOOL_SIZE=8` for the login burst.
+- Flutter **573 tests**; analyze **0 errors**; i18n **EN=1566 FR=1566**.
+
+## Scan single/batch sell + plan-follows-session — 2026-11-11
+- **Scan to sell:** the sell sheet chips came from a guessed ladder (1/6/12/24/48); a
+  12-bottle crate was offered "24". `lib/utils/scan_sell_helper.dart` (new, pure, 8 tests) now
+  reads the drink's own `unitsPerPack` → single unit + whole pack, with words for the shelf
+  note. 3 new EN/FR keys.
+- **Shared-till plan leak (reported):** a fresh interactive login never re-bound the plan (that
+  wiring only ran on app launch), and a FAILED plan fetch was recorded as "on Free" — together
+  they parked a paying Pro user on the plans screen until they opened the subscription screen
+  by hand. Fixed in `plan_provider.dart` (`resolved`/`fetchFailed`, coalesced + background
+  retry, `setSession(null)` truly clears), `main.dart` (plan bound per session from an
+  `AuthProvider` listener, cleared on logout, post-frame so it precedes `PlanGate`), and
+  `plan_gate_logic.dart` (`fetchFailed` → proceed; backend `requirePlan` remains the enforcer).
+- Flutter **573 tests, all passing** (the previously-red `plan_provider_session_test.dart` is
+  fixed by this); analyze **0 errors**; i18n **EN=1566 FR=1566**. Backend untouched.
+
+## Bluetooth printer status card — 2026-11-11
+- The receipt screen now answers "is the printer connected?" BEFORE a print: a status card
+  with the state in words, the device name, and what to do next. The printer is remembered on
+  the device and reconnects on open; a **Test slip** proves paper/feed/connection; the
+  connection is held open instead of dropped after each write; Connect / Disconnect / Change
+  printer / Check again are explicit; a nameless thermal printer is labelled by its MAC.
+- Pure logic in `lib/utils/printer_status_helper.dart` (+ `test/printer_status_test.dart`,
+  10 tests); the pipeline split into steps in `lib/services/receipt_printer.dart`;
+  27 new `printer*` EN/FR keys. `receipt_printer_mac`/`_name` are DEVICE settings, not
+  company-scoped cache, so they survive a sign-out.
+- Flutter **561 tests**; analyze **0 errors**; i18n **EN=1563 FR=1563**. Not device-verified
+  (needs real Bluetooth hardware).
+
+## Refund lanes — cash stays cash, CamerPay stays CamerPay — 2026-11-11
+- A refund now follows the money's ORIGINAL path. `orders.payment_method` (+ boot migration,
+  `sql/orders_payment_method.sql`) is written by the till when it creates the sale; one lane
+  rule is mirrored in `utils/refundRecord.js` ↔ `lib/utils/refund_lane_helper.dart`; the refund
+  dialog asks for a CamerPay reference only on the CamerPay lane; the Z-report takes **cash**
+  returns off the drawer only (`cashReturnValue` / `providerReturnValue` in `orderReturn` and
+  `shiftMath`, with the shift queries joining the order's method onto the return ledger).
+- Closes the ROADMAP 2026-10-11 gap "a refund is always assumed to be cash out of the drawer".
+  The other half of that gap (a refund recorded as `'card'` whatever the sale was) is closed too.
+- Deliberately NO automatic CamerPay refund call: CamerPay documents **full** refunds only and
+  this app's returns are partial.
+- Backend **52 suites / 697 tests**; Flutter **551**; analyze **0 errors**; i18n **EN=1536 FR=1536**.
+- Pre-existing, unrelated red: `test/plan_provider_session_test.dart` (uncommitted
+  `plan_provider.dart` work in the tree).
+
 ## Not started
 - **Phase 4 — Real-time IoT sensor integration (automated replenishment)** ⬜ needs
   ESP32/load-cell firmware, a device-authenticated `POST /api/sensors/reading`, and

@@ -39,6 +39,15 @@ class Order {
   /// Deliberately NOT [balance]: that is the change handed back on a cash sale.
   final double tabAmount;
 
+  /// How the sale was paid (the till's `PaymentMethod.name`: cash |
+  /// mtnMobileMoney | orangeMoney | card).
+  ///
+  /// Carried with the order because a refund must follow the money's ORIGINAL
+  /// path — a CamerPay sale is refunded at CamerPay, a cash sale out of the drawer
+  /// — and this is what tells the two apart. An empty value reads as a provider
+  /// sale, the same default the backend uses.
+  final String paymentMethod;
+
   Order({
     required this.id,
     required this.items,
@@ -55,6 +64,7 @@ class Order {
     this.staffName = '',
     this.customerId,
     this.tabAmount = 0,
+    this.paymentMethod = '',
   });
 
   Map<String, dynamic> toJson() {
@@ -75,6 +85,7 @@ class Order {
       'customerName': customerName,
       'staffName': staffName,
       'staff_name': staffName,
+      'paymentMethod': paymentMethod,
     };
   }
 
@@ -143,6 +154,10 @@ class Order {
       staffName: json['staffName']?.toString() ??
           json['staff_name']?.toString() ??
           '',
+      // How the sale was paid: the refund lane is read from this, so a cash sale
+      // is refunded from the drawer and a CamerPay sale is refunded at CamerPay.
+      paymentMethod:
+          (json['paymentMethod'] ?? json['payment_method'] ?? '').toString(),
     );
   }
 }
@@ -308,9 +323,16 @@ class OrderProvider with ChangeNotifier {
     }
   }
 
+  /// [paymentMethod] is the till's `PaymentMethod.name` at the moment of the sale.
+  /// It is stored with the order because a refund must follow the money's original
+  /// path — a CamerPay sale is refunded at CamerPay, a cash sale out of the drawer —
+  /// and the backend has no other way to tell the two apart.
   Future<Order> createOrderAndGetOrder(
       List<Drink> items, double amountPaid, String customerName,
-      {String staffName = '', int? customerId, double tabAmount = 0}) async {
+      {String staffName = '',
+      int? customerId,
+      double tabAmount = 0,
+      String paymentMethod = 'cash'}) async {
     try {
       _isLoading = true;
       notifyListeners();
@@ -340,6 +362,7 @@ class OrderProvider with ChangeNotifier {
         staffName: staffName,
         customerId: customerId,
         tabAmount: tabAmount,
+        paymentMethod: paymentMethod,
       );
 
       print('🔍 Creating order: ${order.id}');

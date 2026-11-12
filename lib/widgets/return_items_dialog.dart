@@ -14,16 +14,27 @@ import 'package:flutter/services.dart';
 import '../utils/i18n.dart';
 import '../utils/order_return_helper.dart';
 import '../utils/price_extension.dart';
+import '../utils/refund_lane_helper.dart';
 import '../theme/app_theme.dart';
 
 class ReturnItemsDialog extends StatefulWidget {
-  const ReturnItemsDialog({super.key, required this.lines, this.orderLabel});
+  const ReturnItemsDialog({
+    super.key,
+    required this.lines,
+    this.orderLabel,
+    this.paymentMethod = '',
+  });
 
   /// What is left to give back, straight from GET /orders/:id/returns.
   final List<ReturnableLine> lines;
 
   /// Receipt / invoice reference shown in the title, when there is one.
   final String? orderLabel;
+
+  /// How the sale was paid, from the same server payload. A return is not always
+  /// cash: a CamerPay sale's refund goes back at CamerPay, so the dialog names the
+  /// lane instead of implying that every return empties the drawer.
+  final String paymentMethod;
 
   @override
   State<ReturnItemsDialog> createState() => _ReturnItemsDialogState();
@@ -180,6 +191,13 @@ class _ReturnItemsDialogState extends State<ReturnItemsDialog> {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 4),
+              // Where the money goes back — said plainly, because a return is not
+              // always cash out of the drawer.
+              Text(
+                t(RefundLaneHelper.returnLabelKey(widget.paymentMethod)),
+                style: theme.textTheme.bodySmall,
               ),
               const SizedBox(height: 12),
               TextField(

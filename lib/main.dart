@@ -534,12 +534,27 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
   bool _isAuthenticated = false;
   bool _isAuthInProgress = false;
 
+  /// The session the plan provider is currently bound to (see [_bindPlanToSession]), so
+  /// the binding happens once per session rather than on every notification.
+  String? _planSessionKey;
+  late final AuthProvider _auth;
+
   // ========== LIFECYCLE ==========
      @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     globalLockAuthenticated = _onAuthenticated;
+    _auth = Provider.of<AuthProvider>(context, listen: false);
+    // 🔐 A plan belongs to a SESSION, not to the device.
+    //
+    // The cold-start loader used to be the ONLY place that told the plan provider who had
+    // signed in, so an interactive login — the starter logs out and a Pro user signs in on
+    // the same till — left the previous answer (or its failed fetch) in place, and the new
+    // user had to open the subscription screen before their own plan appeared. Watching the
+    // session itself covers both paths with one rule, and it drops the plan when nobody is
+    // signed in.
+    _auth.addListener(_onAuthChanged);
     // Defer heavy async init (autoLogin, etc.) until *after* the first frame
     // so the splash screen renders immediately and we don't call
     // notifyListeners() during AuthWrapper's own build (which would throw
@@ -549,6 +564,7 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _auth.removeListener(_onAuthChanged);
     WidgetsBinding.instance.removeObserver(this);
     globalLockAuthenticated = null;
     // NOTE: Do NOT call LockService().dispose() here. LockService is an
@@ -556,6 +572,44 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
     // recreated (hot restart, provider rebuild) permanently poisons the
     // singleton (_isDisposed = true), which silently disables locking.
     super.dispose();
+  }
+
+  // ========== PLAN ↔ SESSION ==========
+
+  /// The signed-in session changed (login, logout, a switch of user).
+  void _onAuthChanged() {
+    if (!mounted) return;
+    // Deferred to after the frame, and that ordering is the point: the plan is dropped
+    // BEFORE the plan gate mounts and decides, so it can never judge this user on the
+    // previous user's answer.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _bindPlanToSession());
+  }
+
+  /// Binds the plan provider to the signed-in session, or clears it when there is none.
+  void _bindPlanToSession() {
+    if (!mounted) return;
+    final plan = Provider.of<PlanProvider>(context, listen: false);
+    final user = _auth.currentUser;
+    final signedIn =
+        user != null && user.id.isNotEmpty && user.id != 'temp_id';
+
+    if (!signedIn) {
+      // 🔒 Signed out: neither the plan nor the administrator bypass may survive to the
+      // next person on a shared till. This is the secure half of the fix — the answer is
+      // discarded, not merely hidden.
+      _planSessionKey = null;
+      plan.setSession(null);
+      return;
+    }
+
+    final key = '${user.companyId}:${user.id}';
+    if (_planSessionKey == key) return;
+    _planSessionKey = key;
+    // A different session: the previous answer is thrown away and refetched, so the gate
+    // judges this user on THIS user's plan.
+    plan.setSession(key);
+    plan.setIsAdmin(_auth.isAdmin);
+    unawaited(plan.refresh());
   }
 
   // Publish the current lock intent to the top-level overlay so it covers
@@ -716,7 +770,15 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
       if (user != null && user.id.isNotEmpty) {
         _isAuthenticated = true;
 
-        final isValid = await authProvider.checkSessionValidity();
+        // 🔐 THE SECURITY BOUNDARY — still checked before the first app frame, and
+        // still the same call. But `checkSessionValidity()` is literally
+        // `_validateCurrentSession()`, the method `autoLogin()` has just run, so
+        // calling it again spends a round trip on an answer we already have. It is
+        // only repeated when autoLogin could NOT validate (no stored token, or
+        // offline) — so a session is still verified exactly once per start, never
+        // skipped, and never trusted from a previous run.
+        var isValid = authProvider.sessionValid;
+        if (!isValid) isValid = await authProvider.checkSessionValidity();
         if (!isValid) {
           _sessionTerminated = true;
           _isAuthenticated = false;
@@ -819,15 +881,17 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
       // away. Never awaited: a slow/unreachable server must not delay startup.
       unawaited(CompanyBrandingService.load());
 
-      await _loadUserSettings(user.id);
+      // The money helpers are LOCAL reads of preferences (microseconds), so they run
+      // here and an offline start still formats money correctly. `_loadUserSettings`
+      // itself is issued with the catalogue below, IN PARALLEL; the two are re-read
+      // once it lands, so THIS session's settings — not the previous session's —
+      // decide the formatting.
       await CurrencyHelper.refresh();
       await PaymentHelper.refresh();
-      // 🔐 Tell the plan provider who is signed in BEFORE fetching the plan: a
-      // platform administrator bypasses every plan gate (the backend does the same
-      // in requirePlan), so their role must be known before any screen asks.
-      final planProvider = Provider.of<PlanProvider>(context, listen: false);
-      planProvider.setIsAdmin(authProvider.isAdmin);
-      await planProvider.refresh();
+      // 🔐 The plan provider is bound to the session by `_bindPlanToSession` (the auth
+      // listener in `initState`), which covers BOTH this cold start and an interactive
+      // login. Doing it here as well was the bug: this method only ever runs on app
+      // launch, so after a logout/login on the same device nothing re-bound the plan.
 
       if (!authProvider.isOnline) {
         debugPrint('❌ No internet - cannot load company data');
@@ -860,21 +924,33 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
       }
 
       try {
-        debugPrint('🔄 Loading drinks from Supabase...');
-        await drinkProvider.loadDrinksFromSupabase();
-        debugPrint('✅ Drinks loaded: ${drinkProvider.customDrinks.length}');
-
-        debugPrint('🔄 Initializing OrderProvider...');
+        // 🚀 THE SPEED FIX. These calls are INDEPENDENT of each other, so they go out
+        // TOGETHER: the splash used to wait for six sequential round trips (drinks,
+        // then orders, then inventory — each one only starting after the last
+        // answered) and now waits for one. On a slow or cold-starting link that is the
+        // difference between seconds and a fraction of a second.
+        //
+        // The two orderings that MATTER are kept explicit: the order CACHE is read
+        // locally first (so history is on screen even if the network is slow), and the
+        // inventory provider is wired to the drink provider only once both have
+        // arrived.
+        debugPrint('🔄 Loading drinks, orders, inventory and settings in parallel...');
         await orderProvider.initialize();
-        debugPrint('✅ OrderProvider initialized');
+        await Future.wait([
+          drinkProvider.loadDrinksFromSupabase(),
+          orderProvider.loadOrdersFromSupabase(),
+          inventoryProvider.loadInventoryFromSupabase(),
+          _loadUserSettings(user.id),
+        ]);
+        debugPrint('✅ Catalogue loaded: '
+            '${drinkProvider.customDrinks.length} drinks, '
+            '${orderProvider.orderHistory.length} orders, '
+            '${inventoryProvider.inventoryItems.length} inventory rows');
 
-        debugPrint('🔄 Loading orders from Supabase...');
-        await orderProvider.loadOrdersFromSupabase();
-        debugPrint('✅ Orders loaded: ${orderProvider.orderHistory.length}');
-
-        debugPrint('🔄 Loading inventory from Supabase...');
-        await inventoryProvider.loadInventoryFromSupabase();
-        debugPrint('✅ Inventory loaded');
+        // 🔁 Re-read the local money helpers now that THIS session's settings have
+        // landed (the read before the network used what the device already had).
+        await CurrencyHelper.refresh();
+        await PaymentHelper.refresh();
 
         // 🔄 Give the sync indicator real work: it reloads orders + inventory
         // instead of pretending to sync.
@@ -907,18 +983,24 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
         //  Warn about batches expiring within 30 days — joined with the demand
         // forecast so the alert says how much of the stock is expected to sell
         // before the date. Announced once per batch per day, device-side only.
-        try {
-          final forecast = computeForecast(
-            transactions: inventoryProvider.transactions,
-            inventory: inventoryProvider.inventoryItems,
-          );
-          await ExpiryAlertService.check(
-            drinks: drinkProvider.customDrinks,
-            forecast: forecast,
-          );
-        } catch (e) {
-          debugPrint('⚠️ Expiry alert startup check failed: $e');
-        }
+        //
+        // 🚀 Off the critical path: it needs no network, but it does real work (a
+        // forecast, storage reads, a notification) and none of it is needed to take a
+        // sale — so the splash stops waiting for it.
+        unawaited(() async {
+          try {
+            final forecast = computeForecast(
+              transactions: inventoryProvider.transactions,
+              inventory: inventoryProvider.inventoryItems,
+            );
+            await ExpiryAlertService.check(
+              drinks: drinkProvider.customDrinks,
+              forecast: forecast,
+            );
+          } catch (e) {
+            debugPrint('⚠️ Expiry alert startup check failed: $e');
+          }
+        }());
 
         if (mounted) {
           setState(() {});

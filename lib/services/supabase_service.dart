@@ -698,6 +698,12 @@ class SupabaseService {
         'is_active': order['isActive'] ?? true,
         'customer_name': order['customerName'] ?? '',
         'staff_name': (order['staffName'] ?? order['staff_name'] ?? '').toString(),
+        // 💸 How the sale was paid. The refund lane is read from it later, so a
+        // CamerPay sale is refunded at CamerPay and a cash sale out of the drawer.
+        'payment_method': (order['paymentMethod'] ??
+                order['payment_method'] ??
+                'cash')
+            .toString(),
         'created_by': _currentUserId,
         'created_at': DateTime.now().toIso8601String(),
       };
@@ -1943,14 +1949,19 @@ class SupabaseService {
     }
   }
 
-  /// Records a refund the manager already issued in the provider's dashboard.
-  /// The backend stores who/why/how much plus the provider reference — there is no
-  /// refund API, so this row is the company's proof.
+  /// Records a refund the manager already issued.
+  ///
+  /// The money itself moves where it came FROM: a sale collected through CamerPay
+  /// is refunded at CamerPay, and the provider reference ties the row to the
+  /// statement; a sale paid in cash is refunded out of the drawer and has no
+  /// reference at all. [method] is that lane — the backend reads it from the order
+  /// when it is omitted, so the two can never disagree.
   static Future<bool> recordRefund({
     required String orderId,
     required double amount,
     required String reason,
     String reference = '',
+    String method = '',
   }) async {
     try {
       final response = await http.post(
@@ -1960,6 +1971,7 @@ class SupabaseService {
           'amount': amount,
           'reason': reason,
           'reference': reference,
+          if (method.isNotEmpty) 'method': method,
         }),
       );
       print('   Refund record response: ${response.statusCode}');
