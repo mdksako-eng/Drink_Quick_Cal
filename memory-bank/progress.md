@@ -270,6 +270,23 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
 - Pre-existing, unrelated red: `test/plan_provider_session_test.dart` (uncommitted
   `plan_provider.dart` work in the tree).
 
+## AI screen — honest photo reading, and replies that were translated all along — 2026-11-12 (`85ceb4d`, `12decba`)
+- **Vision prompt** (`utils/aiVisionPrompt.js`, 12 Jest tests): off-menu drinks are **reported** not
+  dropped, unreadable lines are **admitted** not guessed, a missing quantity is 1, and a photo with
+  no order emits no `ORDER_JSON`. `POST /api/ai/vision` calls it.
+- `AIOrderParser.unmatchedLines()` (+5 tests) with *"⚠️ Not in your catalogue: …"* in the chat, so a
+  bad photo is distinguishable from a missing catalogue entry. Also on the typed `ORDER_JSON` path.
+- Capture `1024px/q60` → **`1600px/q80`** (~250–450 KB): q60 blurred the handwriting the feature is
+  for, which is what people meant by "the AI did not understand my photo".
+- **12 i18n keys already existed, unused.** The chat's stock / price / recommendation / checkout /
+  clear / connection answers were hardcoded English in a French app that reads them aloud. Wired —
+  **no new keys**. Adding them instead broke the build: `ai_orderCleared` was already defined, and a
+  duplicate key in a `const` map is a compile error (every test file then failed to *load*).
+- Camera permanently denied → offers Settings instead of repeating a dead-end toast.
+- Chat system prompt: answer in the user's language (the reply is shown **and** spoken).
+- Flutter **584** · analyze **0 errors** · i18n **EN=1570 FR=1570** · backend **54 suites / 716**.
+
+
 ## Not started
 - **Phase 4 — Real-time IoT sensor integration (automated replenishment)** ⬜ needs
   ESP32/load-cell firmware, a device-authenticated `POST /api/sensors/reading`, and

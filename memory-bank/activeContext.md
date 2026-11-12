@@ -2,6 +2,37 @@
 
 _Updated: 2026-11-12_
 
+## AI screen: photos read honestly, replies actually translated (2026-11-12) ✅ `85ceb4d`, `12decba`
+- **Photo → order, three fixes, one theme: stop guessing, start reporting.**
+  1. *"Use the drink names exactly as written above when they match"* said nothing about a drink the
+     model could not place, so off-catalogue names vanished silently. The prompt — now in
+     `utils/aiVisionPrompt.js` + 12 Jest tests, because here the wording **is** the feature — must
+     **report** an off-menu drink as spelled in the photo, **admit** a faint/cropped line instead of
+     guessing it (a hallucinated name silently adds stock nobody ordered), use **1** when no
+     quantity is written, and emit no `ORDER_JSON` when the photo holds no order.
+  2. `AIOrderParser.unmatchedLines()` (new, +5 tests) + *"⚠️ Not in your catalogue: 3x Fanta"* in the
+     chat — the only way to tell a **bad photo** from a **missing catalogue entry**. Same on the
+     typed `ORDER_JSON` path (visible message only, never the history sent back to the model).
+  3. Capture `1024px/q60` → **`1600px/q80`** (≈250–450 KB): q60 blurred exactly the handwriting this
+     feature exists for — the real meaning of "the AI did not understand my photo".
+- **Its replies were English in a French app that also reads them aloud.** 12 keys
+  (`ai_takingToCheckout`, `ai_stockInfo`, `ai_currentStock`, `ai_priceInfo`, `ai_costLabel`,
+  `ai_profitPerUnit`, `ai_priceList`, `ai_recommendationsHeader`, `ai_checkAvailable`,
+  `ai_noDrinksInInventory`, `ai_troubleConnecting`, `ai_noOrdersToCheckout`) **already existed and
+  nothing referenced them** — the screen built its own strings. Wired to them; **zero new keys,
+  `i18n.dart` byte-identical**. The recommendations tag reuses `calcLeftInStock`.
+  ⚠️ **Trap:** adding the keys instead **did not compile** — `ai_orderCleared` already existed and a
+  duplicate key in a `const` map is a **compile error** (parity passed; every test file then failed
+  to *load*). **Grep a key name before adding one.**
+- **The system prompt never said which language to answer in.** It does now. **Open:** TTS still
+  defaults to `en-US` whatever the app language, so French text is read in an English voice until
+  the setting is changed (a stored preference — a new default only affects new installs).
+- A **permanently denied** camera gave the same first-time toast, so every later tap looked broken;
+  it now explains and offers the system settings screen.
+- 3 new keys (`ai_unknownItems`, `ai_cameraSettingsHint`, `ai_openSettings`) · Flutter **584** ·
+  analyze **0 errors** · i18n **EN=1570 FR=1570** · backend **54 suites / 716 tests**.
+
+
 ## The 99-unit ceiling, and container types you could not see (2026-11-12) ✅
 - **Quantity ceiling, one rule now.** The cap was in six places with two answers: the
   calculator capped at **99** four times (typed field, `1 - 99` helper, both `+` steppers) and
