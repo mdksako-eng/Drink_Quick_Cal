@@ -88,8 +88,16 @@ git ls-files "*.jks" "*.keystore"              # must print nothing
    | `APP_UPDATE_MANDATORY` | `true` only when they truly must update — "Later" still works |
 
 The shop sees the notice a few seconds after the next app launch (or when the app is brought
-back to the foreground). The page `https://<host>/download.html` shows the same version, notes
-and hash, and a human-readable install guide in English and French.
+back to the foreground).
+
+**The front door is the Cloudflare Pages site**, not the Render instance: `download-page/` in this
+repo (its own README has the deploy steps). A free Render instance sleeps after ~15 minutes idle,
+and a shop must not meet a cold start before it meets the app. The page is static; the version,
+notes and hash above are not — they come from `GET /api/app/release`, so **the values in the table
+reach the page through the Render deploy**, not through the page's own deployment. Until they do,
+the page says so honestly ("could not reach the download server") instead of claiming no build
+exists. `drinks-calculator-backend/public/download.html` still serves a copy from Render until it is
+replaced by a redirect.
 
 ---
 
@@ -104,3 +112,13 @@ and hash, and a human-readable install guide in English and French.
   deliberately, because a till must keep selling on an old build.
 - **`APP_APK_URL` is one link for every shop.** Check it before deploying: a typo sends all of
   them to the wrong file. Publishing the SHA-256 is what makes that detectable.
+- **The download page is deployed separately from the backend.** If Pages is connected to the
+  GitHub repo, a push *does* update the page (that is the one place the rule above does not apply) —
+  but the release *metadata* it displays still waits for the manual Render deploy.
+- **Two places name the backend host, and only one of them fails loudly.** `download-page/index.html`
+  has `API_BASE`, and `download-page/_headers` pins the same host in the CSP's `connect-src`. If the
+  backend ever moves, a missed `connect-src` does not 404: the fetch is blocked, the page shows
+  "could not reach the download server", and the API is perfectly fine. Change both together.
+- **`logo.png` now exists three times** (`assets/icons/icon.png`,
+  `drinks-calculator-backend/public/logo.png`, `download-page/logo.png`). A brand change updates all
+  three, or the front door keeps the old art.

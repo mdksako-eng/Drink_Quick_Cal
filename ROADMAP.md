@@ -1732,3 +1732,41 @@ connect. Owner: check the Render boot log for the migration line.
 **0 errors**, 493 issues · i18n **EN=1570 FR=1570** · backend **54 suites / 716 tests** (+1 suite, +12
 for the vision prompt).
 
+
+## The download page moves to Cloudflare Pages — the front door stops sleeping — 2026-11-12
+
+- **Why:** the page a new shop opens to get the APK was served by the backend on the **free Render
+  instance that sleeps after ~15 min idle** — measured on this project as a **503 on the first
+  request**, then ~100 s to warm up. A front door that can time out before it shows anything is the
+  wrong front door. It is now a self-contained static site in **`download-page/`** (`index.html`,
+  `logo.png`, `_headers`, its own README) for Cloudflare Pages: always on, and it needs **no backend
+  change**, because the release API already answers `Access-Control-Allow-Origin: *` — **verified
+  against production with an `Origin` header**, not inferred from `app.use(cors())`.
+- **The page is static; the metadata is not.** The version, the notes and the SHA-256 come from
+  `GET /api/app/release` (the backend's environment stays the only source of truth — the page still
+  never invents a version), so exactly one line ties the two hosts together: `API_BASE` in
+  `index.html`.
+- **A third state, because two different failures were sharing one sentence.** Before, *"the server
+  says nothing is published"* and *"the server did not answer"* both rendered as *"No build is
+  published yet."* — so a sleeping instance read as a fact about the release. Now the API's own
+  `known:false` says no build is published, while an unreachable API says **"Could not reach the
+  download server just now. This page is fine — only the version check failed."** with **Check
+  again** and a link to the GitHub releases page. Two attempts (9 s timeout, one silent retry after
+  6 s), because a cold start usually answers on the second.
+- **`_headers`** brings the class of headers the backend now sends through helmet (nosniff,
+  SAMEORIGIN, a referrer policy, and a CSP pinning `connect-src` to the API host) — a static host
+  sends none of these by default.
+- **Two things left alone on purpose:** the old `public/download.html` still works (two copies of a
+  page drift, so the intended cleanup is a redirect on the next backend deploy — but replacing a
+  working page with a redirect to a site that is not live yet is how a front door breaks), and the
+  legal pages are **linked, not copied** (a duplicated legal text drifts; the backend keeps the
+  published copy, and the link now follows the page language to the `.fr` twin).
+- **Validation:** the page was byte-copied from the reviewed original (identical SHA-256) and then
+  edited, so all French accents are the original bytes. Then: `data-en`/`data-fr` **23/23 balanced**
+  (21 original + 2 new), one `<script>` pair, the document closes cleanly, **`node --check` on the
+  extracted inline script exits 0**, the CSP `connect-src` host matches `API_BASE`, and CORS was
+  confirmed live. Folder: 20.6 KB page · 114.8 KB logo · runbook · headers.
+- **Still owner's:** create the Pages project (root directory `download-page`, no build step) and
+  the custom domain, then publish a real release — `/api/app/release` currently answers
+  `known:false`, so every front door (this one and the in-app notice) rightly says nothing yet.
+

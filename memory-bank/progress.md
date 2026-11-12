@@ -299,6 +299,26 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
 - Flutter **590** (+6) · analyze **0 errors** · i18n **EN=1570 FR=1570**.
 
 
+## Download page moved to Cloudflare Pages — 2026-11-12
+- The front door was served by the **free Render instance that sleeps** (503 first, ~100 s to wake);
+  it is now a self-contained static site in **`download-page/`** for Cloudflare Pages, needing **no
+  backend change** because the release API answers `Access-Control-Allow-Origin: *` (verified live
+  with an `Origin` header).
+- The page is static, the metadata is not: version / notes / SHA-256 still come from
+  `GET /api/app/release`, so `API_BASE` is the one line tying the two hosts together.
+- New **"could not reach the download server"** state, deliberately distinct from the API's own
+  `known:false` ("no build is published yet") — a sleeping instance must never read as a fact about
+  the release. Two attempts (9 s timeout, one silent retry after 6 s) plus a GitHub releases link as
+  the escape hatch.
+- `_headers` ports the helmet-class headers to the static host, with a CSP that pins `connect-src`
+  to the API host.
+- Verified: same-SHA byte copy of the reviewed page → `data-en`/`data-fr` **23/23** → `node --check`
+  on the inline script **exit 0** → CSP host matches `API_BASE`. The Render copy stays for now (a
+  redirect is its cleanup once Pages is live); legal pages are linked, not copied.
+- **Owner:** create the Pages project (root `download-page`, no build step) + custom domain, then
+  publish a release — `/api/app/release` still answers `known:false`.
+
+
 ## Not started
 - **Phase 4 — Real-time IoT sensor integration (automated replenishment)** ⬜ needs
   ESP32/load-cell firmware, a device-authenticated `POST /api/sensors/reading`, and

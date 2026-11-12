@@ -2,6 +2,36 @@
 
 _Updated: 2026-11-12_
 
+## The download page left the free Render instance (2026-11-12)
+- **Was:** `drinks-calculator-backend/public/download.html`, served by the **free Render instance
+  that sleeps after ~15 min idle** — measured here as a **503 first, then ~100 s to wake**. The page
+  a shop opens to get the app could time out before it showed anything.
+- **Now:** a self-contained static site in **`download-page/`** (`index.html`, `logo.png`,
+  `_headers`, its own README) for Cloudflare Pages. **No backend change needed** — the release API
+  already answers `Access-Control-Allow-Origin: *`, **verified against production with an `Origin`
+  header** (not inferred from `app.use(cors())`).
+- **The page is static, the metadata is not:** version / notes / SHA-256 still come from
+  `GET /api/app/release`, so `API_BASE` in `index.html` is the single line tying the hosts together.
+- **Two different failures no longer share one sentence.** *The server answered `known:false`* →
+  "No build is published yet"; *the server did not answer at all* → "Could not reach the download
+  server just now", plus **Check again** and a link to the GitHub releases page. Two attempts (9 s
+  timeout, one silent retry after 6 s) because a cold start usually answers on the second. Before
+  this, a sleeping instance read as a fact about the release.
+- **Left alone on purpose:** the Render copy still works — a redirect is the cleanup for the next
+  backend deploy, because swapping a live page for a redirect to a site that is not yet deployed is
+  how a front door breaks. The legal pages are **linked, not copied** (a duplicated legal text
+  drifts) and the link now follows the page language to the `.fr` twin.
+- **Verified:** byte-copied from the reviewed original (identical SHA-256, so every French accent is
+  the original bytes) and then edited · `data-en`/`data-fr` **23/23** · one `<script>` pair ·
+  `node --check` on the extracted inline script **exit 0** · CSP `connect-src` == `API_BASE` · CORS
+  confirmed live.
+- ⚠️ **Two places name the backend host:** `API_BASE` and the CSP `connect-src` in `_headers`. A
+  missed `connect-src` does not 404 — it blocks the fetch, so the page reports a backend that is
+  perfectly fine as unreachable.
+- **Owner:** create the Pages project (root directory `download-page`, no build step) and the custom
+  domain. `/api/app/release` still answers `known:false`, so no front door announces a build yet.
+
+
 ## AI screen: photos read honestly, replies actually translated (2026-11-12) ✅ `85ceb4d`, `12decba`
 - **Photo → order, three fixes, one theme: stop guessing, start reporting.**
   1. *"Use the drink names exactly as written above when they match"* said nothing about a drink the
