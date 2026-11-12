@@ -23,13 +23,7 @@ val hasReleaseKeystore = keystorePropertiesFile.exists()
 if (hasReleaseKeystore) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 } else if (!project.hasProperty("allowDebugSigning")) {
-    error(
-        "android/key.properties not found: refusing to build a release APK signed with the " +
-            "debug key (it could never be upgraded by a properly signed one). See " +
-            "android/key.properties.example and RELEASE.md. For a throwaway test build use " +
-            "`flutter build apk --debug`, or ask for it explicitly with " +
-            "`cd android; .\\gradlew assembleRelease -PallowDebugSigning=true`."
-    )
+    error("android/key.properties not found: refusing to build a release APK signed with the debug key (it can never be upgraded by a properly signed one). Run scripts/create_release_key.ps1 once and build again - see RELEASE.md. For a throwaway test APK use `flutter build apk --debug`, or pass -PallowDebugSigning=true to Gradle directly (RELEASE.md says how).")
 }
 
 // A missing or blank entry is a mistake worth naming plainly.
