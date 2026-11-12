@@ -1671,3 +1671,64 @@ claimed away) · i18n **EN=1567 FR=1567** · backend untouched.
 
 
 
+
+## The AI screen — a photo is read, not guessed; and the replies were translated all along — 2026-11-12 (`85ceb4d`, `12decba`, `9a845c5`)
+
+**The photo path now reports instead of guessing.** Three fixes with one theme.
+
+- The image instructions told the model to use the menu names *"exactly as written above when they
+  match"* and said nothing about anything else — which reads as "drop it". A drink the shop does not
+  sell, or one the model garbled slightly, vanished with no trace: the reply said *"Added: 2 x Beer"*
+  and the shop could not tell a **bad photo** from a **missing catalogue entry**. The instructions now
+  also say to include an off-menu drink spelled as it appears in the photo, to **admit** a line too
+  faint or cropped to read instead of guessing it (a hallucinated name silently adds stock nobody
+  ordered), to use **1** when no quantity is written, and to emit no `ORDER_JSON` at all when the
+  photo holds no order. These lines decide whether the AI understands a receipt, so they live in
+  `utils/aiVisionPrompt.js` with `tests/ai_vision_prompt.test.js` (12 tests) rather than inline in
+  the route.
+- `AIOrderParser.unmatchedLines()` returns what the model read that matches no catalogue drink, and
+  the chat prints it as *"⚠️ Not in your catalogue: 3x Fanta"* (+5 tests). Same on the typed
+  `ORDER_JSON` reply path — where the warning goes on the visible message only, never into the
+  history fed back to the model.
+- **The capture was tuned for the wrong job:** `1024px / JPEG q60`, commented *"the AI only needs the
+  drink names"*. That is fine for a printed menu and marginal for handwriting and receipts, where q60
+  blurs thin pen strokes and 1024px shrinks an A4 note until the small writing is unreadable —
+  precisely what people meant by *"the AI did not understand my photo"*. Now **1600 / q80**,
+  ≈250–450 KB, still negligible against the 12 MB the vision route allows.
+- A **permanently denied** camera permission returned the same first-time toast, so every later tap
+  looked like a broken button. It now explains and offers the system settings screen.
+
+**The replies were English only — and the translations already existed.** Every stock, price,
+recommendation, checkout, clear and connection answer was hardcoded English in a bilingual app that
+also *speaks* its replies. `lib/utils/i18n.dart` already held the whole set (`ai_takingToCheckout`,
+`ai_stockInfo`, `ai_currentStock`, `ai_priceInfo`, `ai_costLabel`, `ai_profitPerUnit`, `ai_priceList`,
+`ai_recommendationsHeader`, `ai_checkAvailable`, `ai_noDrinksInInventory`, `ai_troubleConnecting`,
+`ai_noOrdersToCheckout`) and **nothing referenced any of them** — written, reviewed, then forgotten
+while the screen kept building its own strings. They are wired up now: **no new keys at all**,
+`i18n.dart` byte-identical, and the "in stock" tag reuses `calcLeftInStock` rather than becoming a
+fourth copy of the phrase. ⚠️ **The first attempt added 14 keys and did not compile:** `ai_orderCleared`
+was already defined and a duplicate key in a `const` map is a **compile error**. Parity passed (both
+maps agreed), the build failed, and every test file then failed to *load* rather than *fail*.
+**Grep a key name before adding it.**
+
+**And the assistant could not answer in the right language, because nobody had told it which one.**
+The system prompt now asks for the user's language — the reply is both shown and read aloud.
+
+**The voice follows the app language until the user chooses otherwise.** The TTS language fell back to
+a hardcoded `'en-US'` whenever the shop had never opened the voice settings, so a French shop heard
+French replies read in an English voice. `VoiceService.resolveTtsLanguage({stored, appLanguage})` is
+the one tested decision (6 tests): a stored choice always wins, a blank stored value counts as none, a
+bare `fr`/`EN` normalises, an unknown language falls back to English. A mid-session language switch
+moves the voice too; confirming the voice settings makes the choice explicit.
+
+**Deploy:** the backend is live on **`2026-11-12-hardening`** (`GET /health` on
+`drink-quick-cal-kja1.onrender.com` — `jsonBodyLimit: 1mb (12mb on /api/ai)`, database connected), so
+the boot migration adding `orders.payment_method` has run: the port only opens after
+`bootstrapReady` resolves. The column itself could **not** be confirmed from this machine — the local
+`.env` holds **no `DATABASE_URL`** (dotenv injects 0 vars), so `scripts/inspect_schema.js` cannot
+connect. Owner: check the Render boot log for the migration line.
+
+**Validation:** Flutter **590 tests** (+6 voice language, +5 `unmatchedLines`) · `flutter analyze lib`
+**0 errors**, 493 issues · i18n **EN=1570 FR=1570** · backend **54 suites / 716 tests** (+1 suite, +12
+for the vision prompt).
+

@@ -287,6 +287,18 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
 - Flutter **584** · analyze **0 errors** · i18n **EN=1570 FR=1570** · backend **54 suites / 716**.
 
 
+## AI screen — the spoken voice follows the app language — 2026-11-12 (`9a845c5`)
+- The TTS language fell back to a hardcoded `'en-US'`, so a French shop heard French replies read
+  aloud in an English voice until it opened the voice settings. `VoiceService.resolveTtsLanguage(
+  {stored, appLanguage})` (pure, 6 tests) decides: a stored choice always wins, otherwise the app
+  language. A mid-session language switch moves the voice while no choice is stored; confirming the
+  voice settings makes the choice explicit. No new i18n keys.
+- **Prod is live on `2026-11-12-hardening`** (`GET /health`): the owed deploy has happened, so the
+  `orders.payment_method` boot migration has run (the port opens only after `bootstrapReady`). The
+  column itself is unverified — the local `.env` has no `DATABASE_URL`.
+- Flutter **590** (+6) · analyze **0 errors** · i18n **EN=1570 FR=1570**.
+
+
 ## Not started
 - **Phase 4 — Real-time IoT sensor integration (automated replenishment)** ⬜ needs
   ESP32/load-cell firmware, a device-authenticated `POST /api/sensors/reading`, and
@@ -297,6 +309,6 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
   were removed (`sql/drop_notifications_table.sql` is the opt-in cleanup).
 - `FlutterAssertionGuard` intentionally drops one known Flutter framework
   re-entrancy assertion (mouse_tracker, flutter/flutter#137938) — do not clean it up.
-- Backend release marker: `RELEASE = '2026-09-20-phase8'` near the top of
-  `drinks-calculator-backend/server.js`; bump it to confirm a deploy from outside
-  via `GET /health`.
+- Backend release marker: `RELEASE` near the top of `drinks-calculator-backend/server.js` is the
+  only way to confirm a deploy from outside, via `GET /health`. It reads
+  **`2026-11-12-hardening`** (it was `2026-09-20-phase8` before 2026-11-12).

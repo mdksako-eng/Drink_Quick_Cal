@@ -31,6 +31,16 @@ _Updated: 2026-11-12_
   it now explains and offers the system settings screen.
 - 3 new keys (`ai_unknownItems`, `ai_cameraSettingsHint`, `ai_openSettings`) · Flutter **584** ·
   analyze **0 errors** · i18n **EN=1570 FR=1570** · backend **54 suites / 716 tests**.
+- **The voice follows the app language until the user picks one** (`9a845c5`). The TTS fallback was
+  a hardcoded `'en-US'`, so a French shop heard French replies read in an English voice.
+  `VoiceService.resolveTtsLanguage({stored, appLanguage})` is the one tested decision (6 tests): a
+  stored choice wins, a blank counts as none, a bare `fr`/`EN` normalises, anything unknown →
+  English. A mid-session language switch moves the voice too; confirming the voice settings makes
+  the choice explicit. **No new keys** (this fixes what the app *says*, not what it shows).
+  Flutter **590 tests**.
+- **Prod is live on `2026-11-12-hardening`** (`GET /health`, `drink-quick-cal-kja1.onrender.com`),
+  so the owed deploy happened and the `orders.payment_method` boot migration ran. The column is
+  unverified from here: the local `.env` has **no `DATABASE_URL`** (dotenv injects 0 vars).
 
 
 ## The 99-unit ceiling, and container types you could not see (2026-11-12) ✅
@@ -74,10 +84,12 @@ _Updated: 2026-11-12_
   the SharedPreferences caches).
 - Gates: backend **52 suites / 697 tests** · Flutter **573 tests** · analyze **0 errors** ·
   manifest XML parses with `allowBackup='false'`.
-- **Open:** rotate+purge, `deepmerge`/SendGrid `--force` decision, `orders.payment_method`
-  still missing in prod, Render free spin-down, `helmet` installed-but-unused (needs CSP off
-  + an HTML-page smoke test), data hygiene (orphan Manager id=26, `doppel` deposit 1.00,
-  101 inactive legacy session tokens).
+- **Open:** rotate+purge, `deepmerge`/SendGrid `--force` decision, Render free spin-down,
+  data hygiene (orphan Manager id=26, `doppel` deposit 1.00, 101 inactive legacy session
+  tokens). **The deploy has landed** (2026-11-12): prod reports `2026-11-12-hardening`, so the
+  boot migration adding `orders.payment_method` ran — the port opens only after
+  `bootstrapReady`. The *column* itself is unverified from here: the local `.env` holds no
+  `DATABASE_URL`, so `scripts/inspect_schema.js` cannot connect.
 - **Verified healthy:** 29/29 RLS-locked tables, 0 plaintext passwords, CamerPay credentials
   ciphertext-only, no `.env` in 1,456 commits, no SQL interpolation, all payment routes
   guarded or signature-verified.
