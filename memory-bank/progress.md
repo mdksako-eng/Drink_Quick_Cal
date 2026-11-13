@@ -360,4 +360,7 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
   re-entrancy assertion (mouse_tracker, flutter/flutter#137938) — do not clean it up.
 - Backend release marker: `RELEASE` near the top of `drinks-calculator-backend/server.js` is the
   only way to confirm a deploy from outside, via `GET /health`. It reads
-  **`2026-11-12-hardening`** (it was `2026-09-20-phase8` before 2026-11-12).
+  **`2026-11-13-security`** (it was `2026-11-12-hardening`, and `2026-09-20-phase8` before that).
+  **Bump it with every change whose effect cannot be seen from outside** — the 2026-11-13 security
+  fix shipped without a bump, so "is the fix live?" had to be proven by probing the endpoint for a
+  429 instead of by reading `/health`.

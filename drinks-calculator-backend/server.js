@@ -89,7 +89,11 @@ console.log('🔌 Connecting to PostgreSQL (Supabase)...');
 // 🏷️ Build identity, reported by GET /health. Bump RELEASE when you want to
 // confirm from the outside that a deploy actually went through; SERVER_STARTED_AT
 // resets on every restart (uptimeSeconds in the health payload).
-const RELEASE = '2026-11-12-hardening';
+// A deploy whose effect cannot be seen from outside — a security fix, a validation
+// rule — is exactly when this matters. The 2026-11-13 security fix shipped without a
+// bump, so "is the fix live?" had to be answered by probing for a 429 rather than by
+// reading /health.
+const RELEASE = '2026-11-13-security';
 const SERVER_STARTED_AT = new Date();
 // Used by the startup banner below. CamerPay is the only payment rail now — the
 // Notch Pay one was removed (see memory-bank/activeContext.md).
