@@ -61,6 +61,8 @@ const authQueue = createQueue(process.env.AUTH_CONCURRENCY || 8);
 // lives in a bounded, self-pruning module instead of a Map that never released a
 // key (utils/rateLimiter.js).
 const { createRateLimiter } = require('./utils/rateLimiter');
+// 🔐 Codes and handshake tokens that AUTHORISE something come from the CSPRNG, never the language PRNG.
+const { generateCode, newRequestToken } = require('./utils/secureCode');
 const accountLimiter = createRateLimiter({ max: 10, windowMs: 15 * 60 * 1000 });
 // Per-source ceiling: an attacker who rotates usernames defeats a per-account
 // limit, so the network is capped as well. Higher than the per-account limit on
@@ -1144,7 +1146,7 @@ function isPlatformAdminRequest(req) {
 
 // ========== PASSWORD RESET WITH EMAIL CODE ==========
 const resetCodes = {};
-const generateResetCode = () => Math.floor(100000 + Math.random() * 900000).toString();
+const generateResetCode = () => generateCode();
 
 // How many reset emails this address asked for inside the window, as timestamps.
 // Counted from rows (not memory) so the daily cap is not forgotten on a restart.
@@ -1559,7 +1561,7 @@ app.post('/api/auth/register', async (req, res) => {
     // 🔐 OWNER-APPROVED JOIN: invite-code signup → pending request + code to owner
     let joinRequestId = null;
     if (pendingJoinCompanyId && joinTargetCompany) {
-      const joinCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const joinCode = generateCode();
       const joinInsert = await pool.query(
         `INSERT INTO company_join_requests (company_id, user_id, requested_role, code, status, expires_at)
          VALUES ($1, $2, $3, $4, 'pending', NOW() + INTERVAL '15 minutes') RETURNING id`,
@@ -1585,7 +1587,7 @@ app.post('/api/auth/register', async (req, res) => {
     }
     
     // Send verification email
-    const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verifyCode = generateCode();
     resetCodes[email] = { code: verifyCode, userId: newUser.id, expiresAt: Date.now() + 30 * 60 * 1000, type: 'verify' };
     
     try {
@@ -1929,7 +1931,11 @@ app.post('/api/auth/login', async (req, res) => {
       }
       
       // ✅ Create a pending session request
-      const requestToken = 'request_' + user.id + '_' + Date.now();
+      // 🔐 Unguessable on purpose: this token is the only thing protecting the session token that
+      // /check-approval hands back, and that endpoint runs without a session by necessity. It used
+      // to be 'request_<userId>_<epoch ms>' — which named the account and left only a 15-minute
+      // window to guess, so the token could be brute-forced into someone else's session.
+      const requestToken = newRequestToken();
       
       await pool.query(
         `INSERT INTO login_requests (
@@ -2025,7 +2031,7 @@ app.post('/api/auth/resend-verification', async (req, res) => {
       return res.json({ status: 'success', message: 'Email already verified' });
     }
     
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const code = generateCode();
     resetCodes[email] = { code, userId: user.id, expiresAt: Date.now() + 10 * 60 * 1000, type: 'verify' };
     await sendVerificationEmail(email, code, user.username);
     console.log(`📧 Verification email resent to ${email}`);
@@ -2264,7 +2270,7 @@ app.post('/api/auth/create-staff', requireSession(pool), async (req, res) => {
          securityQuestions?.question1 || '', securityQuestions?.question2 || '']
       );
       const pendingUser = created.rows[0];
-      const joinCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const joinCode = generateCode();
       await pool.query(
         `INSERT INTO company_join_requests (company_id, user_id, requested_role, code, status, expires_at)
          VALUES ($1, $2, 'Staff', $3, 'pending', NOW() + INTERVAL '15 minutes')`,
@@ -2995,6 +3001,11 @@ app.post('/api/companies/verify-code', async (req, res) => {
     );
     
     if (result.rows.length === 0) {
+      // An invite code is six digits — a million values, and no account is needed to try them.
+      // Only failures count, so a shop typing its own code correctly is never throttled.
+      if (!sourceLimiter.check(`invite:${clientIp(req)}`)) {
+        return res.status(429).json({ status: 'error', message: 'Too many attempts. Please try again later.' });
+      }
       return res.status(404).json({ status: 'error', message: 'Invalid invite code. Company not found.' });
     }
     
@@ -3275,22 +3286,37 @@ app.get('/api/auth/check-approval', async (req, res) => {
     }
     
     const request = await pool.query(
-      `SELECT status, new_session_token, device_name, user_id
+      `SELECT status, new_session_token, device_name, user_id, expires_at
        FROM login_requests 
        WHERE request_token = $1`,
       [token]
     );
     
     if (request.rows.length === 0) {
+      // Only FAILED lookups are counted. A device waiting for approval polls this endpoint every
+      // few seconds, so throttling successful polls would break the very thing it is waiting for —
+      // and a legitimate device never presents a wrong token. With a 256-bit random token, brute
+      // force is hopeless anyway; this is the second lock on the same door.
+      if (!sourceLimiter.check(`approval:${clientIp(req)}`)) {
+        return res.status(429).json({ status: 'error', message: 'Too many attempts. Please wait a moment.' });
+      }
       return res.status(404).json({ status: 'error', message: 'Request not found' });
     }
     
     const requestData = request.rows[0];
+
+    // A request that has expired is not a request. The listings filter on expires_at; the endpoint
+    // that hands out a session must too, or an old row keeps answering forever.
+    if (requestData.expires_at && new Date(requestData.expires_at).getTime() < Date.now()) {
+      return res.status(404).json({ status: 'error', message: 'Request not found' });
+    }
     
     res.json({
       status: 'success',
       approvalStatus: requestData.status,
-      sessionToken: requestData.new_session_token,
+      // 🔐 A session token is handed over only once a manager has approved. The column is NULL
+      // before that, but returning it unguarded made the status advisory instead of enforced.
+      sessionToken: requestData.status === 'approved' ? requestData.new_session_token : null,
       deviceName: requestData.device_name,
     });
     
@@ -3341,8 +3367,8 @@ app.post('/api/auth/approve-login', async (req, res) => {
         u.username as staff_username
        FROM login_requests lr
        JOIN users u ON lr.user_id = u.id
-       WHERE lr.request_token = $1 AND lr.status = 'pending'`,
-      [requestToken]
+       WHERE lr.request_token = $1 AND lr.status = 'pending' AND u.company_id = $2`,
+      [requestToken, manager.company_id]
     );
     
     if (request.rows.length === 0) {

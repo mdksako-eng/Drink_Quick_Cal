@@ -16,6 +16,16 @@ const logger = winston.createLogger({
 const EMAIL_FROM = process.env.EMAIL_FROM || 'm.derick@africet.org';
 const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || 'Drink Quick Cal';
 
+/// Names, roles and company names are typed by users and pasted into HTML emails. Escape them, or
+/// a company named `<a href="…">Reset your password</a>` arrives as a working link in someone
+/// else's inbox — and the person reading that email is the owner, being handed a code.
+const escapeHtml = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
 /** Whether email can be sent at all — surfaced at startup so it cannot surprise us. */
 const isEmailConfigured = () => Boolean(process.env.SENDGRID_API_KEY);
 
@@ -58,7 +68,7 @@ const sendResetCodeEmail = async (userEmail, code, username) => {
         <p style="color:rgba(255,255,255,0.8);">Password Reset Code</p>
       </div>
       <div style="padding:30px;">
-        <h2>Hello ${username || 'there'}!</h2>
+        <h2>Hello ${escapeHtml(username || 'there')}!</h2>
         <p>Use this code to reset your password:</p>
         <div style="background:#667EEA;color:white;font-size:36px;font-weight:bold;text-align:center;padding:20px;border-radius:10px;letter-spacing:12px;margin:20px 0;">${code}</div>
         <p style="text-align:center;color:#888;">⏰ Expires in 10 minutes</p>
@@ -78,7 +88,7 @@ const sendWelcomeEmail = async (userEmail, username) => {
         <h1 style="color:white;margin:0;">🍹 Welcome!</h1>
       </div>
       <div style="padding:30px;">
-        <h2>Hello ${username}! 🎉</h2>
+        <h2>Hello ${escapeHtml(username)}! 🎉</h2>
         <p>Your Drink Quick Cal account is ready!</p>
       </div>
     </div>`;
@@ -98,7 +108,7 @@ const sendVerificationEmail = async (userEmail, code, username) => {
         <p style="color:rgba(255,255,255,0.8);">Verify Your Email Address</p>
       </div>
       <div style="padding:30px;">
-        <h2>Hello ${username || 'there'}! 👋</h2>
+        <h2>Hello ${escapeHtml(username || 'there')}! 👋</h2>
         <p>Thank you for registering! Click the button below to verify your email address:</p>
         <div style="text-align:center;margin:30px 0;">
           <a href="${verifyUrl}" style="background:#667EEA;color:white;padding:15px 40px;border-radius:10px;text-decoration:none;font-weight:bold;font-size:16px;display:inline-block;">✅ Verify Email</a>
@@ -124,8 +134,8 @@ const sendJoinRequestEmail = async (ownerEmail, ownerName, requesterName, compan
         <p style="color:rgba(255,255,255,0.8);">Company Join Verification</p>
       </div>
       <div style="padding:30px;">
-        <h2>Hello ${ownerName || 'there'}!</h2>
-        <p><strong>${requesterName}</strong> wants to join your company <strong>${companyName}</strong> as <strong>${role}</strong>.</p>
+        <h2>Hello ${escapeHtml(ownerName || 'there')}!</h2>
+        <p><strong>${escapeHtml(requesterName)}</strong> wants to join your company <strong>${escapeHtml(companyName)}</strong> as <strong>${escapeHtml(role)}</strong>.</p>
         <p>Share nothing — just enter this code in the app to approve:</p>
         <div style="background:#FF9800;color:white;font-size:36px;font-weight:bold;text-align:center;padding:20px;border-radius:10px;letter-spacing:12px;margin:20px 0;">${code}</div>
         <p style="text-align:center;color:#888;">⏰ Expires in 15 minutes</p>
@@ -155,7 +165,7 @@ const sendExistingAccountEmail = async (userEmail, username) => {
         <p style="color:rgba(255,255,255,0.8);">Your account already exists</p>
       </div>
       <div style="padding:30px;">
-        <h2>Hello ${username || 'there'},</h2>
+        <h2>Hello ${escapeHtml(username || 'there')},</h2>
         <p>Someone just tried to create a Drink Quick Cal account with this email address, but an account already exists for it.</p>
         <p><b>If it was you:</b> simply sign in with your usual password. If you no longer remember it, use &laquo; Forgot password &raquo; on the sign-in screen.</p>
         <p><b>If it was not you:</b> you can ignore this message — nothing has changed on your account.</p>
@@ -181,7 +191,7 @@ const sendLoginOtpEmail = async (userEmail, code, username) => {
         <p style="color:rgba(255,255,255,0.8);">Sign-in verification code</p>
       </div>
       <div style="padding:30px;">
-        <h2>Hello ${username || 'there'},</h2>
+        <h2>Hello ${escapeHtml(username || 'there')},</h2>
         <p>Someone is signing in to your account. Enter this code to continue:</p>
         <div style="font-size:34px;font-weight:bold;letter-spacing:8px;text-align:center;padding:18px;background:#f4f5ff;border-radius:12px;">${code}</div>
         <p style="color:#666;font-size:13px;">The code expires in 10 minutes and works once.</p>
@@ -248,7 +258,7 @@ const sendUsernameTakenEmail = async (userEmail, username) => {
       </div>
       <div style="padding:30px;">
         <h2>Hello,</h2>
-        <p>Someone tried to create a Drink Quick Cal account with this email address, but the username <b>${username}</b> is already taken.</p>
+        <p>Someone tried to create a Drink Quick Cal account with this email address, but the username <b>${escapeHtml(username)}</b> is already taken.</p>
         <p><b>Nothing was created and nothing has changed.</b> Please try again with a different username.</p>
         <p style="color:#666;font-size:13px;">If it was not you, you can ignore this message.</p>
       </div>
@@ -260,4 +270,4 @@ const sendUsernameTakenEmail = async (userEmail, username) => {
   );
 };
 
-module.exports = { sendResetCodeEmail, sendWelcomeEmail, sendVerificationEmail, sendExistingAccountEmail, sendLoginOtpEmail, sendUsernameTakenEmail, sendJoinRequestEmail, sendSupportReportEmail, sendPaymentCredentialChangedEmail, sendEmail, buildEmailPayload, isEmailConfigured };
+module.exports = { sendResetCodeEmail, sendWelcomeEmail, sendVerificationEmail, sendExistingAccountEmail, sendLoginOtpEmail, sendUsernameTakenEmail, sendJoinRequestEmail, sendSupportReportEmail, sendPaymentCredentialChangedEmail, sendEmail, buildEmailPayload, isEmailConfigured, escapeHtml };
