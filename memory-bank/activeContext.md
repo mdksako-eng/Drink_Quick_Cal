@@ -47,7 +47,27 @@ _Updated: 2026-11-12_
   both front doors rightly announce nothing yet.
 
 
-## AI screen: photos read honestly, replies actually translated (2026-11-12) ✅ `85ceb4d`, `12decba`
+## The APK is published — the front door has something to hand out (2026-11-13, `v1.1.0`)
+- **Live:** `https://github.com/mdksako-eng/Drink_Quick_Cal/releases/download/v1.1.0/app-release.apk`
+  — 82.6 MB / 86,643,870 bytes, tag pinned to `0d02283` (the commit the APK was built from).
+- **Verified, not assumed:** the URL answers **302 → 200** with
+  `Content-Type: application/vnd.android.package-archive`, and downloading the full file gives
+  **SHA-256 `3C373C0B5A0831358CFDE5662D71BFED3B6DA507EA88A1EC6ED7D96322B72C69`** — byte-identical to
+  the local build. So the hash a shop checks is the file it receives.
+- **Rebuilt rather than republished:** the APK already on disk was from **11/11 09:30** and **12
+  commits** had landed since (AI photo fixes, localised assistant replies, voice-language fix, 999
+  quantity ceiling) — publishing it would have shipped a build missing all of it. The published
+  binary is *proven* current: that day's new strings (`Not in your catalogue`,
+  `Absents de votre catalogue`) are present inside `libapp.so`.
+- **Signed with the release key** (`CN=Drink Quick Cal`, cert `4dfea099…`) — `apksigner verify`, not
+  a debug key.
+- **No new credential for the upload:** it used the GitHub OAuth token Git Credential Manager
+  already holds for `github.com` (the `git push` one). ⚠️ The Cloudflare token pasted into chat
+  earlier was removed from `.env`; it must still be **rolled** in the dashboard.
+- **Still owner's (Render):** the six `APP_*` values + a deploy. Until then `/api/app/release` stays
+  `known:false` and both front doors honestly announce nothing.
+
+
 - **Photo → order, three fixes, one theme: stop guessing, start reporting.**
   1. *"Use the drink names exactly as written above when they match"* said nothing about a drink the
      model could not place, so off-catalogue names vanished silently. The prompt — now in

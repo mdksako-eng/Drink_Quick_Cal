@@ -331,7 +331,24 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
 - **Owner:** the custom domain, that build variable, then publish a release (`known:false` today).
 
 
-## Not started
+## First published release — the APK is live — 2026-11-13 (`v1.1.0`)
+- **Signed APK published** at
+  `https://github.com/mdksako-eng/Drink_Quick_Cal/releases/download/v1.1.0/app-release.apk`
+  (82.6 MB / 86,643,870 bytes), tag pinned to the commit it was built from (`0d02283`).
+  Verified end to end: **302 → 200**, `Content-Type: application/vnd.android.package-archive`, and
+  the **served bytes hash to `3C373C0B…72C69`** — identical to the local build, so shops checking the
+  published SHA-256 are checking the file they actually receive.
+- **Rebuilt rather than republished:** the APK already on disk was from **11/11 09:30** and **12
+  commits** had landed since (AI photo fixes, localised replies, voice-language fix, 999 ceiling).
+  The published binary is proven current — the day's new strings (`Not in your catalogue`,
+  `Absents de votre catalogue`) are inside `libapp.so`.
+- Signed with the release key (`CN=Drink Quick Cal`, cert `4dfea099…`), checked with `apksigner`.
+- Published with **no new credential**: the upload used the GitHub OAuth token Git Credential
+  Manager already stores for `github.com`.
+- **Still owner's:** the six `APP_*` variables on Render + a deploy, after which
+  `/api/app/release` flips to `known:true` and both front doors light up together.
+
+
 - **Phase 4 — Real-time IoT sensor integration (automated replenishment)** ⬜ needs
   ESP32/load-cell firmware, a device-authenticated `POST /api/sensors/reading`, and
   Supabase Realtime wiring in the app.

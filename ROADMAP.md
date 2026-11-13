@@ -1785,3 +1785,27 @@ for the vision prompt).
   `SKIP_DEPENDENCY_INSTALL=1`, then publish a real release — `/api/app/release` still answers
   `known:false`, so both front doors rightly say nothing yet.
 
+## First published release — the APK is live — 2026-11-13 (`v1.1.0`, tag at `0d02283`)
+
+- **The front door finally has something to hand out.** `/api/app/release` had answered `known:false`
+  since the update-notice feature landed, so both the download page and the in-app notice were —
+  correctly — silent. A signed release APK built from current HEAD is now published at
+  **`https://github.com/mdksako-eng/Drink_Quick_Cal/releases/download/v1.1.0/app-release.apk`**
+  (82.6 MB, 86,643,870 bytes). Verified end to end rather than assumed: the URL answers **302 → 200**
+  with `Content-Type: application/vnd.android.package-archive`, and the **served bytes hash to
+  `3C373C0B5A0831358CFDE5662D71BFED3B6DA507EA88A1EC6ED7D96322B72C69`** — byte-identical to the local
+  build, so the SHA-256 a shop is asked to check is exactly the file it receives.
+- **Rebuilt, not republished.** The APK already on disk was built **11/11 09:30**, and **12 commits**
+  had landed since (the AI photo-reading fixes, the localised assistant replies, the voice-language
+  fix, the 999 quantity ceiling), so publishing it would have shipped shops a build missing all of
+  it. The published binary is *proven* current: the strings added that day — `Not in your catalogue`
+  and `Absents de votre catalogue` — are present inside `libapp.so`.
+- **Signed with the release key** — `CN=Drink Quick Cal, O=Drink Quick Cal, C=CM` (cert `4dfea099…`),
+  confirmed with `apksigner verify`; not a debug key.
+- **No new credential was created to publish.** The upload used the GitHub OAuth token Git Credential
+  Manager already holds for `github.com` — the same one `git push` uses. (A Cloudflare token was
+  pasted into chat earlier in the session; it was removed from `.env` and is to be rolled.)
+- **Still owner's (Render):** the six `APP_*` variables and a deploy. Until that lands, `known` stays
+  `false` and nothing is announced — the page stays honest either way.
+
+
