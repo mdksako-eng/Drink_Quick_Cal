@@ -99,6 +99,12 @@ the page says so honestly ("could not reach the download server") instead of cla
 exists. `drinks-calculator-backend/public/download.html` still serves a copy from Render until it is
 replaced by a redirect.
 
+**`APP_APK_URL` points at the Worker's own route, not at the host that keeps the APK:**
+`https://drink-quick-cal.mbundaderick.workers.dev/app-release.apk`. The Worker streams the file from
+wherever it is published, so a shop never sees that address. A new release therefore updates
+**`APK_UPSTREAM` in `wrangler.jsonc`** plus the version/hash/notes below — the shop-facing URL never
+changes, which is what makes a link handed out once keep working.
+
 ---
 
 ## Traps worth knowing

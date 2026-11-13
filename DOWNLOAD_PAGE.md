@@ -13,8 +13,25 @@ seconds to warm up. A shop could meet a timeout before it met the app. A static 
 
 | URL | What |
 |---|---|
-| `https://drink-quick-cal.mbundaderick.workers.dev` | **Live now** (what the first deploy reported) |
+| `https://drink-quick-cal.mbundaderick.workers.dev` | **Live** (the page a shop opens) |
+| `https://drink-quick-cal.mbundaderick.workers.dev/app-release.apk` | **Live** — the installation file, streamed from this domain |
 | a custom domain | **still to add** — Worker → Settings → Domains & Routes |
+
+### The installation file is served from this domain, not from where it is kept
+
+An 82 MB APK cannot sit in `download-page/`: Cloudflare's limit is **25 MiB per static asset** —
+*"The individual file size limit of 25 MiB remains unchanged for all customers"* (Cloudflare
+changelog). So the file is published elsewhere, and `cloudflare/download-page.js` — the Worker's only
+code — streams it back out at **`/app-release.apk`**. A shop's URL bar and download list therefore
+show this domain, never the host that keeps the file.
+
+**That URL never changes between releases.** When a new APK is published, only `APK_UPSTREAM` in
+`wrangler.jsonc` moves, plus the version/hash/notes on the backend — the address shops use stays the
+same, so a link handed out once keeps working.
+
+The route costs nothing to run: Cloudflare serves a static asset whenever one matches, so the script
+is reached only for that single path (the page itself is still served as a free static asset). It is
+deliberately **not** inside `download-page/` — everything in that directory becomes a public URL.
 
 Checked against the live deployment, not just locally: `/` → **200** (`CF-Cache-Status: HIT`),
 `/download` and `/download.html` → **301** to `/`, `/_headers` and `/_redirects` → **404** (they are
