@@ -8,6 +8,11 @@
   // Worker instead of updating this one.
   "name": "drink-quick-cal",
 
+  // The one small script this Worker runs. Everything else stays static: Cloudflare serves an
+  // asset whenever one matches, and the script is reached only for paths no asset matched — which
+  // is exactly the single route in it. So the page is as cheap and fast as before.
+  "main": "./cloudflare/download-page.js",
+
   // Cloudflare's own example sets this to today's date; it is the date from which runtime
   // behaviour is fixed. With no Worker script there is no runtime behaviour to pin, but
   // wrangler expects the field.
@@ -24,11 +29,17 @@
   // per-branch previews are genuinely wanted.
   "preview_urls": false,
 
-  // There is deliberately no "main": an assets-only Worker has no script to run, so every
-  // request is answered straight from the asset cache. `download-page/` is the whole site —
-  // index.html, logo.png, and Cloudflare's two config files (_headers, _redirects) which it
-  // reads rather than serves.
+  // `download-page/` is the whole site: index.html, logo.png, and Cloudflare's two config files
+  // (_headers, _redirects) which it reads rather than serves. Nothing else belongs in that
+  // directory — every file in it gets a public URL.
   "assets": {
-    "directory": "./download-page"
+    "directory": "./download-page",
+    "binding": "ASSETS"
+  },
+
+  // Where the installation file is kept. The script streams it, so a shop downloads from this
+  // domain and never sees this address — which is the whole point of the route.
+  "vars": {
+    "APK_UPSTREAM": "https://github.com/mdksako-eng/Drink_Quick_Cal/releases/download/v1.1.0/app-release.apk"
   }
 }
