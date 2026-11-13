@@ -64,15 +64,11 @@
     <h1 data-en="Download Drink Quick Cal" data-fr="Télécharger Drink Quick Cal"></h1>
     <p class="meta" id="versionLine" data-en="Checking which build is published&hellip;" data-fr="Vérification de la version publiée&hellip;"></p>
     <p id="notes" class="meta" hidden></p>
-    <!-- Shown only when the release API could not be reached. This page is served from a
-         static host, so it stays up when the API does not — and the row says so, instead of
-         letting "the server is waking up" read as "no build exists". -->
+    <!-- Shown only when the version check could not reach the server: the page stays up even
+         then, and this row says so instead of letting it read as "no build exists". -->
     <div class="row" id="checkRow" hidden>
       <button type="button" class="ghost" id="retryBtn" onclick="retryCheck()"
               data-en="Check again" data-fr="Vérifier à nouveau"></button>
-      <a class="ghost" id="releasesLink" href="https://github.com/mdksako-eng/Drink_Quick_Cal/releases/latest"
-         target="_blank" rel="noopener"
-         data-en="See all published builds" data-fr="Voir toutes les versions publiées"></a>
     </div>
 
     <p>
@@ -99,35 +95,25 @@
     <p class="meta" data-en="The SHA-256 below is the fingerprint of the file published here. If it does not match the file you downloaded, do not install it and tell us." data-fr="Le SHA-256 ci-dessous est l'empreinte du fichier publié ici. S'il ne correspond pas au fichier que vous avez téléchargé, ne l'installez pas et prévenez-nous."></p>
     <div class="hash" id="hash" data-en="No build is published yet." data-fr="Aucune version n'est encore publiée."></div>
     <button type="button" class="copy" id="copyBtn" onclick="copyHash()" data-en="Copy" data-fr="Copier" hidden></button>
-    <p class="meta"><span data-en="Windows (PowerShell):" data-fr="Windows (PowerShell) :"></span> <code>Get-FileHash .\app-release.apk -Algorithm SHA256</code></p>
   </div>
 
   <footer>
-    <!-- The legal pages are served by the backend, which holds the single published copy of
-         that text, so they are linked rather than duplicated here: a second copy of a legal
-         document is a copy that drifts. The href is set in setLang() to match the language. -->
+    <!-- The href is set in setLang() so a French reader is not sent to the English text. -->
     <a id="legalPrivacy" href="https://drink-quick-cal-kja1.onrender.com/privacy.html" data-en="Privacy" data-fr="Confidentialité"></a> &middot;
     <a id="legalTerms" href="https://drink-quick-cal-kja1.onrender.com/terms.html" data-en="Terms" data-fr="Conditions"></a> &middot;
     <span data-en="Support: use the Support screen inside the app." data-fr="Assistance : utilisez l'écran Assistance dans l'application."></span>
   </footer>
 <script>
-// Bilingual by a data-en / data-fr swap rather than two files (privacy.html has a .fr
-// twin). The page is DYNAMIC — it reads /api/app/release for the version, the notes and
-// the hash — and duplicating that logic in a second file is how the two drift apart.
-// The choice is remembered; the browser's language decides the first visit.
+// Bilingual by a data-en / data-fr swap rather than a file per language: two copies of the
+// same page is how they drift apart. The page is dynamic — the version, the notes and the
+// hash are read from the API — and the language choice is remembered.
 (function () {
   // ---------------------------------------------------------------- configuration
-  // The PAGE is static (Cloudflare Pages); the release METADATA is not — it comes from the
-  // backend's environment. This is the only line that ties the two hosts together, so it is
-  // the only line to change if the backend ever moves.
+  // Where the release information is read from. Change this line if it ever moves.
   var API_BASE = 'https://drink-quick-cal-kja1.onrender.com';
   var API = API_BASE + '/api/app/release';
-  // Every published build is listed here. Used only when the API cannot be reached: a free
-  // instance waking up must never read as "no build exists" — that would be a guess, and the
-  // wrong one at the worst possible moment.
-  var RELEASES_URL = 'https://github.com/mdksako-eng/Drink_Quick_Cal/releases/latest';
-  // A sleeping instance answers 503 for ~30-100 s while it boots, so one attempt is not a
-  // verdict. Give up after two, and show the fallback above rather than a dead page.
+  // The API can be slow to answer, so one attempt is not a verdict: try twice, then offer the
+  // retry button rather than a page that looks broken.
   var REQUEST_TIMEOUT_MS = 9000;
   var RETRY_DELAY_MS = 6000;
   var copyLabel = { en: 'Copy', fr: 'Copier' };
@@ -280,8 +266,6 @@
 
     var row = document.getElementById('checkRow');
     if (row) row.hidden = false;
-    var link = document.getElementById('releasesLink');
-    if (link) link.href = RELEASES_URL;
   }
 
   function renderChecking() {
