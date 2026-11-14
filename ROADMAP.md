@@ -1785,6 +1785,32 @@ for the vision prompt).
   `SKIP_DEPENDENCY_INSTALL=1`, then publish a real release — `/api/app/release` still answers
   `known:false`, so both front doors rightly say nothing yet.
 
+## The legal pages move to the front door — 2026-11-13 (`a4937c7`)
+
+- **Why it matters more than it sounds:** a **new shop reads the privacy policy and terms before it
+  can create an account** — the consent gate is the first thing they touch — and those pages were
+  served by the free Render instance that sleeps. So the one screen nobody can skip was the one most
+  likely to stall. Privacy, terms and the DPA (EN + FR) are now served from the Cloudflare site, on
+  the same host as the download page, and load instantly.
+- **One copy of the text, kept that way.** The six files were **byte-copied** (hash-verified, wording
+  untouched — they are the published text, "Shop"/"Établissement" included), and the API host now
+  302-redirects `/privacy.html`, `/terms.html`, `/dpa.html` and their `.fr` twins to the front door.
+  So links already given out — and app builds that still point at the old host — keep working, while
+  the document exists in exactly one place. **302, not 301:** browsers cache a permanent redirect
+  hard, and this host may move again once a custom domain exists.
+- **Consent is unaffected, by design.** Acceptance is versioned by a server-owned string
+  (`LEGAL_VERSION`, default `2026-10`) stored as two rows per user — **not** by URL. Only a change to
+  the *wording* requires bumping it, which is exactly the condition that should.
+- **The app points at the front door from the next build:** `ApiConfig.legalPage()` now builds from
+  `legalBaseUrl`. Builds that predate the change reach the same pages through the redirect, so
+  nothing had to be updated before shipping.
+- **One quirk, documented rather than fought:** requesting `/privacy.html` answers **307 →
+  `/privacy`**. That is Cloudflare's own HTML canonicalisation for static assets, same origin and
+  invisible to a browser; both paths serve the page.
+- **Gates:** backend **729 tests**, Flutter **590**, `flutter analyze lib` **0 errors**, page i18n
+  **21/21** pairs. Verified live: the six pages **200** on Cloudflare with the French accents intact,
+  the logo resolves on the same domain, and the API host still serves them until it is deployed.
+
 ## First published release — the APK is live — 2026-11-13 (`v1.1.0`, tag at `0d02283`)
 
 - **The front door finally has something to hand out.** `/api/app/release` had answered `known:false`

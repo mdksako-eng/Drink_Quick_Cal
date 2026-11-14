@@ -1,6 +1,6 @@
 # Active context
 
-_Updated: 2026-11-12_
+_Updated: 2026-11-13_
 
 ## The download page left the free Render instance (2026-11-12)
 - **Was:** `drinks-calculator-backend/public/download.html`, served by the **free Render instance
@@ -47,7 +47,29 @@ _Updated: 2026-11-12_
   both front doors rightly announce nothing yet.
 
 
+## The legal pages moved to the front door (2026-11-13, `a4937c7`)
+- **Privacy, terms and dpa (EN + FR) are now served from the Cloudflare site**, not from the Render
+  backend. Same reason as the download page: the free Render instance sleeps, and a **new shop reads
+  the terms *before* it can create an account** — the worst possible moment to meet a cold start.
+- **One copy, not two.** The API host now **302-redirects** `/privacy.html`, `/terms.html`,
+  `/dpa.html` (and the `.fr` twins) to the front door, so links already given out — and app builds
+  that still point at the old host — keep working while the text lives in exactly one place.
+  302, not 301, on purpose: browsers cache a permanent redirect hard and this host may move again.
+- **Consent is unaffected:** legal acceptance is versioned by a server-owned string
+  (`LEGAL_VERSION`, default `2026-10`) stored as two rows per user — not by the URL. Only a change to
+  the *wording* requires bumping that version.
+- The six files were **byte-copied** (hash-verified) — no wording was touched; they are the published
+  text, "Shop"/"Établissement" and all.
+- They need no extra assets: each references only `src="logo.png"`, which the site already carries.
+- **`.html` gives a 307 hop** (`/privacy.html` → `/privacy`) — that is Cloudflare's own HTML
+  canonicalisation for static assets, not an error. Both paths serve the page, same origin.
+- **App side:** `ApiConfig.legalPage()` now points at the front door (`legalBaseUrl`), so builds made
+  from this change onward go straight there with no hop. Builds before it still work via the redirect.
+
+
 ## The APK is published — the front door has something to hand out (2026-11-13, `v1.1.0`)
+
+
 - **Live:** `https://github.com/mdksako-eng/Drink_Quick_Cal/releases/download/v1.1.0/app-release.apk`
   — 82.6 MB / 86,643,870 bytes, tag pinned to `0d02283` (the commit the APK was built from).
 - **Verified, not assumed:** the URL answers **302 → 200** with

@@ -348,6 +348,22 @@ Mirrors `ROADMAP.md`, which is authoritative. Keep this short.
 - **Still owner's:** the six `APP_*` variables on Render + a deploy, after which
   `/api/app/release` flips to `known:true` and both front doors light up together.
 
+## Legal pages moved to the front door — 2026-11-13 (`a4937c7`)
+- **Privacy / terms / dpa (EN+FR) now come from Cloudflare**, not Render: a new shop reads the terms
+  *before* creating an account, and the free Render instance sleeps. Same argument as the download
+  page, and the whole consent gate now loads instantly.
+- **One copy:** the API host 302-redirects the old paths (`.html` and the `.fr` twins) to the front
+  door, so links already given out and app builds that predate this keep working. 302 not 301 —
+  browsers cache a permanent redirect hard and the host may move again (custom domain).
+- **Consent unaffected:** acceptance is versioned by `LEGAL_VERSION` (server-owned), not by the URL.
+- Files **byte-copied** (hash-verified, wording untouched); they need only `src="logo.png"`, already
+  in the site. `.html` gets a 307 hop to the extensionless path — Cloudflare's canonicalisation.
+- App: `ApiConfig.legalPage()` now uses `legalBaseUrl` (the front door); older builds follow the redirect.
+- Gates: backend **729**, Flutter **590**, analyze **0 errors**, page i18n **21/21**.
+
+## Not started
+
+
 
 - **Phase 4 — Real-time IoT sensor integration (automated replenishment)** ⬜ needs
   ESP32/load-cell firmware, a device-authenticated `POST /api/sensors/reading`, and

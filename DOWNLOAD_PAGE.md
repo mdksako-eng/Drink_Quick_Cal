@@ -15,6 +15,7 @@ seconds to warm up. A shop could meet a timeout before it met the app. A static 
 |---|---|
 | `https://drink-quick-cal.mbundaderick.workers.dev` | **Live** (the page a shop opens) |
 | `https://drink-quick-cal.mbundaderick.workers.dev/app-release.apk` | **Live** — the installation file, streamed from this domain |
+| `…/privacy.html` · `/terms.html` · `/dpa.html` (+ `.fr`) | **Live** — the legal pages (a `.html` request gets a 307 to the extensionless path, which is Cloudflare's own canonicalisation) |
 | a custom domain | **still to add** — Worker → Settings → Domains & Routes |
 
 ### The installation file is served from this domain, not from where it is kept
@@ -47,6 +48,7 @@ text was verified on the live bytes (`Vérifier à nouveau`, `Confidentialité` 
 | `download-page/logo.png` | yes | The same art as `drinks-calculator-backend/public/logo.png` (**identical SHA-256**), kept here so the page needs no other host *to render*. This is now the **third** copy of that art (`assets/icons/icon.png`, the backend's, this one) — a brand change updates all three. |
 | `download-page/_headers` | **no** — config | The security headers a static host does not send by default. |
 | `download-page/_redirects` | **no** — config | Sends the old `/download.html` and a typed `/download` to `/`. |
+| `download-page/privacy.html` · `terms.html` · `dpa.html` (+ `.fr`) | yes | The legal pages, moved here from the backend so a new shop reads the terms — before creating an account — without meeting a cold start. Byte-copied, wording untouched; the API host 302-redirects the old paths to these. |
 | `wrangler.jsonc` (repo root) | no | Where the assets are, and the Worker's name. |
 
 **Nothing else belongs in `download-page/`.** Every file in that directory gets a public URL, which
@@ -147,10 +149,11 @@ download bytes never touch Render.
 1. **`drinks-calculator-backend/public/download.html` still works.** Two copies of a page drift, so
    the intended cleanup is a redirect on the next backend deploy — but swapping a live page for a
    redirect to a site that is not deployed yet is how a front door breaks.
-2. **The legal pages are linked, not copied.** `privacy.html` / `terms.html` and their `.fr` twins
-   are served by the backend and stay the single published copy of that text; the footer links to
-   the language-matching one. Duplicating a legal document here would create a second copy that
-   drifts.
+2. **The legal pages now live *here*, and the backend redirects to them** (see the file table). While
+   the backend served them the rule was "linked, not copied" — and what that rule protects is *one
+   copy*, which a redirect keeps: the text exists only in this folder and the old paths point at it.
+   The wording was copied byte-for-byte, so it must not be edited here without bumping
+   `LEGAL_VERSION` (that is what makes existing users re-accept a changed document).
 
 ## Two traps
 
