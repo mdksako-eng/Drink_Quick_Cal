@@ -1098,6 +1098,20 @@ app.use(
     },
   })
 );
+// 📄 The legal pages (privacy, terms, dpa) are served from the FRONT DOOR, not from here: the
+// front door is always awake, and a new shop reads the terms before it can create an account —
+// which is precisely the moment a cold start is least welcome. These paths stay as redirects so
+// links already given out, and app builds that still point at this host, keep working; the text
+// itself lives in exactly one place (download-page/), so it cannot drift.
+//
+// 302 rather than 301 on purpose: a permanent redirect is cached hard by browsers, and this host
+// may move again (a custom domain). Point LEGAL_BASE_URL elsewhere and the redirect follows.
+const LEGAL_BASE_URL = (
+  process.env.LEGAL_BASE_URL || 'https://drink-quick-cal.mbundaderick.workers.dev'
+).replace(/\/+$/, '');
+app.get(/^\/(privacy|terms|dpa)(\.fr)?\.html$/, (req, res) => {
+  res.redirect(302, `${LEGAL_BASE_URL}${req.path}`);
+});
 app.use(express.static(path.join(__dirname, 'public')));
 // ✅ Database connection middleware - MUST BE BEFORE ROUTES
 app.use(async (req, res, next) => {

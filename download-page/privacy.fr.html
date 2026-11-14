@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Politique de confidentialité — Drink Quick Cal</title>
+<style>
+  :root{--brand:#4361EE;--ink:#12203a;--muted:#5b6b85;--bg:#f6f8fc;--card:#fff;--line:#e3e9f2;--warn:#fff7e6;--warnline:#f0c36d}
+  @media (prefers-color-scheme:dark){:root{--ink:#eaf0fb;--muted:#a8b6cd;--bg:#0e1420;--card:#151d2c;--line:#26324a;--warn:#241d0d;--warnline:#8a6a2a}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:26px 20px 60px}
+  .brand{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 0 2px}
+  .wordmark{font-size:23px;font-weight:800;letter-spacing:-.4px}
+  /* The real app logo (assets/icons/icon.png → logo.png). It is dark artwork with
+     transparent corners, so it sits on a white tile and stays legible in dark mode. */
+  .logo{display:inline-flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:5px;box-shadow:0 2px 6px rgba(18,32,58,.10)}
+  .logo img{display:block;height:38px;width:auto}
+  .wordmark span{color:var(--brand)}
+  .tagline{margin:2px 0 0;color:var(--muted);font-size:13px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 24px;margin-top:20px}
+  h1{font-size:29px;margin:12px 0 4px;letter-spacing:-.5px}
+  h2{font-size:18px;margin:26px 0 6px}
+  .meta{color:var(--muted);font-size:13px}
+  ul{padding-left:20px}li{margin:4px 0}
+  .note{background:var(--warn);border:1px solid var(--warnline);border-radius:12px;padding:14px 16px;margin:18px 0}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:15px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:rgba(67,97,238,.08)}
+  footer{margin-top:30px;color:var(--muted);font-size:13px;text-align:center}
+  a{color:var(--brand)}@media(max-width:560px){h1{font-size:25px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <span class="logo"><img src="logo.png" alt="Drink Quick Cal"></span>
+    <div>
+      <div class="wordmark">Drink&nbsp;Quick&nbsp;<span>Cal</span></div>
+      <p class="tagline">Gestion des boissons et du stock au Cameroun — conçue pour fonctionner hors ligne</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h1>Politique de confidentialité</h1>
+    <p class="meta">Version 2.0 &middot; En vigueur le 27 septembre 2026 &middot; Concerne l&rsquo;application Drink Quick Cal et le service qui la soutient (le « Service »).</p>
+    <p>Drink Quick Cal sert aux bars, restaurants et commerces de boissons (chacun un « Établissement ») à enregistrer les ventes, gérer le stock, suivre les crédits clients et clôturer la caisse. Une caisse manipule de l&rsquo;argent et des noms de clients : cette politique indique donc clairement ce que nous collectons, pourquoi, qui peut le voir, et comment le récupérer ou le supprimer.</p>
+    <div class="note"><strong>En bref.</strong> Votre Établissement reste propriétaire de ses données (boissons, commandes, stock, clients, personnel). Nous les hébergeons et les traitons pour vous, sans jamais les vendre. Les comptes du personnel sont créés par le gérant, pas par nous. Aucun traçage publicitaire.</div>
+
+    <h2 id="qui">1. Qui nous sommes</h2>
+    <p>Le Service est exploité par l&rsquo;éditeur de Drink Quick Cal, établi à Kumba, Cameroun (« nous »). Nous décidons de la conception, de la sécurité et de l&rsquo;exploitation du Service ; l&rsquo;identification légale complète de l&rsquo;éditeur est disponible à l&rsquo;adresse de la section 13.</p>
+
+    <h2 id="roles">2. Deux rôles : nos données et celles de votre Établissement</h2>
+    <table>
+      <tr><th>Données</th><th>Qui décide</th><th>Conséquence</th></tr>
+      <tr><td>Comptes, personnel, boissons, commandes, stock, dépenses</td><td><strong>Votre Établissement</strong></td><td>L&rsquo;Établissement les contrôle ; nous les hébergeons et les traitons uniquement pour faire fonctionner le Service pour lui.</td></tr>
+      <tr><td><strong>Les clients de votre Établissement</strong> — noms, téléphones, adresses, ardoises, historique d&rsquo;achat</td><td><strong>Votre Établissement</strong></td><td>C&rsquo;est à l&rsquo;Établissement d&rsquo;informer ses clients de ce qu&rsquo;il enregistre et pourquoi. Nous agissons sur ses instructions, jamais pour notre compte.</td></tr>
+      <tr><td>Usage du Service, journaux de sécurité, facturation</td><td><strong>Nous</strong></td><td>Nécessaire pour que le Service fonctionne, reste sécurisé et soit payé.</td></tr>
+    </table>
+    <p>Chaque donnée appartient à un seul Établissement, et l&rsquo;accès est contrôlé sur le serveur depuis la session ouverte — jamais à partir de ce que l&rsquo;application envoie.</p>
+
+    <h2 id="collecte">3. Ce que nous collectons</h2>
+    <ul>
+      <li><strong>Compte :</strong> nom ou identifiant, e-mail, téléphone (facultatif), rôle, entreprise, mot de passe haché (jamais le mot de passe lui-même), langue et thème.</li>
+      <li><strong>Données métier que vous saisissez :</strong> boissons et prix, mouvements de stock, ventes et leurs lignes, numéros de reçus, services et comptages de caisse, comptes clients et carnet de crédit, notes fournisseurs et dépenses.</li>
+      <li><strong>Données techniques :</strong> version de l&rsquo;application, plateforme, identifiant de session anonyme, traces d&rsquo;erreurs, et montant/statut des tentatives de paiement.</li>
+      <li><strong>Messages d&rsquo;assistance</strong> que vous nous envoyez et les coordonnées qu&rsquo;ils contiennent.</li>
+    </ul>
+    <p>Nous ne collectons ni votre répertoire, ni vos SMS, ni votre historique de localisation, et l&rsquo;application ne contient aucun traceur publicitaire ou statistique tiers.</p>
+
+    <h2 id="pourquoi">4. Pourquoi nous les traitons</h2>
+    <ul>
+      <li><strong>Fournir le Service</strong> — enregistrer les ventes, synchroniser l&rsquo;Établissement entre ses appareils, imprimer les reçus, produire rapports et prévisions.</li>
+      <li><strong>Sécuriser les comptes</strong> — sessions, rôles, validations du gérant, pistes d&rsquo;audit.</li>
+      <li><strong>Gérer les abonnements</strong> — quelle formule est active, sa date d&rsquo;expiration, et la transaction qui l&rsquo;a activée.</li>
+      <li><strong>Vous assister</strong> — diagnostiquer un problème que vous signalez.</li>
+      <li><strong>Respecter la loi</strong> — répondre aux demandes légitimes des autorités compétentes.</li>
+    </ul>
+
+    <h2 id="partage">5. Avec qui nous les partageons</h2>
+    <p>Nous ne vendons jamais de données personnelles. Nous ne les partageons qu&rsquo;avec les prestataires nécessaires au Service, chacun tenu de les utiliser à cette seule fin :</p>
+    <ul>
+      <li><strong>Hébergement et base de données</strong> — notre hébergeur et notre fournisseur PostgreSQL géré, dans un projet isolé à accès restreint.</li>
+      <li><strong>Prestataires de paiement</strong> — les opérateurs mobile money et cartes utilisés ; ils reçoivent le montant, la référence et le téléphone ou l&rsquo;e-mail du payeur, et appliquent leur propre politique de confidentialité.</li>
+      <li><strong>Messagerie</strong> — si un utilisateur appuie sur « envoyer par WhatsApp », le message part de l&rsquo;appareil vers WhatsApp ; nous ne voyons pas le destinataire.</li>
+      <li><strong>Autorités</strong> — uniquement lorsque la loi l&rsquo;exige ; nous informons l&rsquo;Établissement, sauf interdiction légale.</li>
+    </ul>
+
+    <h2 id="ou">6. Où les données sont stockées</h2>
+    <p>Les données métier résident sur des serveurs et une infrastructure de base de données que nous administrons, accessibles seulement aux utilisateurs de l&rsquo;Établissement et à nos opérateurs techniques. Une partie est aussi mise en cache sur l&rsquo;appareil pour continuer à vendre sans réseau (section 10). Tout transfert hors du Cameroun se fait uniquement vers des prestataires offrant des garanties contractuelles.</p>
+
+    <h2 id="duree">7. Combien de temps nous les gardons</h2>
+    <ul>
+      <li><strong>Données d&rsquo;un Établissement actif :</strong> pendant la durée de l&rsquo;abonnement.</li>
+      <li><strong>Après fermeture :</strong> suppression ou anonymisation irréversible sous 90 jours, sauf ce que la comptabilité ou la loi nous oblige à conserver (en général les paiements).</li>
+      <li><strong>Journaux de sécurité et d&rsquo;audit :</strong> jusqu&rsquo;à 12 mois.</li>
+      <li><strong>Caches de l&rsquo;appareil :</strong> effacés à la déconnexion et à chaque changement d&rsquo;Établissement.</li>
+    </ul>
+
+    <h2 id="securite">8. Comment nous les protégeons</h2>
+    <ul>
+      <li>Les mots de passe ne sont stockés que sous forme de hachages irréversibles ; les anciennes lignes sont mises à niveau à la prochaine connexion réussie.</li>
+      <li>Les sessions sont gérées et révocables côté serveur, et le code PIN plus l&rsquo;écran de verrouillage de l&rsquo;application ajoutent une seconde barrière sur une caisse partagée.</li>
+      <li>Le trafic est chiffré en transit, et les clés publiques des clients ne peuvent pas lire les tables métier (sécurité au niveau des lignes).</li>
+      <li>Chaque requête est limitée, sur le serveur, à l&rsquo;Établissement de l&rsquo;utilisateur connecté ; les actions réservées au gérant — annuler une commande, la restaurer, changer le logo de l&rsquo;entreprise — sont revérifiées côté serveur et journalisées avec qui, quand et pourquoi.</li>
+      <li>Les notifications de paiement sont vérifiées par signature avant toute activation d&rsquo;une formule.</li>
+    </ul>
+
+    <h2 id="droits">9. Vos droits</h2>
+    <p>Sous réserve du droit applicable, notamment la loi camerounaise n° 2010/012 relative à la cybersécurité, vous pouvez nous demander d&rsquo;<strong>accéder</strong> à une copie de vos données personnelles, de <strong>corriger</strong> ce qui est inexact, de <strong>supprimer</strong> votre compte et vos données, de les <strong>exporter</strong>, de <strong>limiter ou contester</strong> un traitement, ou de <strong>retirer votre consentement</strong> lorsque nous nous appuyions sur lui.</p>
+    <p>Un client d&rsquo;un Établissement qui veut corriger ou supprimer ses données de crédit doit d&rsquo;abord s&rsquo;adresser à cet Établissement, qui les contrôle ; s&rsquo;il ne peut pas l&rsquo;aider, il peut nous écrire et nous l&rsquo;assisterons.</p>
+
+    <h2 id="appareil">10. Autorisations de l&rsquo;appareil</h2>
+    <ul>
+      <li><strong>Appareil photo</strong> — uniquement pour scanner un code-barres/QR ou joindre la photo d&rsquo;une boisson.</li>
+      <li><strong>Photos/fichiers</strong> — uniquement pour joindre une photo de boisson ou un logo d&rsquo;entreprise.</li>
+      <li><strong>Bluetooth</strong> — uniquement pour imprimer un reçu sur une imprimante thermique appairée.</li>
+      <li><strong>Notifications</strong> — rappels de stock, d&rsquo;expiration et de service ; désactivables dans l&rsquo;application ou dans les réglages Android.</li>
+      <li><strong>Stockage local</strong> — le cache hors ligne qui permet de continuer à vendre. Il est propre à chaque Établissement et effacé à la déconnexion.</li>
+    </ul>
+    <p>Vous pouvez refuser toute autorisation : la fonction correspondante reste simplement indisponible.</p>
+
+    <h2 id="mineurs">11. Mineurs</h2>
+    <p>Le Service est un outil professionnel, non destiné aux enfants. Nous ne créons pas sciemment de compte pour une personne de moins de 18 ans, et les comptes du personnel doivent être créés par le gérant de l&rsquo;Établissement.</p>
+
+    <h2 id="modifs">12. Modifications</h2>
+    <p>Nous pouvons mettre à jour cette politique avec l&rsquo;évolution du Service. La version et la date en tête reflètent toujours le texte en vigueur, et tout changement important est annoncé dans l&rsquo;application avant son entrée en application. Continuer à utiliser le Service après un changement vaut acceptation de la politique mise à jour.</p>
+
+    <h2 id="contact">13. Contact et réclamations</h2>
+    <p><strong>Contact confidentialité :</strong> <a href="mailto:mdksako@gmail.com">mdksako@gmail.com</a><br>
+       <strong>Assistance dans l&rsquo;application :</strong> <a href="mailto:mbundaderick@gmail.com">mbundaderick@gmail.com</a></p>
+    <p>Nous répondons sous 7 jours ouvrés. En cas d&rsquo;insatisfaction, vous pouvez saisir l&rsquo;autorité camerounaise compétente en matière de protection des données personnelles.</p>
+  </div>
+
+  <footer>
+    &copy; 2026 Drink Quick Cal &middot; Kumba, Cameroun<br>
+    <a href="terms.fr.html">Conditions d&rsquo;utilisation</a> &middot; <a href="privacy.html">English version</a>
+  </footer>
+</div>
+</body>
+</html>
+

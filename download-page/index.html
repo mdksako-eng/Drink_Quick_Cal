@@ -97,9 +97,10 @@
   </div>
 
   <footer>
-    <!-- The href is set in setLang() so a French reader is not sent to the English text. -->
-    <a id="legalPrivacy" href="https://drink-quick-cal-kja1.onrender.com/privacy.html" data-en="Privacy" data-fr="Confidentialité"></a> &middot;
-    <a id="legalTerms" href="https://drink-quick-cal-kja1.onrender.com/terms.html" data-en="Terms" data-fr="Conditions"></a> &middot;
+    <!-- Legal pages live on this same domain (they are served from this site, not the API host),
+         and the href is set in setLang() so a French reader is not sent to the English text. -->
+    <a id="legalPrivacy" href="privacy.html" data-en="Privacy" data-fr="Confidentialité"></a> &middot;
+    <a id="legalTerms" href="terms.html" data-en="Terms" data-fr="Conditions"></a> &middot;
     <span data-en="Support: use the Support screen inside the app." data-fr="Assistance : utilisez l'écran Assistance dans l'application."></span>
   </footer>
 <script>
@@ -154,12 +155,11 @@
     });
     var copy = document.getElementById('copyBtn');
     if (copy) copy.textContent = copyLabel[l];
-    // The legal pages each have a French twin, so a French reader is not dropped on the
-    // English text. The base URL is the one in the configuration block, not a second copy.
-    var privacy = document.getElementById('legalPrivacy');
-    if (privacy) privacy.href = API_BASE + '/privacy' + (l === 'fr' ? '.fr' : '') + '.html';
-    var terms = document.getElementById('legalTerms');
-    if (terms) terms.href = API_BASE + '/terms' + (l === 'fr' ? '.fr' : '') + '.html';
+    // The legal pages are served from this same domain now, so only the language varies.
+    const privacy = document.getElementById('legalPrivacy');
+    if (privacy) privacy.href = '/privacy' + (l === 'fr' ? '.fr' : '') + '.html';
+    const terms = document.getElementById('legalTerms');
+    if (terms) terms.href = '/terms' + (l === 'fr' ? '.fr' : '') + '.html';
     if (release) render(release);
     else if (wasUnreachable) renderUnreachable();
     try { localStorage.setItem('dqc-lang', l); } catch (e) { /* private mode */ }

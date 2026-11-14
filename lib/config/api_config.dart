@@ -58,11 +58,17 @@ class ApiConfig {
 
   /// Legal page in the language the app is currently showing.
   ///
-  /// The pages are plain HTML the backend serves, so the language has to be
-  /// chosen when the link is opened — this keeps the drawer, the sign-up form
-  /// and the consent gate consistent with the app language.
+  /// The pages are plain HTML served from the FRONT DOOR, not from the API host: the front door is
+  /// always awake, and a new shop reads the terms before it can create an account — the worst
+  /// moment to meet a cold start. The API host still redirects the old paths, so builds that
+  /// predate this change reach the same text.
+  static const String legalBaseUrl =
+      'https://drink-quick-cal.mbundaderick.workers.dev';
+
+  /// The language has to be chosen when the link is opened — this keeps the drawer, the sign-up
+  /// form and the consent gate consistent with the app language.
   static String legalPage(String name, {required bool french}) =>
-      '$baseUrl/$name${french ? '.fr' : ''}.html';
+      '$legalBaseUrl/$name${french ? '.fr' : ''}.html';
 
   static String get privacyPolicyForLanguage =>
       legalPage('privacy', french: LanguageService.instance.isFrench);
