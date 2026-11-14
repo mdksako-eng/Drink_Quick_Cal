@@ -63,7 +63,6 @@
   <div class="card">
     <h1 data-en="Download Drink Quick Cal" data-fr="Télécharger Drink Quick Cal"></h1>
     <p class="meta" id="versionLine" data-en="Checking which build is published&hellip;" data-fr="Vérification de la version publiée&hellip;"></p>
-    <p id="notes" class="meta" hidden></p>
     <!-- Shown only when the version check could not reach the server: the page stays up even
          then, and this row says so instead of letting it read as "no build exists". -->
     <div class="row" id="checkRow" hidden>
@@ -170,7 +169,6 @@
     release = r;
     wasUnreachable = false; // the server answered: whatever it said is the truth
     var line = document.getElementById('versionLine');
-    var notes = document.getElementById('notes');
     var button = document.getElementById('downloadBtn');
     var hash = document.getElementById('hash');
     var copy = document.getElementById('copyBtn');
@@ -187,7 +185,6 @@
         button.hidden = true;
         button.setAttribute('aria-disabled', 'true');
       }
-      if (notes) notes.hidden = true;
       if (hash) hash.textContent = none[lang()];
       if (copy) copy.hidden = true;
       return;
@@ -198,11 +195,9 @@
     line.textContent = published[lang()] + r.latestVersion +
       (r.latestBuild ? ' (build ' + r.latestBuild + ')' : '');
 
-    if (notes) {
-      notes.hidden = !r.notes;
-      if (r.notes) notes.textContent = r.notes;
-    }
-
+    // There is deliberately no release-notes line on this page. The notes belong to the dialog the
+    // APP itself shows when it asks the server which build is current — that is where a note
+    // ("install this before Monday") can be acted on. This page has one job: hand over the file.
     if (button) {
       button.hidden = false;
       if (r.downloadUrl) {
@@ -255,9 +250,6 @@
       button.hidden = true;
       button.setAttribute('aria-disabled', 'true');
     }
-    var notes = document.getElementById('notes');
-    if (notes) notes.hidden = true;
-
     // The digest is unknown too, and a placeholder here would look like a real fingerprint.
     var hash = document.getElementById('hash');
     if (hash) hash.textContent = unreachable[lang()];
